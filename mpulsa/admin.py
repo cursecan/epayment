@@ -1,7 +1,9 @@
 from django.contrib import admin
+from import_export.admin import ImportExportModelAdmin
 
 from .models import Operator, PrefixNumber, Product, Transaksi, ResponseTransaksi
 from .forms import ProductForm, TransaksiForm
+from .resources import ProductResource
 
 class PrefixNumberInline(admin.TabularInline):
     model = PrefixNumber
@@ -12,9 +14,10 @@ class OperatorAdmin(admin.ModelAdmin):
     inlines = [PrefixNumberInline]
 
 @admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(ImportExportModelAdmin):
     form = ProductForm
     list_display = ['operator', 'kode_internal', 'nominal', 'price', 'keterangan']
+    resource_class = ProductResource
 
 
 @admin.register(Transaksi)
