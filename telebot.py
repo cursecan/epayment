@@ -32,11 +32,11 @@ def handle(msg):
                     'amount': ivar
                 }
 
-                r = requests.post('http://127.0.0.1/api/pulsa/topup/', data=json.dumps(data), headers={'Content-Type':'application/json'})
+                r = requests.post('http://127.0.0.1:8000/api/pulsa/topup/', data=json.dumps(data), headers={'Content-Type':'application/json'})
                 
                 result = r.json()
                 if 'invalid' in result:
-                    respond_msg = 'Permintaan Gagal.'
+                    respond_msg = result['invalid']
                 else :
                     respond_msg = '*Transaksi {}*\n'.format(result['trx_code'])
                     respond_msg += '_Pembelian {} dengan harga Rp {} pada no. {} sedang diproses. _'.format(result['info'], result['price'],result['phone'])
@@ -50,7 +50,7 @@ def handle(msg):
                     'telegram': chat_id,
                     'email_confirmed': True
                 }
-                url = 'http://127.0.0.1/api/manager/profile/update/{}/'.format(var)
+                url = 'http://127.0.0.1:8000/api/manager/profile/update/{}/'.format(var)
                 r = requests.put(url, data=json.dumps(data), headers={'Content-Type':'application/json'})
                 result = r.json()
 

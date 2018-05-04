@@ -19,7 +19,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from dashboard.views import home as homepage
+
 urlpatterns = [
+    path('', homepage, name='home'),
     path('admin/', admin.site.urls),
     path('pulsa/', include('mpulsa.urls')),
     path('api/pulsa/', include('mpulsa.api.urls')),

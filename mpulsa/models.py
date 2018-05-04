@@ -47,7 +47,7 @@ class Transaksi(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     price = models.PositiveIntegerField(default=0)
     phone = models.CharField(max_length=20)
-    status = models.PositiveSmallIntegerField(default=0)
+    status = models.PositiveSmallIntegerField(choices=status_number, default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     pembukuan = models.ForeignKey(PembukuanTransaksi, on_delete=models.SET_NULL, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)

@@ -4,6 +4,7 @@ from django.contrib.auth.admin import UserAdmin
 
 
 from .models import Profile, PembukuanTransaksi
+from .forms import PembukuanTransaksiForm
 
 
 class ProfileInline(admin.TabularInline):
@@ -15,6 +16,15 @@ class UserAdminCustom(UserAdmin):
     inlines = [ProfileInline]
 
 
+@admin.register(PembukuanTransaksi)
+class PembukuanTransaksiAdmin(admin.ModelAdmin):
+    form = PembukuanTransaksiForm
+    list_display = [
+        'id', 'debit', 'kredit', 'keterangan', 'user', 'timestamp'
+    ]
+
+
+
 admin.site.unregister(User)
 admin.site.register(User, UserAdminCustom)
-admin.site.register(PembukuanTransaksi)
+# admin.site.register(PembukuanTransaksi)

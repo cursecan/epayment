@@ -16,7 +16,7 @@ def generate_prod_code(sender, instance, **kwars):
 
 
 @receiver(post_save, sender=Transaksi)
-def note_to_accounttransaction(sender, instance, created, **kwargs):
+def note_to_accounttransaction(sender, instance, created, update_fields, **kwargs):
     if created :
         pembukuan_obj = PembukuanTransaksi(
             user = instance.user,
@@ -26,6 +26,10 @@ def note_to_accounttransaction(sender, instance, created, **kwargs):
         pembukuan_obj.save()
         instance.pembukuan = pembukuan_obj
         instance.save()
+
+    elif 'status' in update_fields:
+        buku_delete = PembukuanTransaksi.objects.filter(transaksi=instance).delete()
+        
 
 @receiver(post_save, sender=Transaksi)
 def make_transaction_tosb(sender, instance, created, **kwargs):

@@ -1,6 +1,9 @@
 from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
+from django.db.models import Q, F
+
+from datetime import datetime, date
 
 from django.contrib.auth.models import User
 
@@ -63,6 +66,11 @@ class TransaksiCreateApiView(APIView):
             )
             if prod_objs.exists():
                 prod_obj = prod_objs.first()
+
+                trx_prefcek = Transaksi.objects.filter(phone=phone, product=prod_obj, timestamp__date=date.today(), status=0)
+                if trx_prefcek.exists:
+                    return Response({'invalid':'Duplikasi transaksi, silahkan pilih nominal yang lain'}, status=HTTP_400_BAD_REQUEST) # CHECK 2X TRX DALAM 1 NOMIINAL 1 NUMBER
+
                 if user_obj.profile.saldo - prod_obj.price >= -50000:
                     trx_obj = Transaksi.objects.create(
                         user = user_obj, price = prod_obj.price, product=prod_obj,
@@ -78,8 +86,10 @@ class TransaksiCreateApiView(APIView):
                         )
                         serializer = TransaksiListSerializer(trx_obj)
                         return Response(serializer.data, status=HTTP_200_OK)
-
-        return Response({'invalid':1}, status=HTTP_400_BAD_REQUEST)
+                    else :
+                        return Response({'invalid':'Silahkan lakukan pembayaran, karena saldo sudah mencapai limit'}, status=HTTP_400_BAD_REQUEST)
+            return Response({'invalid':'Produk tidak terdaftar'}, status=HTTP_400_BAD_REQUEST)
+        return Response({'invalid':'Telegram anda belum tersinkronisasi, atau user tidak dikenal.'}, status=HTTP_400_BAD_REQUEST)
 
 class TopupCreateApiView(CreateAPIView):
     queryset = Transaksi.objects.all()
