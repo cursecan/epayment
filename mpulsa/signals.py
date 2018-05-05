@@ -27,10 +27,6 @@ def note_to_accounttransaction(sender, instance, created, update_fields, **kwarg
         instance.pembukuan = pembukuan_obj
         instance.save()
 
-    elif 'status' in update_fields:
-        buku_delete = PembukuanTransaksi.objects.filter(transaksi=instance).delete()
-        
-
 @receiver(post_save, sender=Transaksi)
 def make_transaction_tosb(sender, instance, created, **kwargs):
     if created:

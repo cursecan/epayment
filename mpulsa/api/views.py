@@ -68,7 +68,7 @@ class TransaksiCreateApiView(APIView):
                 prod_obj = prod_objs.first()
 
                 trx_prefcek = Transaksi.objects.filter(phone=phone, product=prod_obj, timestamp__date=date.today(), status=0)
-                if trx_prefcek.exists:
+                if trx_prefcek.exists():
                     return Response({'invalid':'Duplikasi transaksi, silahkan pilih nominal yang lain'}, status=HTTP_400_BAD_REQUEST) # CHECK 2X TRX DALAM 1 NOMIINAL 1 NUMBER
 
                 if user_obj.profile.saldo - prod_obj.price >= -50000:
