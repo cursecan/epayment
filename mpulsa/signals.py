@@ -16,7 +16,7 @@ def generate_prod_code(sender, instance, **kwars):
 
 
 @receiver(post_save, sender=Transaksi)
-def note_to_accounttransaction(sender, instance, created, update_fields, **kwargs):
+def note_to_accounttransaction(sender, instance, created, **kwargs):
     if created :
         pembukuan_obj = PembukuanTransaksi(
             user = instance.user,

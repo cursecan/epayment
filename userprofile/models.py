@@ -25,6 +25,8 @@ class Profile(models.Model):
 
 class PembukuanTransaksi(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    parent_id = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
+    seq = models.PositiveSmallIntegerField(default=1)
     debit = models.IntegerField(default=0)
     kredit = models.IntegerField(default=0)
     balance = models.IntegerField(default=0)
