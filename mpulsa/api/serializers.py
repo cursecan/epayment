@@ -15,18 +15,26 @@ class TransaksiListSerializer(serializers.ModelSerializer):
     saldo = serializers.SerializerMethodField()
     nominal = serializers.SerializerMethodField()
     info = serializers.SerializerMethodField()
+    # status = serializers.SerializerMethodField()
     class Meta:
         model = Transaksi
-        fields = ['id', 'trx_code', 'product', 'phone', 'user', 'pembukuan', 'saldo', 'price', 'nominal', 'info']
+        fields = ['id', 'trx_code', 'product', 'phone', 'user', 'pembukuan', 'saldo', 'price', 'nominal', 'info', 'status']
 
     def get_saldo(self, obj):
-        return obj.pembukuan.balance
+        user = obj.user
+        user.refresh_from_db()
+        return user.profile.saldo
 
     def get_nominal(self, obj):
         return obj.product.nominal
     
     def get_info(self, obj):
         return obj.product.keterangan
+
+    # def get_status(self, obj):
+    #     trx = obj
+    #     trx.refresh_from_db()
+    #     return trx.status
 
 
 

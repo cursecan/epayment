@@ -39,7 +39,11 @@ def handle(msg):
                     respond_msg = result['invalid']
                 else :
                     respond_msg = '*Transaksi {}*\n'.format(result['trx_code'])
-                    respond_msg += '_Pembelian {} dengan harga Rp {} pada no. {} sedang diproses. _'.format(result['info'], result['price'],result['phone'])
+                    if result['status'] == 0:
+                        respond_msg += '_Pembelian {} dengan harga Rp {} pada no. {} sedang diproses. _'.format(result['info'], result['price'],result['phone'])
+                    else :
+                        respond_msg += '_Pembelian {} gagal diproses, biaya telah direfund sebesar Rp {}. _'.format(result['info'], result['price'])
+
                     if result['saldo'] > 0 :
                         respond_msg += '_Sisa saldo anda adalah Rp {}._'.format(result['saldo'])
                     else :

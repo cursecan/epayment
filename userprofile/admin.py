@@ -20,7 +20,7 @@ class UserAdminCustom(UserAdmin):
 class PembukuanTransaksiAdmin(admin.ModelAdmin):
     form = PembukuanTransaksiForm
     list_display = [
-        'id', 'debit', 'kredit', 'keterangan', 'user', 'timestamp'
+        'id', 'debit', 'kredit', 'balance', 'keterangan', 'user','parent_id','seq', 'timestamp'
     ]
 
 

@@ -17,4 +17,4 @@ class ProductForm(forms.ModelForm):
 class TransaksiForm(forms.ModelForm):
     class Meta:
         model = Transaksi
-        fields = ['trx_code', 'status']
+        fields = ['status']

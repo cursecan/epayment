@@ -32,4 +32,4 @@ class TransaksiAdmin(ImportExportModelAdmin):
 
 # admin.site.register(Product)
 # admin.site.register(Transaksi)
-# admin.site.register(ResponseTransaksi)
+admin.site.register(ResponseTransaksi)

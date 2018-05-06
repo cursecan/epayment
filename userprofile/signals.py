@@ -20,6 +20,6 @@ def initial_profile(sender, instance, created, **kwargs):
             user=instance,
         )
 
-@receiver(pre_delete, sender=PembukuanTransaksi)
-def delete_failed_trx(sender, instance, **kwargs):
-    profile_objs = Profile.objects.filter(user=instance.user).update(saldo=F('saldo')+instance.kredit)
+# @receiver(pre_delete, sender=PembukuanTransaksi)
+# def delete_failed_trx(sender, instance, **kwargs):
+#     profile_objs = Profile.objects.filter(user=instance.user).update(saldo=F('saldo')+instance.kredit)

@@ -71,7 +71,7 @@ class ResponseTransaksi(models.Model):
     info = models.CharField(max_length=200, blank=True)
     product_code = models.CharField(max_length=20, blank=True)
     trxtime = models.CharField(max_length=50, blank=True)
-    nohp = models.CharField(max_length=30)
+    nohp = models.CharField(max_length=30, blank=True)
     serial_no = models.CharField(max_length=100, blank=True)
     price = models.PositiveIntegerField(default=0)
     balance = models.PositiveIntegerField(default=0)
