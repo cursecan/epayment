@@ -1,13 +1,19 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
-from mpulsa.models import Product, Transaksi
+from mpulsa.models import Product, Transaksi, Operator
 
 # SERIALIZER LIST PRODUK
 class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'kode_internal', 'nominal', 'price']
+        fields = ['id', 'kode_internal', 'nominal', 'price', 'keterangan']
+
+
+class OperatorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Operator
+        fields = ['id','kode', 'operator']
 
 
 # SERIALIZER LIST TRANSAKSI
@@ -44,5 +50,3 @@ class TopupSerializer(serializers.ModelSerializer):
         model = Transaksi
         fields = ['phone', 'product', 'user']
 
-    def create(self, validated_data):
-        pass

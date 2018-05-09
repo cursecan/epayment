@@ -4,5 +4,5 @@ from . import views
 app_name = 'userprofile_api'
 urlpatterns = [
     path('profile/update/<str:token_code>/', views.ProfileUpdateView.as_view(), name='update-profile'),
-    
+    path('user/', views.UserListView.as_view(), name='user'),
 ]

@@ -13,6 +13,7 @@ class Profile(models.Model):
     agen = models.BooleanField(default=False)
     email_confirmed = models.BooleanField(default=False)
     token_code = models.CharField(max_length=10, blank=True)
+    limit = models.IntegerField(default=-50000)
 
     def __str__(self):
         return str(self.user)

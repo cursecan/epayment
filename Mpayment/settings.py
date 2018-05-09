@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'userprofile',
     'mpulsa',
     'dashboard',
+    'epln',
+    'etransport',
 ]
 
 MIDDLEWARE = [
@@ -150,3 +152,8 @@ MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'env_root', 'media_root')
 SIAPBAYAR_ID = config('SIAPBAYAR_ID')
 SIAPBAYAR_PASS = config('SIAPBAYAR_PASS')
 SIAP_URL = config('SIAP_URL')
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100
+}

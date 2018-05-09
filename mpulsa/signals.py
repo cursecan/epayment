@@ -9,13 +9,14 @@ from .models import Product, Transaksi, ResponseTransaksi
 from userprofile.models import PembukuanTransaksi
 
 
+# create automate produk kode
 @receiver(pre_save, sender=Product)
 def generate_prod_code(sender, instance, **kwars):
     if instance.kode_internal is None or instance.kode_internal == '':
         instance.kode_internal = '{}{}'.format(instance.operator.kode, int(instance.nominal/1000))
 
 
-
+# precess recording transaksi
 @receiver(post_save, sender=Transaksi)
 def transaction_recording(sender, instance, created, update_fields=[], **kwargs):
     if created :
@@ -69,6 +70,8 @@ def transaction_recording(sender, instance, created, update_fields=[], **kwargs)
             response_code=rjson.get('rc',''),
         )
 
+
+        # update instanly status transaksi if failed
         if response_trx.response_code in ['99','10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
             instance.status = 9
             instance.save(update_fields=['status'])
@@ -81,6 +84,8 @@ def transaction_recording(sender, instance, created, update_fields=[], **kwargs)
             # # except:
             # #     pass
 
+
+    # jika updatetable
     else :
         # update in admin to gagal transaksi    
         user = instance.user

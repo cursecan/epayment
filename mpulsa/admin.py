@@ -5,6 +5,10 @@ from .models import Operator, PrefixNumber, Product, Transaksi, ResponseTransaks
 from .forms import ProductForm, TransaksiForm
 from .resources import ProductResource, TransaksiResource
 
+def make_published(modeladmin, request, queryset):
+    queryset.update(active=True)
+make_published.short_description = "Mark selected product as published"
+
 class PrefixNumberInline(admin.TabularInline):
     model = PrefixNumber
     extra = 1
@@ -16,9 +20,10 @@ class OperatorAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(ImportExportModelAdmin):
     form = ProductForm
-    list_display = ['operator', 'kode_internal', 'nominal', 'price', 'keterangan']
+    list_display = ['operator', 'kode_internal', 'nominal', 'price', 'keterangan', 'active']
     resource_class = ProductResource
     list_filter = ['operator']
+    actions = [make_published]
 
 
 @admin.register(Transaksi)

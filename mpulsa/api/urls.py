@@ -4,8 +4,9 @@ from . import views
 
 app_name = 'saldo_api'
 urlpatterns = [
+    path('operator/', views.OperatorListAPI.as_view(), name='operator'),
     path('produk/', views.ProductListApi.as_view(), name='produk'),
+    path('produks/', views.ProductListingApi.as_view(), name='produk_list'),
     path('transaksi/', views.TransaksiListApi.as_view(), name='transaksi'),
-    path('topup/', views.TransaksiCreateApiView.as_view(), name='topup'),
-    path('topup2/', views.TopupCreateApiView.as_view(), name='topup2'),
+    path('topup/', views.TopupCreateApiView.as_view(), name='topup'),
 ]

@@ -1,30 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from userprofile.models import PembukuanTransaksi
 
+from userprofile.models import PembukuanTransaksi
 from .utils import generate_pulsa_trx
 
 
 class Operator(models.Model):
-    kode = models.CharField(max_length=3, unique=True)
+    kode = models.CharField(max_length=10, unique=True)
     operator = models.CharField(max_length=50)
 
     def __str__(self):
         return '{} ({})'.format(self.operator, self.kode)
-
-
-class PrefixNumber(models.Model):
-    operator = models.ForeignKey(Operator, on_delete=models.CASCADE)
-    prefix = models.CharField(max_length=4, unique=True)
-
-    def __str__(self):
-        return self.prefix
-
-
-class ActiveProdukmanager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(active=True)
 
 
 class Product(models.Model):
@@ -35,18 +22,11 @@ class Product(models.Model):
     kode_external = models.CharField(max_length=15)
     price_beli = models.PositiveIntegerField()
     keterangan = models.CharField(max_length=200, blank=True)
-    active = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
-
-    objects = models.Manager()
-    active_product = ActiveProdukmanager()
     
     def __str__(self):
         return self.kode_internal
-
-    class Meta:
-        ordering = ['operator', 'nominal']
 
 
 class Transaksi(models.Model):
@@ -60,17 +40,17 @@ class Transaksi(models.Model):
     price = models.PositiveIntegerField(default=0)
     phone = models.CharField(max_length=20)
     status = models.PositiveSmallIntegerField(choices=status_number, default=0)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
-    pembukuan = models.ForeignKey(PembukuanTransaksi, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1, related_name='usertrans')
+    pembukuan = models.ForeignKey(PembukuanTransaksi, on_delete=models.SET_NULL, null=True, related_name='bukutrans')
     timestamp = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.trx_code
 
-    def get_response(self):
-        r = ResponseTransaksi.objects.get(trx=self)
-        return r.response_code
+    # def get_response(self):
+    #     r = ResponseTransaksi.objects.get(trx=self)
+    #     return r.response_code
 
     def save(self, *args, **kwargs):
         if self.trx_code is None or self.trx_code == '':
