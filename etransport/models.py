@@ -13,6 +13,10 @@ class Operator(models.Model):
     def __str__(self):
         return '{} ({})'.format(self.operator, self.kode)
 
+class ActiveProdukmanager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(active=True)
+
 
 class Product(models.Model):
     kode_internal = models.CharField(max_length=10, blank=True)
@@ -24,6 +28,10 @@ class Product(models.Model):
     keterangan = models.CharField(max_length=200, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
+    active = models.BooleanField(default=False)
+    
+    objects = models.Manager()
+    active_product = ActiveProdukmanager()
     
     def __str__(self):
         return self.kode_internal
@@ -48,9 +56,9 @@ class Transaksi(models.Model):
     def __str__(self):
         return self.trx_code
 
-    # def get_response(self):
-    #     r = ResponseTransaksi.objects.get(trx=self)
-    #     return r.response_code
+    def get_response(self):
+        r = ResponseTransaksi.objects.get(trx=self)
+        return r.response_code
 
     def save(self, *args, **kwargs):
         if self.trx_code is None or self.trx_code == '':

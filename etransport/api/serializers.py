@@ -12,6 +12,5 @@ class ProdukSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['id', 'kode_internal', 'keterangan', 'price']
 
-    
 
 

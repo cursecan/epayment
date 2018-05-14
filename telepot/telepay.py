@@ -31,8 +31,24 @@ def all_pulsa_prod():
     return [i['kode_internal'] for i in rson['results']]
 
 
+def all_etrans_op():
+    url = _URL+'api/etrans/operator/'
+    r = requests.get(url)
+    rson = r.json()
+    return [i['kode'] for i in rson['results']]
+
+def all_etrans_prod():
+    url = _URL+'api/etrans/produk/'
+    r = requests.get(url)
+    rson = r.json()
+    print('proses request produk')
+    return [i['kode_internal'] for i in rson['results']]
+
+
 PULSA_OP = all_pulsa_op()
 PULSA_PROD = all_pulsa_prod()
+ETRANS_OP = all_etrans_op()
+ETRANS_PROD = all_etrans_prod()
 
 
 class Epaybot(telepot.helper.ChatHandler):
@@ -53,8 +69,8 @@ class Epaybot(telepot.helper.ChatHandler):
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
-                    InlineKeyboardButton(text='LIST PRODUK', callback_data='pulsa'),
-                    # InlineKeyboardButton(text='e-Payment', callback_data='epay')
+                    InlineKeyboardButton(text='PULSA', callback_data='pulsa'),
+                    InlineKeyboardButton(text='E-PAYMENT', callback_data='etrans')
                 ]
             ]
         )
@@ -68,6 +84,22 @@ class Epaybot(telepot.helper.ChatHandler):
 
     def pulsa_operator(self):
         url = _URL+'api/pulsa/operator/'
+        r = requests.get(url)
+        rson = r.json()
+        board = []
+        for i in rson['results']:
+            board.append(
+                InlineKeyboardButton(text=i.get('operator'), callback_data=i.get('kode'))
+            )
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard = group_li(board, 3)
+        )
+        sent = self.bot.editMessageReplyMarkup(self._edit_mgs_ident, reply_markup=keyboard)
+        self._editor = telepot.helper.Editor(self.bot, sent)
+        self._edit_mgs_ident = telepot.message_identifier(sent)
+
+    def etrans_operator(self):
+        url = _URL+'api/etrans/operator/'
         r = requests.get(url)
         rson = r.json()
         board = []
@@ -101,6 +133,24 @@ class Epaybot(telepot.helper.ChatHandler):
         self._editor = telepot.helper.Editor(self.bot, sent)
         self._edit_mgs_ident = telepot.message_identifier(sent)
 
+    def etrans_produk(self, val):
+        url = _URL+'api/etrans/produk/?op='+val
+        r = requests.get(url)
+        rson = r.json()
+        board = []
+
+        for i in rson['results']:
+            board.append(
+                InlineKeyboardButton(text=i.get('keterangan'), callback_data=i.get('kode_internal'))
+            )
+
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard = group_li(board,2)
+        )
+        sent = self.bot.editMessageReplyMarkup(self._edit_mgs_ident, reply_markup=keyboard)
+        self._editor = telepot.helper.Editor(self.bot, sent)
+        self._edit_mgs_ident = telepot.message_identifier(sent)
+
 
     def broadcast_msg(self, msg):
         users = self.get_all_user()
@@ -113,6 +163,12 @@ class Epaybot(telepot.helper.ChatHandler):
 
     def pulsa_harga(self, val):
         url = _URL+'api/pulsa/produks/?kd='+val
+        r = requests.get(url)
+        rson = r.json()
+        self.sender.sendMessage('*Ketik:*\n/{}#no.handphone'.format(rson['results'][0]['kode_internal']), parse_mode='Markdown')
+
+    def etrans_harga(self, val):
+        url = _URL+'api/etrans/produk-detail/?kd='+val
         r = requests.get(url)
         rson = r.json()
         self.sender.sendMessage('*Ketik:*\n/{}#no.handphone'.format(rson['results'][0]['kode_internal']), parse_mode='Markdown')
@@ -136,6 +192,16 @@ class Epaybot(telepot.helper.ChatHandler):
         rson = r.json()
         self.fedback_message(rson)
 
+    def topup_etrans(self, code, val, chat_id):
+        payload = {
+            'telegram': chat_id,
+            'produk': code,
+            'phone': val
+        }
+        r = requests.post(_URL+'api/etrans/topup/', data=json.dumps(payload), headers={'Content-Type':'application/json'})
+        rson = r.json()
+        self.fedback_message(rson)
+
     def fedback_message(self, rson):
         if rson['code'] == 0:
             self.sender.sendMessage(
@@ -152,6 +218,21 @@ class Epaybot(telepot.helper.ChatHandler):
             )
 
 
+    def integrate_telegram(self, chat_id, val):
+        payload = {
+            'telegram': chat_id,
+            'email_confirmed' : True
+        }
+        r = requests.put(_URL+'api/manager/profile/update/{}/'.format(val), data=json.dumps(payload), headers={'Content-Type':'application/json'})
+        rson = r.json()
+        result = rson.get('detail', None)
+        if result:
+            self.sender.sendMessage('Maaf kode yang anda masukan salah, silahkan masukan kode dengan benar.')
+        else :
+            self.sender.sendMessage('*Sinkronisasi berhasil*, telegram anda telah terdaftar.', parse_mode='Markdown')
+
+
+
     def on_chat_message(self, msg):
         content_type, chat_type, chat_id = telepot.glance(msg)
         if content_type != 'text':
@@ -162,13 +243,27 @@ class Epaybot(telepot.helper.ChatHandler):
             self.broadcast_msg(msg)
             return
 
-        txt = msg['text'].upper()
-        com = re.match(r'^/(\w+)#(\d+)', txt)
+        com = re.match(r'^/(\w+) (\d+)', msg['text'])
         if com :
             arg1 = com.group(1)
             arg2 = com.group(2)
+            if arg1 == 'code':
+                    self.integrate_telegram(chat_id, arg2)
+                    return
+
+        txt = msg['text'].upper()
+        com = re.match(r'^/(\w+)#(\d+)', txt)
+
+        if com :
+            arg1 = com.group(1)
+            arg2 = com.group(2)
+
             if arg1 in PULSA_PROD:
                 self.topup_pulsa(arg1, arg2, chat_id)
+                return
+
+            if arg1 in ETRANS_PROD:
+                self.topup_etrans(arg1, arg2, chat_id)
                 return
         
 
@@ -185,12 +280,24 @@ class Epaybot(telepot.helper.ChatHandler):
             self.pulsa_operator()
             return
 
+        if query_data == 'etrans':
+            self.etrans_operator()
+            return
+
         if query_data in PULSA_OP:
             self.pulsa_produk(val=query_data)
             return
 
+        if query_data in ETRANS_OP:
+            self.etrans_produk(val=query_data)
+            return
+
         if query_data in PULSA_PROD:
             self.pulsa_harga(val=query_data)
+            return
+
+        if query_data in ETRANS_PROD:
+            self.etrans_harga(val=query_data)
             return
 
     def on__idle(self, event):
