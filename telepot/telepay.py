@@ -325,5 +325,3 @@ print('Listening ...')
 while 1:
     time.sleep(10)
 
-# TOKEN = '433464639:AAFInCWL9F91LVPeABrkgW9OSL_f7GNKysA'  # get token from command-line
-

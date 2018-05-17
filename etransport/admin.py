@@ -16,7 +16,7 @@ make_published.short_description = "Mark selected product as published"
 @admin.register(Product)
 class ProductAdmin(ImportExportModelAdmin):
     form = ProductForm
-    list_display = ['operator', 'kode_internal', 'nominal', 'price', 'keterangan', 'active']
+    list_display = ['id','operator', 'kode_internal', 'nominal', 'price', 'keterangan', 'parse_text', 'active']
     resource_class = ProductResource
     list_filter = ['operator']
     actions = [make_published]

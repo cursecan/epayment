@@ -7,13 +7,15 @@ class ProductResource(resources.ModelResource):
     operator = fields.Field(column_name='operator', attribute='operator', widget=ForeignKeyWidget(Operator, 'kode'))
     class Meta:
         model = Product
-        import_id_fields = ('kode_internal',)
+        # import_id_fields = ('kode_internal',)
         fields = [
-            'kode_internal','operator','nominal','price',
-            'kode_external','price_beli','keterangan'
+            'id',
+            'kode_internal','operator','type_layanan','nominal','price',
+            'kode_external','price_beli','keterangan', 'parse_text'
         ]
         skip_unchanged = True
         report_skipped = False
+        export_order = ('id',)
 
 
 class TransaksiResource(resources.ModelResource):

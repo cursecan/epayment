@@ -25,12 +25,19 @@ class Profile(models.Model):
 
 
 class PembukuanTransaksi(models.Model):
+    TYPE_LIST = (
+        (1, 'Topup saldo'),
+        (2, 'Reversed'),
+        (9, 'Success'),
+        (3, 'Failed')
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     parent_id = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
     seq = models.PositiveSmallIntegerField(default=1)
     debit = models.IntegerField(default=0)
     kredit = models.IntegerField(default=0)
     balance = models.IntegerField(default=0)
+    status_type = models.PositiveSmallIntegerField(choices=TYPE_LIST, default=9)
     keterangan = models.CharField(max_length=200, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 

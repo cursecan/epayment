@@ -7,7 +7,7 @@ from .utils import generate_pulsa_trx
 
 
 class Operator(models.Model):
-    kode = models.CharField(max_length=3, unique=True)
+    kode = models.CharField(max_length=20, unique=True)
     operator = models.CharField(max_length=50)
 
     def __str__(self):
@@ -28,13 +28,19 @@ class ActiveProdukmanager(models.Manager):
 
 
 class Product(models.Model):
-    kode_internal = models.CharField(max_length=10, blank=True)
+    LAYANAN_LIST = (
+        ('D', 'DATA'),
+        ('P', 'PULSA')
+    )
+    kode_internal = models.CharField(max_length=50, blank=True)
     operator = models.ForeignKey(Operator, on_delete=models.CASCADE)
+    type_layanan = models.CharField(max_length=2, choices=LAYANAN_LIST, default='P')
     nominal = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
     kode_external = models.CharField(max_length=15)
     price_beli = models.PositiveIntegerField()
     keterangan = models.CharField(max_length=200, blank=True)
+    parse_text = models.CharField(max_length=200, blank=True)
     active = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
@@ -44,9 +50,6 @@ class Product(models.Model):
     
     def __str__(self):
         return self.kode_internal
-
-    class Meta:
-        ordering = ['operator', 'nominal']
 
 
 class Transaksi(models.Model):

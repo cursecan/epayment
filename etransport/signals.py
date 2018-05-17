@@ -94,10 +94,11 @@ def transaction_recording(sender, instance, created, update_fields=[], **kwargs)
                 user = user,
                 parent_id = instance.pembukuan,
                 seq = instance.pembukuan.seq +1,
-                debit = instance.pembukuan.kredit,
+                kredit = -instance.pembukuan.kredit,
                 balance = user.profile.saldo + instance.pembukuan.kredit,
-                keterangan = 'Transaksi gagal'
+                status_type = 2
             )
+            PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)
         else :
             # update in form
             if 'status' in update_fields:
@@ -105,7 +106,8 @@ def transaction_recording(sender, instance, created, update_fields=[], **kwargs)
                     user = user,
                     parent_id = instance.pembukuan,
                     seq = instance.pembukuan.seq +1,
-                    debit = instance.pembukuan.kredit,
+                    kredit = -instance.pembukuan.kredit,
                     balance = user.profile.saldo + instance.pembukuan.kredit,
-                    keterangan = 'Transaksi gagal'
+                    status_type = 2
                 )
+                PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)

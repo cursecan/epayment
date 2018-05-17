@@ -26,6 +26,7 @@ class Product(models.Model):
     kode_external = models.CharField(max_length=15)
     price_beli = models.PositiveIntegerField()
     keterangan = models.CharField(max_length=200, blank=True)
+    parse_text = models.CharField(max_length=200, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=False)

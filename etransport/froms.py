@@ -12,7 +12,7 @@ from .models import Transaksi, Product
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['operator', 'nominal', 'price', 'kode_external', 'price_beli', 'keterangan']
+        fields = ['operator','kode_internal', 'nominal', 'price', 'kode_external', 'price_beli', 'keterangan', 'parse_text']
 
 class TransaksiForm(forms.ModelForm):
     class Meta:

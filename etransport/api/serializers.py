@@ -10,7 +10,7 @@ class OperatorSerializer(serializers.ModelSerializer):
 class ProdukSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'kode_internal', 'keterangan', 'price']
+        fields = ['id', 'kode_internal','nominal', 'keterangan', 'price', 'parse_text']
 
 
 

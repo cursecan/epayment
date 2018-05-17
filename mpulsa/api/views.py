@@ -38,7 +38,7 @@ class ProductListingApi(ListAPIView):
     permission_classes = [AllowAny]
 
     def get_queryset(self, *args, **kwargs):
-        list_query = Product.active_product.all()
+        list_query = Product.active_product.all().order_by('operator', 'type_layanan', 'nominal')
         op = self.request.GET.get('op', None)
         kode = self.request.GET.get('kd', None)
         if kode:
