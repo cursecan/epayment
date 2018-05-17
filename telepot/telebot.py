@@ -17,7 +17,7 @@ def group_li(li, n):
     return [li[i:i+n] for i in range(0, len(li), n)]
 
 
-MAIN_Q = ('PULSA', 'TOPUP')
+MAIN_Q = ('PULSA', 'TOPUP', 'LISTRIK')
 
 
 class Epaybot(telepot.helper.ChatHandler):
@@ -42,6 +42,7 @@ class Epaybot(telepot.helper.ChatHandler):
         self._list_topup_op = self.all_topup_operator()
         self._list_pulsa_prod = self.all_pulsa_prod()
         self._list_topup_prod = self.all_topup_prod()
+        self._list_listrik_prod = self.all_listrik_prod()
 
 
     # MENU UTAMA 
@@ -51,6 +52,9 @@ class Epaybot(telepot.helper.ChatHandler):
                 [
                     InlineKeyboardButton(text='PULSA & DATA', callback_data='PULSA'),
                     InlineKeyboardButton(text='TOPUP', callback_data='TOPUP')
+                ],
+                [
+                    InlineKeyboardButton(text='CEK SALDO', callback_data='saldo'),
                 ]
             ]
         )
@@ -65,11 +69,38 @@ class Epaybot(telepot.helper.ChatHandler):
         self._keyboard = [keyboard]
 
 
+    # CEK SALDO
+    def cek_saldo(self, telid):
+        url = _URL+'api/manager/user/?t='+str(telid)
+        r = requests.get(url)
+        rson = r.json()
+        if len(rson) == 1:
+            saldo = rson[0]['saldo']
+            name = rson[0]['first_name']
+            sent = self.sender.sendMessage(
+                'Pelanggan Yth, {}\nSaldo simpanan anda saat ini Rp {}'.format(name, saldo)
+            )
+        else :
+            sent = self.sender.sendMessage(
+                'Maaf anda belum terdaftar'
+            )
+
+        self._editor_2 = telepot.helper.Editor(self.bot, sent)
+        self._edit_mgs_ident_2 = telepot.message_identifier(sent)
+
+
     # BACK BUTTON
     def return_back(self, keyboard):
         sent = self.bot.editMessageReplyMarkup(self._edit_mgs_ident, reply_markup=keyboard)
         self._editor = telepot.helper.Editor(self.bot, sent)
         self._edit_mgs_ident = telepot.message_identifier(sent)
+
+
+    # LIST PRODUK LISTRIK
+    def all_listrik_prod(self):
+        url = _URL+'api/pln/produk/'
+        r = requests.get(url)
+        return [i['kode_produk'] for i in r.json()]
 
 
     # LIST PRODUK PULSA
@@ -123,6 +154,11 @@ class Epaybot(telepot.helper.ChatHandler):
                 InlineKeyboardButton(text=i.get('operator'), callback_data=i.get('kode'))
             )
 
+        if qs == 'TOPUP':
+            board.append(
+                InlineKeyboardButton(text='TOKEN LISTRIK', callback_data='listrik')
+            )
+
         board.append(
             InlineKeyboardButton(text='< BACK >', callback_data='backbutton')
         )
@@ -160,6 +196,29 @@ class Epaybot(telepot.helper.ChatHandler):
         self._keyboard.append(keyboard)
 
 
+    def listrik_produk(self):
+        url = _URL+'api/pln/produk/'
+        r = requests.get(url)
+        board = []
+        for i in r.json():
+            board.append(
+                InlineKeyboardButton(text=i.get('parse_text'), callback_data=i.get('kode_produk'))
+            )
+        
+        board.append(
+            InlineKeyboardButton(text='< BACK >', callback_data='backbutton')
+        )
+
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard = group_li(board,2)
+        )
+        sent = self.bot.editMessageReplyMarkup(self._edit_mgs_ident, reply_markup=keyboard)
+        self._editor = telepot.helper.Editor(self.bot, sent)
+        self._edit_mgs_ident = telepot.message_identifier(sent)
+        self._keyboard.append(keyboard)
+
+    
+
     # ALL PRODUK TOPUP
     def topup_produk(self, val):
         url = _URL+'api/etrans/produk/?op='+val
@@ -171,9 +230,11 @@ class Epaybot(telepot.helper.ChatHandler):
                 InlineKeyboardButton(text=i.get('parse_text'), callback_data=i.get('kode_internal'))
             )
 
+
         board.append(
             InlineKeyboardButton(text='< BACK >', callback_data='backbutton')
         )
+
 
         keyboard = InlineKeyboardMarkup(
             inline_keyboard = group_li(board,2)
@@ -204,7 +265,7 @@ class Epaybot(telepot.helper.ChatHandler):
         url = _URL+'api/pulsa/produks/?kd='+val
         r = requests.get(url)
         rson = r.json()
-        info_prod = '<b>{} harga Rp {}.</b>\nKetikan nomor handpone tujuan.'.format(rson[0]['keterangan'], rson[0]['price'])
+        info_prod = '<b>{} harga Rp {}.</b>\nKetikan No.Handpone tujuan.\n<i>Contoh : 0822187111</i>'.format(rson[0]['keterangan'], rson[0]['price'])
         sent = self.sender.sendMessage(info_prod, parse_mode='HTML')
         self._editor_2 = telepot.helper.Editor(self.bot, sent)
         self._edit_mgs_ident_2 = telepot.message_identifier(sent)
@@ -215,7 +276,17 @@ class Epaybot(telepot.helper.ChatHandler):
         url = _URL+'api/etrans/produk-detail/?kd='+val
         r = requests.get(url)
         rson = r.json()
-        info_prod = '<b>{} harga Rp {}.</b>\nKetikan nomor handpone tujuan.'.format(rson[0]['keterangan'], rson[0]['price'])
+        info_prod = '<b>{} harga Rp {}.</b>\nKetikan No.Handpone tujuan.\n<i>Contoh : 0822187111</i>'.format(rson[0]['keterangan'], rson[0]['price'])
+        sent = self.sender.sendMessage(info_prod, parse_mode='HTML')
+        self._editor_2 = telepot.helper.Editor(self.bot, sent)
+        self._edit_mgs_ident_2 = telepot.message_identifier(sent)
+
+
+    def listrik_detail_prod(self, val):
+        url = _URL+'api/pln/produk/?p='+val
+        r = requests.get(url)
+        rson = r.json()
+        info_prod = '<b>{} harga Rp {}.</b>\nKetikan No.PLN dan No.Handphone dipisah dengan tanda #.\n<i>Contoh : 14021894085#081397382353</i>'.format(rson[0]['nama_produk'], rson[0]['price'])
         sent = self.sender.sendMessage(info_prod, parse_mode='HTML')
         self._editor_2 = telepot.helper.Editor(self.bot, sent)
         self._edit_mgs_ident_2 = telepot.message_identifier(sent)
@@ -243,19 +314,31 @@ class Epaybot(telepot.helper.ChatHandler):
         self.fedback_message(rson)
 
 
+    def topup_listrik(self, code, acc, phone, chat_id):
+        payload = {
+            'telegram': chat_id,
+            'produk': code,
+            'account': acc,
+            'phone': phone
+        }
+
+        r = requests.post(_URL+'api/pln/topup/', data=json.dumps(payload), headers={'Content-Type':'application/json'})
+        rson = r.json()
+        self.fedback_message(rson)
+
     # MESSAGE FEEDBACK
     def fedback_message(self, rson):
         if rson['code'] == 0:
             self.sender.sendMessage(
-                '*Transaksi {}*\nPembelian {} dengan harga Rp {} pada nomor {} dalam process. Saldo anda saat ini adalah Rp {}.'.format(
+                'TRANSAKSI {}\n<i>Pembelian {} dengan harga Rp {} pada nomor {} dalam process. Saldo anda saat ini adalah Rp {}.</i>'.format(
                     rson.get('trx'), rson.get('produk'), rson.get('price'),
                     rson.get('phone'), rson.get('saldo')
                 ), parse_mode='Markdown'
             )
         else :
             self.sender.sendMessage(
-                '*Transaksi {}*\n{}'.format(
-                    rson.get('trx', 'Gagal'), rson.get('status')
+                'TRANSAKSI {}\n<i>{}</i>'.format(
+                    rson.get('trx', 'GAGAL'), rson.get('status')
                 ),  parse_mode='Markdown'
             )
 
@@ -292,7 +375,12 @@ class Epaybot(telepot.helper.ChatHandler):
 
         if '/broadcast' in msg['text']:
             code , data = msg['text'].split(' ', 1)
-            self.broadcast_msg(msg)
+            self.broadcast_msg(data)
+            return
+
+        if '/code' in msg['text']:
+            code , data = msg['text'].split(' ', 1)
+            self.integrate_telegram(chat_id, data)
             return
 
         if self._code != None:
@@ -302,6 +390,7 @@ class Epaybot(telepot.helper.ChatHandler):
                 if not valid:
                     self.sender.sendMessage('Silahkan masukan nomor handphone anda dengan benar.')
                     return
+                self.sender.sendMessage('Mohon tunggu transaksi anda sedang diproses.')
                 self.topup_pulsa(self._code, data, chat_id)
                 self._code = None
                 self._editor_2 = None
@@ -313,7 +402,23 @@ class Epaybot(telepot.helper.ChatHandler):
                 if not valid:
                     self.sender.sendMessage('Silahkan masukan nomor handphone anda dengan benar.')
                     return
+                self.sender.sendMessage('Mohon tunggu transaksi anda sedang diproses.')
                 self.topup_etrans(self._code, data, chat_id)
+                self._code = None
+                self._editor_2 = None
+                self._edit_mgs_ident_2 = None
+                self.close()
+                return
+            if self._code in self._list_listrik_prod:
+                valid = re.match(r'^(\d+)#(08\d+)$', data)
+                if not valid:
+                    self.sender.sendMessage('Silahkan masukan nomor handphone anda dengan benar.')
+                    return
+                self.sender.sendMessage('Mohon tunggu transaksi anda sedang diproses.')
+                acc = valid.group(1)
+                phone = valid.group(2)
+                    
+                self.topup_listrik(self._code, acc, phone, chat_id)
                 self._code = None
                 self._editor_2 = None
                 self._edit_mgs_ident_2 = None
@@ -340,6 +445,11 @@ class Epaybot(telepot.helper.ChatHandler):
                 self._code = None
                 return
 
+            if query_data == 'saldo':
+                self._cancel_last()
+                self.cek_saldo(from_id)
+                return
+
             if query_data in MAIN_Q:
                 self.get_operator(query_data)
                 self._level += 1
@@ -347,6 +457,12 @@ class Epaybot(telepot.helper.ChatHandler):
                 return
 
             if self._level == 2:
+                if query_data == 'listrik':
+                    self.listrik_produk()
+                    self._level += 1
+                    self._code = None
+                    return
+
                 if query_data in self._list_pulsa_op:
                     self.pulsa_produk(val=query_data)
                     self._level += 1
@@ -360,6 +476,12 @@ class Epaybot(telepot.helper.ChatHandler):
                     return
 
             if self._level == 3:
+                if query_data in self._list_listrik_prod:
+                    self._cancel_last()
+                    self.listrik_detail_prod(val=query_data)
+                    self._code = query_data
+                    return
+
                 if query_data in self._list_pulsa_prod:
                     self._cancel_last()
                     self.pulsa_detail_prod(val=query_data)
