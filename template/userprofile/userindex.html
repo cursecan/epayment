@@ -1,8 +1,50 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
+{% block css %}
+    <style>
+    .adbase .ui.container {
+        margin-bottom: 15px;
+    }
+    </style>
+{% endblock %}
 
 {% block content %}
-<div class="ui vertical segment" style="margin-top:70px">
+<div class="ui vertical adbase segment" style="margin-top:70px">
+    <div class="ui container">
+        <div class="ui tiny blue statistic">
+            <div class="label">
+                Total Selling
+            </div>
+            <div class="value">
+                {{ laporan.t_success|default_if_none:0|intcomma }}
+            </div>
+        </div>
+        <div class="ui tiny teal statistic">
+            <div class="label">
+                Total Collection
+            </div>
+            <div class="value">
+                {{ laporan.t_topup|default_if_none:0|intcomma }}
+            </div>
+        </div>
+        <div class="ui tiny orange statistic">
+            <div class="label">
+                Total Failed
+            </div>
+            <div class="value">
+                {{ laporan.t_failed|default_if_none:0|intcomma }}
+            </div>
+        </div>
+        <div class="ui tiny orange statistic">
+            <div class="label">
+                Total Reverse
+            </div>
+            <div class="value">
+                {{ laporan.t_reverse|default_if_none:0|intcomma }}
+            </div>
+        </div>
+    </div>
     <div class="ui container">
         <div class="ui three cards">
             <div class="card">
@@ -58,9 +100,7 @@
                 <div class="extra content">
                     <div class="ui two buttons">
                         <a href="{% url 'userprofile:listrik_produk' %}" class="ui basic green button">List Produk</a>
-                        <div class="ui basic red button">
-                            Transaksi
-                        </div>
+                        <a href="{% url 'userprofile:pln_trx' %}" class="ui basic red button">Transaksi</a>
                     </div>
                 </div>
             </div>

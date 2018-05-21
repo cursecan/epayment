@@ -10,11 +10,45 @@ import requests, json
 from mpulsa import models as pulsa_model
 from etransport import models as trans_model
 from epln import models as pln_model
+from .models import PembukuanTransaksi
 
 from .models import Profile
 
 def userindex(request):
+    # selling = 0
+    # profit = 0
+    # t_pulsa = pulsa_model.Transaksi.objects.filter(
+    #     status=0
+    # ).aggregate(
+    #     t_selling = Sum('price'),
+    #     t_price = Sum(F('price') - F('responsetransaksi__price'))
+    # )
+
+    # t_etrans = trans_model.Transaksi.objects.filter(
+    #     status=0
+    # ).aggregate(
+    #     t_selling = Sum('price'),
+    #     t_profit = Sum(F('price') - F('responsetransaksi__price'))
+    # )
+
+    # t_pln = pln_model.Transaksi.objects.filter(
+    #     status=0, request_type='p'
+    # ).aggregate(
+    #     t_selling = Sum('price'),
+    #     t_profit = Sum(F('price') - F('nominal') - 400)
+    # )
+
+    pembukuan_obj = PembukuanTransaksi.objects.aggregate(
+        t_success = Sum('kredit', filter=Q(status_type=9)),
+        t_topup = Sum('debit', filter=Q(status_type=1)),
+        t_failed = Sum('kredit', filter=Q(status_type=3)),
+        t_reverse = Sum('kredit', filter=Q(status_type=2))
+    )
+
+    
+
     content = {
+        'laporan': pembukuan_obj
     }
     return render(request, 'userprofile/userindex.html', content)
 
@@ -95,7 +129,7 @@ def listrikProdView(request):
 
 
 def pulsaTrxView(request):
-    trx_pulsa_list = pulsa_model.Transaksi.objects.all().annotate(
+    trx_pulsa_list = pulsa_model.Transaksi.objects.annotate(
         profit = F('price') - F('responsetransaksi__price')
     )
     page = request.GET.get('page', None)
@@ -108,15 +142,20 @@ def pulsaTrxView(request):
     except EmptyPage:
         trx_objs = paginator.page(paginator.num_pages)
 
+    selling_sumary = trx_pulsa_list.aggregate(
+        t_profit = Sum('profit', filter=Q(status=0)),
+        t_selling = Sum('price', filter=Q(status=0))
+    )
+
     content = {
         'trxs': trx_objs,
-        'profit': trx_pulsa_list.aggregate(t_profit = Sum('profit', filter=Q(status=0)))
+        'profit': selling_sumary
     }
     return render(request, 'userprofile/transaksi.html', content)
 
 
 def transTrxView(request):
-    trx_trans_list = trans_model.Transaksi.objects.all().annotate(
+    trx_trans_list = trans_model.Transaksi.objects.annotate(
         profit = F('price') - F('responsetransaksi__price')
     )
     page = request.GET.get('page', None)
@@ -129,13 +168,44 @@ def transTrxView(request):
     except EmptyPage:
         trx_objs = paginator.page(paginator.num_pages)
 
+    selling_sumary = trx_trans_list.aggregate(
+        t_profit = Sum('profit', filter=Q(status=0)),
+        t_selling = Sum('price', filter=Q(status=0))
+    )
+
     content = {
         'trxs': trx_objs,
-        'profit': trx_trans_list.aggregate(t_profit = Sum('profit', filter=Q(status=0)))
+        'profit': selling_sumary,
     }
     return render(request, 'userprofile/transaksi.html', content)
 
 
+def transListrikView(request):
+    trx_listrik_list = pln_model.Transaksi.objects.filter(
+        request_type = 'p'    
+    ).annotate(
+        profit = F('price') - F('nominal') - 400
+    )
+    page = request.GET.get('page', None)
+
+    paginator = Paginator(trx_listrik_list, 10)
+    try :
+        trx_objs = paginator.page(page)
+    except PageNotAnInteger:
+        trx_objs = paginator.page(1)
+    except EmptyPage:
+        trx_objs = paginator.page(paginator.num_pages)
+
+    selling_sumary = trx_listrik_list.aggregate(
+        t_profit = Sum('profit', filter=Q(status=0)),
+        t_selling = Sum('price', filter=Q(status=0))
+    )
+
+    content = {
+        'trxs': trx_objs,
+        'profit': selling_sumary
+    }
+    return render(request, 'userprofile/transaksi_listrik.html', content)
 
 def checkTrxView(request):
     data_update = []

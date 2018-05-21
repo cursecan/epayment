@@ -41,7 +41,7 @@
                     <tr class="{% if trx.status == 9 %}error{% endif %}">
                         <td>{{ forloop.counter0|add:trxs.start_index }}</td>
                         <td>{{ trx.trx_code }}</td>
-                        <td>{{ trx.product.keterangan }}</td>
+                        <td>{{ trx.product.nama_produk }}</td>
                         <td>{{ trx.price }}</td>
                         <td>{{ trx.phone }}</td>
                         <td>{{ trx.get_status_display }}</td>

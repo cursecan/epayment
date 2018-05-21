@@ -11,6 +11,7 @@ urlpatterns = [
     path('listrik-token/', views.listrikProdView, name='listrik_produk'),
     path('trx/pulsa/', views.pulsaTrxView, name='pulsa_trx'),
     path('trx/etrans/', views.transTrxView, name='trans_trx'),
+    path('trx/pln/', views.transListrikView, name='pln_trx'),
     path('checktrx/', views.checkTrxView, name='checktrx'),
     path('sistemprice/', views.checkHargaView, name='price'),
 ]
