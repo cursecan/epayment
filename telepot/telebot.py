@@ -329,18 +329,31 @@ class Epaybot(telepot.helper.ChatHandler):
     # MESSAGE FEEDBACK
     def fedback_message(self, rson):
         if rson['code'] == 0:
-            self.sender.sendMessage(
-                'TRANSAKSI {}\n<i>Pembelian {} dengan harga Rp {} pada nomor {} dalam process. Saldo anda saat ini adalah Rp {}.</i>'.format(
-                    rson.get('trx'), rson.get('produk'), rson.get('price'),
-                    rson.get('phone'), rson.get('saldo')
-                ), parse_mode='Markdown'
-            )
+            try:
+                self.sender.sendMessage(
+                    'TRANSAKSI {}\n<i>Pembelian {} dengan harga Rp {} pada nomor {} dalam process. Saldo anda saat ini adalah Rp {}.</i>'.format(
+                        rson.get('trx'), rson.get('produk'), rson.get('price'),
+                        rson.get('phone'), rson.get('saldo')
+                    ), parse_mode='HTML'
+                )
+            except:
+                pass
+            try :
+                self.sender.sendMessage(
+                    rson['struk'], parse_mode='HTML'
+                )
+            except:
+                pass
+
         else :
-            self.sender.sendMessage(
-                'TRANSAKSI {}\n<i>{}</i>'.format(
-                    rson.get('trx', 'GAGAL'), rson.get('status')
-                ),  parse_mode='Markdown'
-            )
+            try :
+                self.sender.sendMessage(
+                    'TRANSAKSI {}\n<i>{}</i>'.format(
+                        rson.get('trx', 'GAGAL'), rson.get('status')
+                    ),  parse_mode='HTML'
+                )
+            except:
+                pass
 
 
     # USER SINCRONIZE TELEGRAM
@@ -386,7 +399,7 @@ class Epaybot(telepot.helper.ChatHandler):
         if self._code != None:
             data = msg['text']
             if self._code in self._list_pulsa_prod:
-                valid = re.match(r'^08\d+$', data)
+                valid = re.match(r'^0\d+$', data)
                 if not valid:
                     self.sender.sendMessage('Silahkan masukan nomor handphone anda dengan benar.')
                     return
@@ -398,7 +411,7 @@ class Epaybot(telepot.helper.ChatHandler):
                 self.close()
                 return
             if self._code in self._list_topup_prod:
-                valid = re.match(r'^08\d+$', data)
+                valid = re.match(r'^0\d+$', data)
                 if not valid:
                     self.sender.sendMessage('Silahkan masukan nomor handphone anda dengan benar.')
                     return
@@ -410,7 +423,7 @@ class Epaybot(telepot.helper.ChatHandler):
                 self.close()
                 return
             if self._code in self._list_listrik_prod:
-                valid = re.match(r'^(\d+)#(08\d+)$', data)
+                valid = re.match(r'^(\d+)#(0\d+)$', data)
                 if not valid:
                     self.sender.sendMessage('Silahkan masukan nomor handphone anda dengan benar.')
                     return

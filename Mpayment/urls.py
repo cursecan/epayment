@@ -26,6 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('pulsa/', include('mpulsa.urls')),
     path('api/pulsa/', include('mpulsa.api.urls')),
+    path('dashboard/', include('userprofile.urls')),
     path('api/manager/', include('userprofile.api.urls')),
     path('api/etrans/', include('etransport.api.urls')),
     path('api/pln/', include('epln.api.urls')),

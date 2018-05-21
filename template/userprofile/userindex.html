@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<div class="ui vertical segment" style="margin-top:70px">
+    <div class="ui container">
+        <div class="ui three cards">
+            <div class="card">
+                <div class="content">
+                    <div class="header">
+                        Pulsa & Data
+                    </div>
+                    <div class="meta">
+                        Telkomsel, Indosat, XL, Smartfren
+                    </div>
+                    <div class="description">
+                        Statistik penjualan & pembayaran.
+                    </div>
+                </div>
+                <div class="extra content">
+                    <div class="ui two buttons">
+                        <a href="{% url 'userprofile:pulsa_produk' %}" class="ui basic green button">List Produk</a>
+                        <a href="{% url 'userprofile:pulsa_trx' %}" class="ui basic red button">Transaksi</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="content">
+                    <div class="header">
+                        Top Up
+                    </div>
+                    <div class="meta">
+                        Grab Pay, Go-Jek, Tol
+                    </div>
+                    <div class="description">
+                        Statistic penjualan, dan pembayaran.
+                    </div>
+                </div>
+                <div class="extra content">
+                    <div class="ui two buttons">
+                        <a href="{% url 'userprofile:trans_produk' %}" class="ui basic green button">List Produk</a>
+                        <a href="{% url 'userprofile:trans_trx' %}" class="ui basic red button">Transaksi</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="content">
+                    <div class="header">
+                        Token Listrik
+                    </div>
+                    <div class="meta">
+                        Token Listrik
+                    </div>
+                    <div class="description">
+                        Statistic penjualan, dan pembayaran.
+                    </div>
+                </div>
+                <div class="extra content">
+                    <div class="ui two buttons">
+                        <a href="{% url 'userprofile:listrik_produk' %}" class="ui basic green button">List Produk</a>
+                        <div class="ui basic red button">
+                            Transaksi
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

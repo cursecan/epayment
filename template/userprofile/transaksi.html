@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block css %}
+    <style>
+    .adbase .ui.container {
+        margin-bottom: 15px;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="ui vertical adbase segment" style="margin-top:70px">
+    <div class="ui right aligned container">
+        <div class="ui tiny statistic">
+            <div class="label">Profit Total</div>
+            <div class="value">{{ profit.t_profit|intcomma }}</div>
+        </div>
+    </div>
+    <div class="ui container">
+        <table class="ui padded celled table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>No.Trx</th>
+                    <th>Produk</th>
+                    <th>Harga</th>
+                    <th>No. Handphone</th>
+                    <th>Status</th>
+                    <th>Info</th>
+                    <th>Profit</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trx in trxs %}
+                    <tr class="{% if trx.status == 9 %}error{% endif %}">
+                        <td>{{ forloop.counter0|add:trxs.start_index }}</td>
+                        <td>{{ trx.trx_code }}</td>
+                        <td>{{ trx.product.keterangan }}</td>
+                        <td>{{ trx.price }}</td>
+                        <td>{{ trx.phone }}</td>
+                        <td>{{ trx.get_status_display }}</td>
+                        <td>{{ trx.responsetransaksi.info }}</td>
+                        <td>{{ trx.profit}}</td>
+                        <td>{{ trx.timestamp|date:"d/m/y H:i" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if trxs.has_other_pages %}
+    <div class="ui container">
+        <div class="ui pagination menu">
+            {% if trxs.has_previous %}
+            <a href="?page={{ trxs.previous_page_number }}" class="item">Prev</a>
+            {% else %}
+            <div class="item"><span>&laquo;</span></div>
+            {% endif %}
+            {% for i in trxs.paginator.page_range %}
+                {% if trxs.number == i%}
+                <div class="item active">{{ i }}</div>
+                {% else %}
+                <a href="?page={{ i }}" class="item">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if trxs.has_next %}
+            <a href="?page={{ trxs.next_page_number }}" class="item">Next</a>
+            {% else %}
+            <div class="item"><span>&laquo;</span></div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

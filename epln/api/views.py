@@ -80,6 +80,7 @@ class TopupTokenListrikView(APIView):
                 )
 
                 user_obj.refresh_from_db()
+                trx_obj_2.refresh_from_db()
 
                 result['trx'] = trx_obj_2.trx_code
                 result['produk'] = produk_obj.nama_produk
@@ -87,6 +88,7 @@ class TopupTokenListrikView(APIView):
                 result['price'] = produk_obj.price
                 result['saldo'] = user_obj.profile.saldo
                 result['phone'] = trx_obj_2.account_num+', Phone.'+trx_obj_2.phone
+                result['struk'] = trx_obj_2.struk
                 
                 
                 return Response(result, status=HTTP_200_OK)

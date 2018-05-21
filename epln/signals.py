@@ -64,8 +64,13 @@ def precess_requesting_to_sb(sender, instance, created, update_fields, **kwargs)
                 kredit = instance.price,
                 balance = instance.user.profile.saldo - instance.price
             )
+            try :
+                r = requests.get(res.url_struk)
+                instance.struk = r.text
+            except :
+                pass
             instance.pembukuan = pebukuan_obj
-            instance.save()
+            instance.save(update_fields=['pembukuan', 'struk'])
     else :
         # update in admin to gagal transaksi    
         user = instance.user
@@ -83,7 +88,7 @@ def precess_requesting_to_sb(sender, instance, created, update_fields, **kwargs)
                 PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)
             else :
                 # update in form
-                if 'status' in update_fields:
+                if 'status' in update_fields and instance.status == 9:
                     diskon_pembukuan = PembukuanTransaksi.objects.create(
                         user = user,
                         parent_id = instance.pembukuan,

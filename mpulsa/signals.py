@@ -102,7 +102,7 @@ def transaction_recording(sender, instance, created, update_fields=[], **kwargs)
             PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)
         else :
             # update in form
-            if 'status' in update_fields:
+            if 'status' in update_fields and instance.status == 9:
                 diskon_pembukuan = PembukuanTransaksi.objects.create(
                     user = user,
                     parent_id = instance.pembukuan,

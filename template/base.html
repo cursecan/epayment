@@ -1,13 +1,32 @@
+{% load static %}
+
 <!doctype html>
 <html lang="en">
     <head>
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>{% block title %}{% endblock %}</title>
+        <!-- Semantic UI -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.3.1/dist/semantic.min.css">
+
+        <!-- Local CSS -->
+        <link rel="stylesheet" href="{% static 'static/local.css' %}">
+        {% block css %}{% endblock %}
     </head>
     <body>
-        
+        {% include 'header.html' %}
         {% block content %}
         {% endblock %}
+
+        <!-- jQuery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <!-- Semantic UI -->
+        <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.3.1/dist/semantic.min.js"></script>
+
+
+        <!-- Local js -->
+        <script src="{% static 'static/local.js' %}"></script>
+        {% block js%}{% endblock %}
     </body>
 </html>

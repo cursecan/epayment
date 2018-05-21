@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block css %}
+    <style>
+    .adbase .ui.container {
+        margin-bottom: 15px;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="ui vertical adbase segment" style="margin-top:70px">
+    <div class="ui container">
+        <button class="ui primary icon button"><i class="ui icon add"></i> Tambah Produk</button>
+    </div>
+    <div class="ui grid container">
+        <div class="twelve wide column">
+            <table class="ui table">
+                <thead>
+                    <tr>
+                        <th>NO</th>
+                        <th>KODE</th>
+                        <th>PRODUK</th>
+                        <th>HARGA</th>
+                        <th>AKTIF</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for produk in produks %}
+                        <tr>
+                            <td>{{ forloop.counter0|add:produks.start_index }}</td>
+                            <td>{{ produk.kode_internal }}</td>
+                            <td>{{ produk.keterangan }}</td>
+                            <td>{{ produk.price }}</td>
+                            <td>{{ produk.active }}</td>
+                            <td class="right aligned">
+                                <a href="#"><i class="ui icon eye"></i></a>
+                                <a href="#"><i class="ui icon pencil yellow"></i></a>
+                                <a href="#"><i class="ui icon trash red"></i></a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="four wide column">
+            <div class="ui vertical menu">
+                <div class="item">
+                    <div class="header">
+                        List Operator
+                    </div>
+                    <div class="menu">
+                        <a href="?op=" class="item">All</a>
+                        {% for operator in operators %}
+                        <a href="?op={{ operator.id }}" class="item">{{ operator.operator|title }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if produks.has_other_pages %}
+    <div class="ui container">
+        <div class="ui pagination menu">
+            {% if produks.has_previous %}
+            <a href="?page={{ produks.previous_page_number }}" class="item">Prev</a>
+            {% else %}
+            <div class="item"><span>&laquo;</span></div>
+            {% endif %}
+            {% for i in produks.paginator.page_range %}
+                {% if produks.number == i%}
+                <div class="item active">{{ i }}</div>
+                {% else %}
+                <a href="?page={{ i }}" class="item">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if produks.has_next %}
+            <a href="?page={{ produks.next_page_number }}" class="item">Next</a>
+            {% else %}
+            <div class="item"><span>&laquo;</span></div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
