@@ -38,7 +38,7 @@ class Product(models.Model):
     nominal = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
     kode_external = models.CharField(max_length=15)
-    price_beli = models.PositiveIntegerField()
+    price_beli = models.PositiveIntegerField(default=0)
     keterangan = models.CharField(max_length=200, blank=True)
     parse_text = models.CharField(max_length=200, blank=True)
     active = models.BooleanField(default=False)
@@ -50,6 +50,9 @@ class Product(models.Model):
     
     def __str__(self):
         return self.kode_internal
+
+    def benefit(self):
+        return self.price - self.price_beli
 
 
 class Transaksi(models.Model):

@@ -12,4 +12,5 @@ urlpatterns = [
     path('trx/pulsa/', views.pulsaTrxView, name='pulsa_trx'),
     path('trx/etrans/', views.transTrxView, name='trans_trx'),
     path('checktrx/', views.checkTrxView, name='checktrx'),
+    path('sistemprice/', views.checkHargaView, name='price'),
 ]

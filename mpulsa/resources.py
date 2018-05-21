@@ -11,7 +11,7 @@ class ProductResource(resources.ModelResource):
         fields = [
             'id',
             'kode_internal','operator','type_layanan','nominal','price',
-            'kode_external','price_beli','keterangan', 'parse_text'
+            'kode_external','keterangan', 'parse_text'
         ]
         skip_unchanged = True
         report_skipped = False

@@ -247,3 +247,49 @@ def checkTrxView(request):
             pass
 
     return JsonResponse({'status':', '.join(data_update)})
+
+
+def checkHargaView(request):
+    group_name =['TELKOMSEL','ISAT','XL','AXIS','BOLT','FREN','SMART','THREE', 'XL']
+    url = settings.SIAP_URL
+    payload = {
+        "opcode": "price",
+        "uid": settings.SIAPBAYAR_ID,
+        "pin": settings.SIAPBAYAR_PASS,
+        "group": ""
+    }
+    for i in group_name:
+        try :
+            payload['group'] = i
+            r = requests.post(url, data=json.dumps(payload), headers={'Content-Type':'application/json'})
+            rson = r.json()
+            if rson['rc'] == '00':
+                for prod in rson['products']['product']:
+                    try :
+                        p_pulsa = pulsa_model.Product.objects.filter(
+                            kode_external=prod['productcode']
+                        ).update(price_beli=prod['price'])
+                    except:
+                        pass
+        except:
+            pass
+
+    group_name =['GOJEK','GRAB']
+    
+    for i in group_name:
+        try :
+            payload['group'] = i
+            r = requests.post(url, data=json.dumps(payload), headers={'Content-Type':'application/json'})
+            rson = r.json()
+            if rson['rc'] == '00':
+                for prod in rson['products']['product']:
+                    try :
+                        p_trans = trans_model.Product.objects.filter(
+                            kode_external=prod['productcode']
+                        ).update(price_beli=prod['price'])
+                    except:
+                        pass
+        except:
+            pass
+    
+    return JsonResponse({'status':0})
