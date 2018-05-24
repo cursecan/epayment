@@ -1,8 +1,10 @@
 from rest_framework.generics import RetrieveUpdateAPIView, UpdateAPIView, ListAPIView
 from django.contrib.auth.models import User
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
-from userprofile.models import Profile
-from .serializers import ProfileSerializer, UserSerializer
+from userprofile.models import Profile, PembukuanTransaksi
+from .serializers import ProfileSerializer, UserSerializer, PembukuanSerializer, PembukuanUpdateSerializer
 
 class ProfileUpdateView(RetrieveUpdateAPIView):
     # queryset = Profile.objects.all()
@@ -25,6 +27,18 @@ class UserListView(ListAPIView):
             list_queryset = list_queryset.filter(profile__telegram=teleid)
         
         return list_queryset
+
+
+class PembukuanPayReverseView(ListAPIView):
+    queryset = PembukuanTransaksi.objects.filter(confrmed=False, status_type__in = [1, 2])
+    serializer_class = PembukuanSerializer
+
+
+class PembukuanUpdateApi(UpdateAPIView):
+    queryset = PembukuanTransaksi.objects.all()
+    serializer_class = PembukuanUpdateSerializer
+    lookup_field = 'id'
+
 
     # def get(self, request, *args, **kwargs):
     #     return self.list(request, *args, **kwargs)

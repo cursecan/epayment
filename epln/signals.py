@@ -58,7 +58,7 @@ def precess_requesting_to_sb(sender, instance, created, update_fields, **kwargs)
             refsb = rson.get('refsb', '')
         )
 
-        if instance.request_type == 'p' and res.rc == '00':
+        if instance.request_type == 'p':
             pebukuan_obj = PembukuanTransaksi.objects.create(
                 user = instance.user,
                 kredit = instance.price,
@@ -83,7 +83,8 @@ def precess_requesting_to_sb(sender, instance, created, update_fields, **kwargs)
                     seq = instance.pembukuan.seq +1,
                     kredit = -instance.pembukuan.kredit,
                     balance = user.profile.saldo + instance.pembukuan.kredit,
-                    status_type = 2
+                    status_type = 2,
+                    confrmed = True,
                 )
                 PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)
             else :

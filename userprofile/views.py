@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import F, Sum, Q
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 
 import requests, json
 
@@ -14,45 +15,42 @@ from .models import PembukuanTransaksi
 
 from .models import Profile
 
+# USER INDEX
+@login_required()
 def userindex(request):
-    # selling = 0
-    # profit = 0
-    # t_pulsa = pulsa_model.Transaksi.objects.filter(
-    #     status=0
-    # ).aggregate(
-    #     t_selling = Sum('price'),
-    #     t_price = Sum(F('price') - F('responsetransaksi__price'))
-    # )
+    profile_obj = Profile.objects.get(
+        user = request.user
+    )
 
-    # t_etrans = trans_model.Transaksi.objects.filter(
-    #     status=0
-    # ).aggregate(
-    #     t_selling = Sum('price'),
-    #     t_profit = Sum(F('price') - F('responsetransaksi__price'))
-    # )
+    pembukuan_obj = PembukuanTransaksi.objects.all().select_related(
+        'user'
+    )
+    struck_obj = pembukuan_obj.filter(
+        status_type = 9
+    )[:5]
 
-    # t_pln = pln_model.Transaksi.objects.filter(
-    #     status=0, request_type='p'
-    # ).aggregate(
-    #     t_selling = Sum('price'),
-    #     t_profit = Sum(F('price') - F('nominal') - 400)
-    # )
+    if not request.user.is_staff :
+        struck_obj = pembukuan_obj(
+            user = request.user
+        )
 
-    pembukuan_obj = PembukuanTransaksi.objects.aggregate(
+    laporan = pembukuan_obj.aggregate(
         t_success = Sum('kredit', filter=Q(status_type=9)),
         t_topup = Sum('debit', filter=Q(status_type=1)),
         t_failed = Sum('kredit', filter=Q(status_type=3)),
         t_reverse = Sum('kredit', filter=Q(status_type=2))
     )
 
-    
-
     content = {
-        'laporan': pembukuan_obj
+        'laporan': laporan,
+        'profile': profile_obj,
+        'trx_histori': struck_obj,
     }
     return render(request, 'userprofile/userindex.html', content)
 
 
+# PRODUK PULSA
+@login_required()
 def pulsaProdukView(request):
     pulsa_objs_list = pulsa_model.Product.objects.order_by('operator', 'nominal')
 
@@ -81,6 +79,8 @@ def pulsaProdukView(request):
     return render(request, 'userprofile/produk.html', content)
 
 
+# PRODUK TRANSPORT
+@login_required()
 def etransProdukView(request):
     trans_objs_list = trans_model.Product.objects.order_by('operator', 'nominal')
     page = request.GET.get('page', None)
@@ -109,6 +109,8 @@ def etransProdukView(request):
     return render(request, 'userprofile/produk.html', content)
 
 
+# PRODUK LISTRIK
+@login_required()
 def listrikProdView(request):
     listrik_produk_list = pln_model.Product.objects.order_by('nominal')
     page = request.GET.get('page', None)
@@ -127,11 +129,13 @@ def listrikProdView(request):
     return render(request, 'userprofile/produk_listrik.html', content)
 
 
-
+# TRX PULSA
+@login_required()
 def pulsaTrxView(request):
     trx_pulsa_list = pulsa_model.Transaksi.objects.annotate(
         profit = F('price') - F('responsetransaksi__price')
     )
+
     page = request.GET.get('page', None)
 
     paginator = Paginator(trx_pulsa_list, 10)
@@ -154,6 +158,8 @@ def pulsaTrxView(request):
     return render(request, 'userprofile/transaksi.html', content)
 
 
+# TRX TRANSPORT
+@login_required()
 def transTrxView(request):
     trx_trans_list = trans_model.Transaksi.objects.annotate(
         profit = F('price') - F('responsetransaksi__price')
@@ -180,6 +186,8 @@ def transTrxView(request):
     return render(request, 'userprofile/transaksi.html', content)
 
 
+# TRX LISTRIK
+@login_required()
 def transListrikView(request):
     trx_listrik_list = pln_model.Transaksi.objects.filter(
         request_type = 'p'    
@@ -207,6 +215,9 @@ def transListrikView(request):
     }
     return render(request, 'userprofile/transaksi_listrik.html', content)
 
+
+# UPDATE TRX RESPONSE
+@login_required()
 def checkTrxView(request):
     data_update = []
     pulsa_trx = pulsa_model.Transaksi.objects.filter(
@@ -234,7 +245,7 @@ def checkTrxView(request):
             payload['refca'] = trx_p.trx_code
             r = requests.post(url, data=json.dumps(payload), headers={'Content-Type':'application/json'})
             rjson = r.json()
-            response_trx = pulsa_model.ResponseTransaksi.objects.filter(
+            pulsa_model.ResponseTransaksi.objects.filter(
                 trx=trx_p
             ).update(
                 nohp=rjson.get('nohp',''),
@@ -248,7 +259,7 @@ def checkTrxView(request):
                 refsb=rjson.get('refsb',''),
                 response_code=rjson.get('rc',''),
             )
-            if response_trx.response_code in ['10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
+            if trx_p.responsetransaksi.response_code in ['10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
                 trx_p.status = 9
                 trx_p.save(update_fields=['status'])
                 data_update.append(trx_p.trx_code)
@@ -262,7 +273,7 @@ def checkTrxView(request):
             r = requests.post(url, data=json.dumps(payload), headers={'Content-Type':'application/json'})
             rjson = r.json()
 
-            response_trx = trans_model.ResponseTransaksi.objects.filter(
+            trans_model.ResponseTransaksi.objects.filter(
                 trx = trx_e
             ).update(
                 nohp=rjson.get('nohp',''),
@@ -276,7 +287,7 @@ def checkTrxView(request):
                 refsb=rjson.get('refsb',''),
                 response_code=rjson.get('rc',''),
             )
-            if response_trx.response_code in ['10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
+            if trx_e.responsetransaksi.response_code in ['10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
                 trx_e.status = 9
                 trx_e.save(update_fields=['status'])
                 data_update.append(trx_e.trx_code)
@@ -289,7 +300,7 @@ def checkTrxView(request):
             r = requests.post(url, data=json.dumps(payload), headers={'Content-Type':'application/json'})
             rjson = r.json()
 
-            response_trx = pln_model.ResponseTransaksi.objects.filter(
+            pln_model.ResponseTransaksi.objects.filter(
                 trx = trx_pln
             ).update(
                 rc = rson.get('rc', ''),
@@ -309,7 +320,7 @@ def checkTrxView(request):
                 refca = rson.get('refca', ''),
                 refsb = rson.get('refsb', '')
             )
-            if response_trx.rc in ['10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
+            if trx_pln.responsetransaksi.rc in ['10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
                 trx_pln.status = 9
                 trx_pln.save(update_fields=['status'])
                 data_update.append(trx_pln.trx_code)
@@ -319,6 +330,8 @@ def checkTrxView(request):
     return JsonResponse({'status':', '.join(data_update)})
 
 
+# UPDATE HARGA SERVER
+@login_required()
 def checkHargaView(request):
     group_name =['TELKOMSEL','ISAT','XL','AXIS','BOLT','FREN','SMART','THREE', 'XL']
     url = settings.SIAP_URL
@@ -344,7 +357,7 @@ def checkHargaView(request):
         except:
             pass
 
-    group_name =['GOJEK','GRAB']
+    group_name =['topup saldo']
     
     for i in group_name:
         try :
@@ -363,3 +376,32 @@ def checkHargaView(request):
             pass
     
     return JsonResponse({'status':0})
+
+
+# TRX ALL
+@login_required
+def trx_produk_all(request):
+    page = request.GET.get('page', 1)
+    pembukuan_obj = PembukuanTransaksi.objects.all().select_related(
+        'user', 'transaksi__product', 'transaksi', 'bukutrans', 'bukutrans__product',
+        'bukupln', 'bukupln__product'
+    )
+
+    publish_trx = pembukuan_obj.filter(status_type__in = [3,9])
+
+    if not request.user.is_staff:
+        publish_trx = publish_trx.filter(user=request.user)
+
+    paginator = Paginator(publish_trx, 20)
+
+    try :
+        trxs = paginator.page(page)
+    except PageNotAnInteger:
+        trxs = paginator.page(1)
+    except EmptyPage:
+        trxs = paginator.page(paginator.page_range)
+
+    content = {
+        'trxs' : trxs
+    }
+    return render(request, 'userprofile/transaksi_produk.html', content)

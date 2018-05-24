@@ -20,6 +20,10 @@ class Product(models.Model):
 
     objects = models.Manager()
     active_product = ActiveProdukmanager()
+
+
+    class Meta:
+        ordering = ['nominal']
     
     def __str__(self):
         return self.kode_produk
@@ -44,11 +48,15 @@ class Transaksi(models.Model):
     status = models.PositiveSmallIntegerField(choices=status_number, default=0)
     request_type = models.CharField(max_length=1, choices=TYPE_REQUEST_LIST, default='i')
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=1, related_name='userpln')
-    pembukuan = models.ForeignKey(PembukuanTransaksi, on_delete=models.SET_NULL , null=True, blank=True, related_name='bukupln')
+    pembukuan = models.OneToOneField(PembukuanTransaksi, on_delete=models.SET_NULL , null=True, blank=True, related_name='bukupln')
     struk = models.TextField(max_length=2000, blank=True)
     ref_sb_trx = models.OneToOneField('self', on_delete=models.SET_NULL, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        get_latest_by = 'timestamp'
+        ordering = ['-timestamp']
 
     def __str__(self):
         return self.trx_code

@@ -1,6 +1,7 @@
 import sys
 import time
 import telepot
+import pendulum
 import telepot.helper
 from telepot.loop import MessageLoop
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
@@ -540,8 +541,35 @@ bot = telepot.DelegatorBot(TOKEN, [
 ])
 
 MessageLoop(bot).run_as_thread()
-print('Listening ...')
 
 while 1:
-    time.sleep(10)
+    try :
+        url = _URL + 'api/manager/unconfirm/'
+        q = requests.get(url)
+        qson = q.json()
+        # print(qson)
+        for i in qson:
+            debit = i['debit']
+            kredit = i['kredit']
+            teleid = i['telegram']
+            ids = i['id']
+            saldo = i['balance']
+            kat = i['status_type']
+            tm = pendulum.parse(i['timestamp']).to_datetime_string()
+            trx = i['trx']
+            pop_message = "Terimakasih Anda sudah melakukan pengisisan deposit sebesar Rp {} Nomor Resi {} pada tanggal {}. Saldo anda saat ini menjadi Rp {}".format(debit, ids, tm, saldo)
+            if kat == 2:
+                pop_message = "Transaksi {} gagal diproses.\nDana sudah kami refund sebesar Rp {}, saldo Anda saat ini menjadi Rp {}. Mohon maaf atas ketidaknyamananya.".format(trx, -kredit, saldo)
+            
+            try :
+                url = _URL + 'api/manager/unconfirm/{}/update/'.format(ids)
+                r = requests.put(url, data=json.dumps({'confrmed':True}), headers={'Content-Type':'application/json'})
+                bot.sendMessage(teleid, pop_message, parse_mode='HTML')
+            except:
+                pass
+
+    except :
+        pass
+
+    time.sleep(5)
 

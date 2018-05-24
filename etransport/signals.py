@@ -73,7 +73,7 @@ def transaction_recording(sender, instance, created, update_fields=[], **kwargs)
         # update instanly status transaksi if failed
         if response_trx.response_code in ['99','10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
             instance.status = 9
-            instance.save(update_fields=['status'])
+            instance.save()
             
             # tele = telepot.Bot('513055446:AAEd1gnV_Zts_fGpO3L6uyNiRLCmfx-fK9Y')
             # user = instance.user
@@ -96,7 +96,8 @@ def transaction_recording(sender, instance, created, update_fields=[], **kwargs)
                 seq = instance.pembukuan.seq +1,
                 kredit = -instance.pembukuan.kredit,
                 balance = user.profile.saldo + instance.pembukuan.kredit,
-                status_type = 2
+                status_type = 2,
+                confrmed = True,
             )
             PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)
         else :

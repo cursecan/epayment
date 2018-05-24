@@ -12,6 +12,7 @@
 {% block content %}
 <div class="ui vertical adbase segment" style="margin-top:70px">
     <div class="ui container">
+        {% if user.is_staff %}
         <div class="ui tiny blue statistic">
             <div class="label">
                 Total Selling
@@ -42,6 +43,15 @@
             </div>
             <div class="value">
                 {{ laporan.t_reverse|default_if_none:0|intcomma }}
+            </div>
+        </div>
+        {% endif %}
+        <div class="ui tiny statistic">
+            <div class="label">
+                My Saldo
+            </div>
+            <div class="value">
+                {{ profile.saldo|intcomma }}
             </div>
         </div>
     </div>
@@ -103,6 +113,43 @@
                         <a href="{% url 'userprofile:pln_trx' %}" class="ui basic red button">Transaksi</a>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui container">
+        <h2 class="ui header">
+            Histori Transaksi
+        </h2>
+        <div class="ui info message">
+            Histori 5 transaksi terakhir, tidak termasuk untuk transaksi yang gagal.
+        </div>
+        <div class="ui grid">
+            <div class="sixteen wide column">
+                <table class="ui small table">
+                    <thead>
+                        <tr>
+                            <th>Transaksi</th>
+                            <th>Produk</th>
+                            <th class="right aligned">Harga</th>
+                            <th class="right aligned">Balance</th>
+                            <th>Time</th>
+                            <th>User</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for trx in trx_histori %}
+                        <tr>
+                            <td>{{ trx.transaksi }}{{ trx.bukutrans }}{{ trx.bukupln }}</td>
+                            <td>{{ trx.transaksi.product.keterangan }}{{ trx.bukutrans.product.keterangan }}{{ trx.bukupln.product.nama_produk }}</td>
+                            <td class="right aligned">{{ trx.kredit|intcomma }}</td>
+                            <td class="right aligned">{{ trx.balance|intcomma }}</td>
+                            <td>{{ trx.timestamp|date:"d/m/y h:i" }}</td>
+                            <td>{{ trx.user }}</td>
+                        </tr>
+                        {% endfor %}
+                        
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

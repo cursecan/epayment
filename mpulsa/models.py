@@ -47,6 +47,10 @@ class Product(models.Model):
 
     objects = models.Manager()
     active_product = ActiveProdukmanager()
+
+    class Meta:
+        ordering = ['operator','type_layanan', 'nominal']
+
     
     def __str__(self):
         return self.kode_internal
@@ -67,9 +71,13 @@ class Transaksi(models.Model):
     phone = models.CharField(max_length=20)
     status = models.PositiveSmallIntegerField(choices=status_number, default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
-    pembukuan = models.ForeignKey(PembukuanTransaksi, on_delete=models.SET_NULL, null=True)
+    pembukuan = models.OneToOneField(PembukuanTransaksi, on_delete=models.SET_NULL, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        get_latest_by = 'timestamp'
+        ordering = ['-timestamp']
 
     def __str__(self):
         return self.trx_code

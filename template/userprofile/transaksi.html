@@ -34,13 +34,14 @@
                     <th>Info</th>
                     <th>Profit</th>
                     <th>Timestamp</th>
+                    <th>Owner</th>
                 </tr>
             </thead>
             <tbody>
                 {% for trx in trxs %}
                     <tr class="{% if trx.status == 9 %}error{% endif %}">
                         <td>{{ forloop.counter0|add:trxs.start_index }}</td>
-                        <td>{{ trx.trx_code }}</td>
+                        <td><a href="#">{{ trx.trx_code }}</a></td>
                         <td>{{ trx.product.keterangan }}</td>
                         <td>{{ trx.price }}</td>
                         <td>{{ trx.phone }}</td>
@@ -48,6 +49,7 @@
                         <td>{{ trx.responsetransaksi.info }}</td>
                         <td>{{ trx.profit}}</td>
                         <td>{{ trx.timestamp|date:"d/m/y H:i" }}</td>
+                        <td>{{ trx.user }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

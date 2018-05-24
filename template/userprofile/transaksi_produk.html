@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block css %}
+    <style>
+    .adbase .ui.container {
+        margin-bottom: 15px;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="ui vertical adbase segment" style="margin-top:70px">
+    <div class="ui container">
+        <table class="ui celled small table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Kode Transaksi / Produk</th>
+                    <th>Customer</th>
+                    <th>Harga</th>
+                    <th>Balance</th>
+                    <th>Status</th>
+                    <th>Owner</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trx in trxs %}
+                <tr>
+                    <td>{{ forloop.counter0 }}</td>
+                    <td>
+                        <i>
+                                {{ trx.transaksi }}
+                                {{ trx.bukutrans }}
+                                {{ trx.bukupln }}
+                        </i>
+                        /
+                        {{ trx.transaksi.product.keterangan }}
+                        {{ trx.bukutrans.product.keterangan }}
+                        {{ trx.bukupln.product.nama_produk }}
+                    </td>
+                    <td>
+                        {{ trx.transaksi.phone }}
+                        {{ trx.bukutrans.phone }}
+                        {{ trx.bukupln.account_num }}
+                    </td>
+                    <td>
+                        {{ trx.kredit|intcomma }}
+                    </td>
+                    <td>
+                        {{ trx.balance|intcomma }}
+                    </td>
+                    <td>
+                        {{ trx.get_status_type_display }}
+                    </td>
+                    <td>{{ trx.user }}</td>
+                    <td>
+                        {{ trx.timestamp|date:"d/m/y H:i" }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
