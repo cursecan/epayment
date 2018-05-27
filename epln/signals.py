@@ -4,9 +4,10 @@ from django.dispatch import receiver
 from django.conf import settings
 
 import requests, json
+from lxml import html
 
 
-from .models import Transaksi, ResponseTransaksi
+from .models import Transaksi, ResponseTransaksi, CatatanModal
 from userprofile.models import PembukuanTransaksi
 
 
@@ -51,51 +52,94 @@ def precess_requesting_to_sb(sender, instance, created, update_fields, **kwargs)
             serialno = rson.get('serialno', ''),
             nominal = rson.get('nominal',0),
             adminfee = rson.get('adminfee', 0),
-            price = rson.get(';price', 0),
+            price = rson.get('price', 0),
             balance = rson.get('balance', 0),
             url_struk = rson.get('urlstruk', ''),
             refca = rson.get('refca', ''),
             refsb = rson.get('refsb', '')
         )
 
-        if instance.request_type == 'p':
+        if instance.request_type == 'p' and res.rc in ['', '00']:
             pebukuan_obj = PembukuanTransaksi.objects.create(
                 user = instance.user,
                 kredit = instance.price,
                 balance = instance.user.profile.saldo - instance.price
             )
+
             try :
                 r = requests.get(res.url_struk)
-                instance.struk = r.text
+                tree = html.fromstring(r.content)
+                instance.struk = tree.xpath('//pre/text()')[0]
             except :
                 pass
+
             instance.pembukuan = pebukuan_obj
             instance.save(update_fields=['pembukuan', 'struk'])
-    else :
+        else :
+            instance.status = 9
+            instance.save()
+
+    if update_fields is not None :
         # update in admin to gagal transaksi    
-        user = instance.user
-        user.refresh_from_db()
         if instance.request_type == 'p':
-            if update_fields is None:
+            if 'status' in update_fields and instance.status == 9:
                 diskon_pembukuan = PembukuanTransaksi.objects.create(
                     user = user,
                     parent_id = instance.pembukuan,
                     seq = instance.pembukuan.seq +1,
                     kredit = -instance.pembukuan.kredit,
                     balance = user.profile.saldo + instance.pembukuan.kredit,
-                    status_type = 2,
-                    confrmed = True,
+                    status_type = 2
                 )
                 PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)
-            else :
-                # update in form
-                if 'status' in update_fields and instance.status == 9:
-                    diskon_pembukuan = PembukuanTransaksi.objects.create(
-                        user = user,
-                        parent_id = instance.pembukuan,
-                        seq = instance.pembukuan.seq +1,
-                        kredit = -instance.pembukuan.kredit,
-                        balance = user.profile.saldo + instance.pembukuan.kredit,
-                        status_type = 2
-                    )
-                    PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)
+
+
+@receiver(post_save, sender=ResponseTransaksi)
+def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
+    if created :
+        last_catatan = CatatanModal.objects.latest()
+        if instance.trx.request_type == 'p' and instance.rc in ['00','']:
+            try :
+                modal_create_obj = CatatanModal.objects.create(
+                    kredit = instance.price,
+                    saldo = last_catatan.saldo - instance.price,
+                )
+            except:
+                modal_create_obj = CatatanModal.objects.create(
+                    kredit = instance.price,
+                    saldo = 0,
+                )
+
+            
+            if instance.serialno != '' and instance.rc == '00':
+                modal_create_obj.confirmed = True
+                modal_create_obj.save(update_fields=['confirmed'])
+
+
+            trx_obj = Transaksi.objects.filter(
+                trx_code = instance.trx.trx_code
+            ).update(catatan_modal=modal_create_obj)
+
+
+
+    if not update_fields is None:
+        if 'response_code' in update_fields:
+            if instance.has_changed('rc') and instance.catatan_modal.confirmed == False:
+                if instance.rc in ['99','10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
+                    try :
+                        modal_create_obj = CatatanModal.objects.create(
+                            debit = instance.catatan_modal.kredit,
+                            saldo = last_catatan.saldo + instance.catatan_modal.kredit,
+                            parent_id = instance.catatan_modal,
+                            type_transaksi = 3
+                        )
+                    except:
+                        modal_create_obj = CatatanModal.objects.create(
+                            debit = instance.catatan_modal.kredit,
+                            saldo = 0,
+                            parent_id = instance.catatan_modal,
+                            type_transaksi = 3
+                        )
+
+                    instance.response_code = 2
+                    instance.save()

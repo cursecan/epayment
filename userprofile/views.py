@@ -18,7 +18,8 @@ from .models import Profile
 # USER INDEX
 @login_required()
 def userindex(request):
-    profile_obj = Profile.objects.get(
+    profile_objs = Profile.objects.order_by('saldo')
+    profile_obj = profile_objs.get(
         user = request.user
     )
 
@@ -30,8 +31,11 @@ def userindex(request):
     )[:5]
 
     if not request.user.is_staff :
-        struck_obj = pembukuan_obj(
-            user = request.user
+        struck_obj = pembukuan_obj.filter(
+            Q(user = request.user) | Q(user__profile__profile_member=profile_obj)  
+        )
+        profile_objs = profile_objs.filter(
+            profile_member = profile_obj
         )
 
     laporan = pembukuan_obj.aggregate(
@@ -45,6 +49,7 @@ def userindex(request):
         'laporan': laporan,
         'profile': profile_obj,
         'trx_histori': struck_obj,
+        'profiles': profile_objs,
     }
     return render(request, 'userprofile/userindex.html', content)
 
@@ -390,7 +395,9 @@ def trx_produk_all(request):
     publish_trx = pembukuan_obj.filter(status_type__in = [3,9])
 
     if not request.user.is_staff:
-        publish_trx = publish_trx.filter(user=request.user)
+        publish_trx = publish_trx.filter(
+            Q(user=request.user) | Q(user__profile__profile_member=request.user.profile)
+        )
 
     paginator = Paginator(publish_trx, 20)
 

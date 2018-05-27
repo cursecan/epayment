@@ -5,7 +5,7 @@ from django.conf import settings
 import requests, json
 import telepot
 
-from .models import Product, Transaksi, ResponseTransaksi
+from .models import Product, Transaksi, ResponseTransaksi, CatatanModal
 from userprofile.models import PembukuanTransaksi
 
 
@@ -20,16 +20,6 @@ def generate_prod_code(sender, instance, **kwars):
 @receiver(post_save, sender=Transaksi)
 def transaction_recording(sender, instance, created, update_fields=[], **kwargs):
     if created :
-        # proses pembukuan
-        pembukuan_obj = PembukuanTransaksi(
-            user = instance.user,
-            kredit = instance.price,
-            balance = instance.user.profile.saldo - instance.price,
-        )
-        pembukuan_obj.save()
-        instance.pembukuan = pembukuan_obj
-        instance.save(update_fields=['pembukuan'])
-
         # proses transaksi ke server biling
         pord_code = instance.product.kode_external
         phone = instance.phone
@@ -70,46 +60,87 @@ def transaction_recording(sender, instance, created, update_fields=[], **kwargs)
             response_code=rjson.get('rc',''),
         )
 
+        if response_trx.response_code in ['', '00']:
+            # proses pembukuan
+            pembukuan_obj = PembukuanTransaksi(
+                user = instance.user,
+                kredit = instance.price,
+                balance = instance.user.profile.saldo - instance.price,
+            )
+            pembukuan_obj.save()
+
+            instance.pembukuan = pembukuan_obj
+            instance.save(update_fields=['pembukuan'])
 
         # update instanly status transaksi if failed
-        if response_trx.response_code in ['99','10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
+        else:
             instance.status = 9
             instance.save()
             
-            # tele = telepot.Bot('513055446:AAEd1gnV_Zts_fGpO3L6uyNiRLCmfx-fK9Y')
-            # user = instance.user
-            # user.refresh_from_db()
-            # # try :
-            # tele.sendMessage(user.profile.telegram, 'Transaksi {}, nilai transaksi telah direfund. Saldo anda saat ini Rp {}'.format(instance.trx_code, user.profile.saldo))
-            # # except:
-            # #     pass
-
-
-    # jika updatetable
-    else :
-        # update in admin to gagal transaksi    
-        user = instance.user
-        user.refresh_from_db()
-        if update_fields is None:
+            
+    # jika updatetable        
+    if update_fields is not None :
+        # update in form
+        if 'status' in update_fields and instance.status == 9:
             diskon_pembukuan = PembukuanTransaksi.objects.create(
                 user = user,
                 parent_id = instance.pembukuan,
                 seq = instance.pembukuan.seq +1,
                 kredit = -instance.pembukuan.kredit,
                 balance = user.profile.saldo + instance.pembukuan.kredit,
-                status_type = 2,
-                confrmed= True,
+                status_type = 2
             )
             PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)
-        else :
-            # update in form
-            if 'status' in update_fields and instance.status == 9:
-                diskon_pembukuan = PembukuanTransaksi.objects.create(
-                    user = user,
-                    parent_id = instance.pembukuan,
-                    seq = instance.pembukuan.seq +1,
-                    kredit = -instance.pembukuan.kredit,
-                    balance = user.profile.saldo + instance.pembukuan.kredit,
-                    status_type = 2
+
+
+@receiver(post_save, sender=ResponseTransaksi)
+def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
+    if created :
+        last_catatan = CatatanModal.objects.latest()
+        if instance.response_code in ['00','']:
+            try :
+                modal_create_obj = CatatanModal.objects.create(
+                    kredit = instance.price,
+                    saldo = last_catatan.saldo - instance.price,
                 )
-                PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)
+            except:
+                modal_create_obj = CatatanModal.objects.create(
+                    kredit = instance.price,
+                    saldo = 0,
+                )
+
+            
+            if instance.serial_no != '' and instance.response_code == '00':
+                modal_create_obj.confirmed = True
+                modal_create_obj.save(update_fields=['confirmed'])
+
+
+            trx_obj = Transaksi.objects.filter(
+                trx_code = instance.trx.trx_code
+            ).update(catatan_modal=modal_create_obj)
+
+
+
+    if not update_fields is None:
+        if 'response_code' in update_fields:
+            if instance.has_changed('response_code') and instance.catatan_modal.confirmed == False:
+                if instance.response_code in ['99','10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
+                    try :
+                        modal_create_obj = CatatanModal.objects.create(
+                            debit = instance.catatan_modal.kredit,
+                            saldo = last_catatan.saldo + instance.catatan_modal.kredit,
+                            parent_id = instance.catatan_modal,
+                            type_transaksi = 3
+                        )
+                    except:
+                        modal_create_obj = CatatanModal.objects.create(
+                            debit = instance.catatan_modal.kredit,
+                            saldo = 0,
+                            parent_id = instance.catatan_modal,
+                            type_transaksi = 3
+                        )
+
+                    instance.response_code = 2
+                    instance.save()
+
+

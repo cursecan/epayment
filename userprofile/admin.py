@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 
 
-from .models import Profile, PembukuanTransaksi
+from .models import Profile, PembukuanTransaksi, CatatanModal
 from .forms import PembukuanTransaksiForm
 
 
@@ -24,7 +24,13 @@ class PembukuanTransaksiAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(CatatanModal)
+class CatatanModalAdmin(admin.ModelAdmin):
+    class Meta:
+        model = CatatanModal
+
+    list_display = ['debit', 'kredit', 'saldo', 'type_transaksi','parent_id','confirmed','keterangan','timestamp']
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdminCustom)
-# admin.site.register(PembukuanTransaksi)
+# admin.site.register(CatatanModal)

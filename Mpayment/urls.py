@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth import views as auth_views
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -23,6 +24,7 @@ from dashboard.views import home as homepage
 
 urlpatterns = [
     path('', homepage, name='home'),
+    path('login/', auth_views.login, name='login'),
     path('admin/', admin.site.urls),
     path('pulsa/', include('mpulsa.urls')),
     path('api/pulsa/', include('mpulsa.api.urls')),
@@ -30,6 +32,7 @@ urlpatterns = [
     path('api/manager/', include('userprofile.api.urls')),
     path('api/etrans/', include('etransport.api.urls')),
     path('api/pln/', include('epln.api.urls')),
+    path('pln/', include('epln.urls')),
 ]
 
 

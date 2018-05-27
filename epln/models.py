@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from userprofile.models import PembukuanTransaksi
+from userprofile.models import PembukuanTransaksi, CatatanModal
 from .utils import generate_pln_trx
 
 class ActiveProdukmanager(models.Manager):
@@ -13,6 +13,7 @@ class Product(models.Model):
     nama_produk = models.CharField(max_length=100)
     nominal = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
+    # price_beli = models.PositiveIntegerField(default=0)
     parse_text = models.CharField(max_length=100, blank=True)
     active = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -49,6 +50,7 @@ class Transaksi(models.Model):
     request_type = models.CharField(max_length=1, choices=TYPE_REQUEST_LIST, default='i')
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=1, related_name='userpln')
     pembukuan = models.OneToOneField(PembukuanTransaksi, on_delete=models.SET_NULL , null=True, blank=True, related_name='bukupln')
+    catatan_modal = models.OneToOneField(CatatanModal, on_delete=models.SET_NULL, null=True, blank=True, related_name='ctt_pln')
     struk = models.TextField(max_length=2000, blank=True)
     ref_sb_trx = models.OneToOneField('self', on_delete=models.SET_NULL, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
