@@ -33,6 +33,11 @@ class Profile(models.Model):
         super(Profile, self).save(*args, **kwargs)
 
 
+class UncloseBook(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(closed=False)
+
+
 class PembukuanTransaksi(models.Model):
     TYPE_LIST = (
         (1, 'Topup saldo'),
@@ -49,7 +54,11 @@ class PembukuanTransaksi(models.Model):
     status_type = models.PositiveSmallIntegerField(choices=TYPE_LIST, default=9)
     keterangan = models.CharField(max_length=200, blank=True)
     confrmed = models.BooleanField(default=False)
+    closed = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+    objects = models.Manager()
+    unclosed_book = UncloseBook()
 
 
     class Meta:
@@ -60,16 +69,20 @@ class PembukuanTransaksi(models.Model):
         return str(self.id)
 
     
-    # def bukutransaksi(self):
-    #     try:
-    #         if self.transaksi:
-    #             return self.transaksi.responsetransaksi
-    #         elif self.bukutrans:
-    #             return self.bukutrans.responsetransaksi
-    #         else :
-    #             return self.bukupln.responsetransaksi
-    #     except:
-    #         return None
+    def harga_beli(self):
+        try:
+            if self.transaksi:
+                return self.transaksi.responsetransaksi.price
+            elif self.bukutrans:
+                return self.bukutrans.responsetransaksi.price
+            else :
+                return self.bukupln.responsetransaksi.price
+        except:
+            return 0
+
+    
+    def profit(self):
+        return self.kredit - self.harga_beli()
 
 
 class CatatanModal(models.Model):

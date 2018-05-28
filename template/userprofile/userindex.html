@@ -12,178 +12,131 @@
 {% block content %}
 <div class="ui vertical adbase segment" style="margin-top:70px">
     <div class="ui container">
-        {% if user.is_staff %}
-        <div class="ui tiny blue statistic">
-            <div class="label">
-                Total Selling
-            </div>
-            <div class="value">
-                {{ laporan.t_success|default_if_none:0|intcomma }}
-            </div>
-        </div>
-        <div class="ui tiny teal statistic">
-            <div class="label">
-                Total Collection
-            </div>
-            <div class="value">
-                {{ laporan.t_topup|default_if_none:0|intcomma }}
-            </div>
-        </div>
-        <div class="ui tiny orange statistic">
-            <div class="label">
-                Total Failed
-            </div>
-            <div class="value">
-                {{ laporan.t_failed|default_if_none:0|intcomma }}
-            </div>
-        </div>
-        <div class="ui tiny orange statistic">
-            <div class="label">
-                Total Reverse
-            </div>
-            <div class="value">
-                {{ laporan.t_reverse|default_if_none:0|intcomma }}
-            </div>
-        </div>
-        {% endif %}
-        <div class="ui tiny statistic">
-            <div class="label">
-                My Saldo
-            </div>
-            <div class="value">
-                {{ profile.saldo|intcomma }}
-            </div>
-        </div>
-    </div>
-    <div class="ui container">
-        <div class="ui three cards">
-            <div class="card">
-                <div class="content">
-                    <div class="header">
-                        Pulsa & Data
-                    </div>
-                    <div class="meta">
-                        Telkomsel, Indosat, XL, Smartfren
-                    </div>
-                    <div class="description">
-                        Statistik penjualan & pembayaran.
-                    </div>
+        <div class="ui segment orange secondary">
+            {% if user.is_staff %}
+            <div class="ui tiny blue statistic">
+                <div class="label">
+                    Total Transaksi
                 </div>
-                <div class="extra content">
-                    <div class="ui two buttons">
-                        <a href="{% url 'userprofile:pulsa_produk' %}" class="ui basic green button">List Produk</a>
-                        <a href="{% url 'userprofile:pulsa_trx' %}" class="ui basic red button">Transaksi</a>
-                    </div>
+                <div class="value">
+                    {{ laporan.penjualan|default_if_none:0|intcomma }}
                 </div>
             </div>
-            <div class="card">
-                <div class="content">
-                    <div class="header">
-                        Top Up
-                    </div>
-                    <div class="meta">
-                        Grab Pay, Go-Jek, Tol
-                    </div>
-                    <div class="description">
-                        Statistic penjualan, dan pembayaran.
-                    </div>
+            <div class="ui tiny teal statistic">
+                <div class="label">
+                    Total Collection
                 </div>
-                <div class="extra content">
-                    <div class="ui two buttons">
-                        <a href="{% url 'userprofile:trans_produk' %}" class="ui basic green button">List Produk</a>
-                        <a href="{% url 'userprofile:trans_trx' %}" class="ui basic red button">Transaksi</a>
-                    </div>
+                <div class="value">
+                    {{ laporan.collect|default_if_none:0|intcomma }}
                 </div>
             </div>
-            <div class="card">
-                <div class="content">
-                    <div class="header">
-                        Token Listrik
-                    </div>
-                    <div class="meta">
-                        Token Listrik
-                    </div>
-                    <div class="description">
-                        Statistic penjualan, dan pembayaran.
-                    </div>
+            {% endif %}
+            <div class="ui tiny statistic">
+                <div class="label">
+                    My Saldo
                 </div>
-                <div class="extra content">
-                    <div class="ui two buttons">
-                        <a href="{% url 'userprofile:listrik_produk' %}" class="ui basic green button">List Produk</a>
-                        <a href="{% url 'userprofile:pln_trx' %}" class="ui basic red button">Transaksi</a>
-                    </div>
+                <div class="value">
+                    {{ user.profile.saldo|intcomma }}
                 </div>
             </div>
         </div>
     </div>
-    <div class="ui container">
-        <div class="ui grid">
-            <div class="six wide column">
-                <h2 class="ui header">
-                    Partnership
-                </h2>
-                <table class="ui table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Name</th>
-                            <th>Aktif</th>
-                            <th>Telegram Integrated</th>
-                            <th>Outstanding payment</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for profile in profiles %}
-                        <tr class="{% if profile.saldo < 0 %}error{% endif%}">
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ profile.user }}</td>
-                            <td>{% if profile.active %} <i class="ui icon check green"></i>{% else %} <i class="ui icon ban red"></i>{% endif %}</td>
-                            <td>{% if profile.email_confirmed %} <i class="ui icon check green"></i>{% else %} <i class="ui icon ban red"></i>{% endif %}</td>
-                            <td>{{ profile.saldo|intcomma }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="ten wide column">
-                <h2 class="ui header">
-                    Histori Transaksi
-                </h2>
-                <div class="ui info message">
-                    Histori 5 transaksi terakhir, tidak termasuk untuk transaksi yang gagal.
+    <div class="ui grid container">
+        <div class="six wide column">
+            <table class="ui very basic celled table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Value</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="ui header">
+                                <i class="book icon"></i>
+                                <div class="content">
+                                    Transaksi
+                                    <div class="sub header">
+                                        Count of transaction
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ c_trx }}</td>
+                        <td><a href="{% url 'userprofile:transaksi' %}">View</a></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="ui header">
+                                <i class="users icon"></i>
+                                <div class="content">
+                                    Members
+                                    <div class="sub header">
+                                        Count of your members
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {{ members }}
+                        </td>
+                        <td>
+                            <a href="#">View</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="ten wide column">
+            <h2 class="ui header">
+                Produk
+            </h2>
+            <div class="ui two cards">
+                <div class="card">
+                    <div class="content">
+                        <div class="header">
+                            Pulsa & Data
+                        </div>
+                        <div class="meta">
+                            Telkomsel, Indosat, XL, Smartfren
+                        </div>
+                        <div class="description">
+                            Statistik penjualan & pembayaran.
+                        </div>
+                    </div>
                 </div>
-                <div class="ui grid">
-                    <div class="sixteen wide column">
-                        <table class="ui small table">
-                            <thead>
-                                <tr>
-                                    <th>Transaksi</th>
-                                    <th>Produk</th>
-                                    <th class="right aligned">Harga</th>
-                                    <th class="right aligned">Balance</th>
-                                    <th>Time</th>
-                                    <th>User</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for trx in trx_histori %}
-                                <tr>
-                                    <td>{{ trx.transaksi }}{{ trx.bukutrans }}{{ trx.bukupln }}</td>
-                                    <td>{{ trx.transaksi.product.keterangan }}{{ trx.bukutrans.product.keterangan }}{{ trx.bukupln.product.nama_produk }}</td>
-                                    <td class="right aligned">{{ trx.kredit|intcomma }}</td>
-                                    <td class="right aligned">{{ trx.balance|intcomma }}</td>
-                                    <td>{{ trx.timestamp|date:"d/m/y h:i" }}</td>
-                                    <td>{{ trx.user }}</td>
-                                </tr>
-                                {% endfor %}
-                                
-                            </tbody>
-                        </table>
+                <div class="card">
+                    <div class="content">
+                        <div class="header">
+                            Top Up
+                        </div>
+                        <div class="meta">
+                            Grab Pay, Go-Jek, Tol
+                        </div>
+                        <div class="description">
+                            Statistic penjualan, dan pembayaran.
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="content">
+                        <div class="header">
+                            Token Listrik
+                        </div>
+                        <div class="meta">
+                            Token Listrik
+                        </div>
+                        <div class="description">
+                            Statistic penjualan, dan pembayaran.
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        
+       
     </div>
+    
 </div>
 {% endblock %}

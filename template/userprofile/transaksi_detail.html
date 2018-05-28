@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="ui vertical segment" style="margin-top:70px">
+    <div class="ui two column grid container">
+        <div class="column">
+            <div class="ui top attached info message">
+                <h4 class="ui header">
+                    <i class="tag icon"></i>
+                    <div class="content">
+                        {{ trx.product.keterangan }}
+                        <div class="sub header">{{ trx.timestamp|date:"d/m/y H:i" }}</div>
+                    </div>
+                </h4>
+            </div>
+            <div class="ui attached segment">
+                <div class="ui list">
+                    <div class="item">
+                        <a href="#" class="header">Nama Produk</a>
+                        <div class="description">
+                            {{ trx.product.keterangan }}
+                        </div>
+                    </div>
+                    <div class="item">
+                        <a href="#" class="header">No. Pelanggan</a>
+                        <div class="description">
+                            {{ trx.phone }}
+                        </div>
+                    </div>
+                    <div class="item">
+                        <a href="#" class="header">Nomor Seri</a>
+                        <div class="description">
+                            {{ trx.responsetransaksi.serial_no }}
+                        </div>
+                    </div>
+                    <div class="item">
+                        <a href="#" class="header">Harga</a>
+                        Rp {{ trx.price|intcomma }}
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

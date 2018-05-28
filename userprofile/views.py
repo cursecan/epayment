@@ -1,10 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http.response import JsonResponse
+from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import F, Sum, Q
+from django.db.models import F, Sum, Q, Count
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.postgres.search import SearchVector
 
 import requests, json
 
@@ -18,38 +20,26 @@ from .models import Profile
 # USER INDEX
 @login_required()
 def userindex(request):
-    profile_objs = Profile.objects.order_by('saldo')
-    profile_obj = profile_objs.get(
-        user = request.user
-    )
-
-    pembukuan_obj = PembukuanTransaksi.objects.all().select_related(
-        'user'
-    )
-    struck_obj = pembukuan_obj.filter(
-        status_type = 9
-    )[:5]
+    pembukuan_objs = PembukuanTransaksi.unclosed_book.all()
+    profile_objs = Profile.objects.all()
 
     if not request.user.is_staff :
-        struck_obj = pembukuan_obj.filter(
-            Q(user = request.user) | Q(user__profile__profile_member=profile_obj)  
+        pembukuan_objs = pembukuan_objs.filter(
+            Q(user=request.user) | Q(user__profile__profile_member=request.user)
         )
         profile_objs = profile_objs.filter(
-            profile_member = profile_obj
+            profile_member = request.user
         )
 
-    laporan = pembukuan_obj.aggregate(
-        t_success = Sum('kredit', filter=Q(status_type=9)),
-        t_topup = Sum('debit', filter=Q(status_type=1)),
-        t_failed = Sum('kredit', filter=Q(status_type=3)),
-        t_reverse = Sum('kredit', filter=Q(status_type=2))
+    laporan = pembukuan_objs.aggregate(
+        penjualan = Sum('kredit', filter=Q(status_type=9)),
+        collect = Sum('debit', filter=Q(status_type=1)),
     )
 
     content = {
         'laporan': laporan,
-        'profile': profile_obj,
-        'trx_histori': struck_obj,
-        'profiles': profile_objs,
+        'c_trx': pembukuan_objs.count(),
+        'members': profile_objs.count(),
     }
     return render(request, 'userprofile/userindex.html', content)
 
@@ -383,23 +373,34 @@ def checkHargaView(request):
     return JsonResponse({'status':0})
 
 
-# TRX ALL
+# TRX ALL VIEW
 @login_required
 def trx_produk_all(request):
     page = request.GET.get('page', 1)
-    pembukuan_obj = PembukuanTransaksi.objects.all().select_related(
+    search = request.GET.get('search', None)
+    pembukuan_obj = PembukuanTransaksi.unclosed_book.select_related(
         'user', 'transaksi__product', 'transaksi', 'bukutrans', 'bukutrans__product',
         'bukupln', 'bukupln__product'
     )
 
+    # TRX SUCCESS & FAILED
     publish_trx = pembukuan_obj.filter(status_type__in = [3,9])
+    if search:
+        publish_trx = publish_trx.annotate(
+            search = SearchVector(
+                'transaksi__trx_code', 'transaksi__phone', 
+                'bukutrans__trx_code', 'bukutrans__phone',
+                'bukupln__trx_code', 'bukupln__account_num',
+            )
+        ).filter(
+            search = search
+        )
 
     if not request.user.is_staff:
         publish_trx = publish_trx.filter(
             Q(user=request.user) | Q(user__profile__profile_member=request.user.profile)
         )
-
-    paginator = Paginator(publish_trx, 20)
+    paginator = Paginator(publish_trx, 10)
 
     try :
         trxs = paginator.page(page)
@@ -412,3 +413,41 @@ def trx_produk_all(request):
         'trxs' : trxs
     }
     return render(request, 'userprofile/transaksi_produk.html', content)
+
+
+# DETAIL TRX PULSA
+def trx_detail_pulsa_view(request, id):
+    data = dict()
+    trx_obj = get_object_or_404(pulsa_model.Transaksi, pk=id)
+
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_pulsa_trx.html',
+        {'trx': trx_obj},
+        request=request
+    )
+    return JsonResponse(data)
+
+
+def trx_detail_trans_view(request, id):
+    data = dict()
+    trx_obj = get_object_or_404(trans_model.Transaksi, pk=id)
+
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_pulsa_trx.html',
+        {'trx': trx_obj},
+        request=request
+    )
+    return JsonResponse(data)
+
+
+def trx_detail_pln_view(request, id):
+    data = dict()
+    trx_obj = get_object_or_404(pln_model.Transaksi, pk=id)
+
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_pulsa_trx.html',
+        {'trx': trx_obj},
+        request=request
+    )
+    return JsonResponse(data)
+

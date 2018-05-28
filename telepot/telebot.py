@@ -397,12 +397,16 @@ class Epaybot(telepot.helper.ChatHandler):
             self.integrate_telegram(chat_id, data)
             return
 
+        if '/menu' in msg['text']:
+            self.main_menu()
+            return
+
         if self._code != None:
             data = msg['text']
             if self._code in self._list_pulsa_prod:
                 valid = re.match(r'^0\d+$', data)
                 if not valid:
-                    self.sender.sendMessage('Silahkan masukan nomor handphone anda dengan benar.')
+                    self.sender.sendMessage('Silahkan masukan nomor handphone anda dengan benar atau /menu untuk kembali ke menu utama.')
                     return
                 self.sender.sendMessage('Mohon tunggu transaksi anda sedang diproses.')
                 self.topup_pulsa(self._code, data, chat_id)

@@ -124,22 +124,33 @@ def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
 
     if not update_fields is None:
         if 'response_code' in update_fields:
-            if instance.has_changed('rc') and instance.catatan_modal.confirmed == False:
+            instance_modal = instance.trx.catatan_modal
+            if instance.has_changed('rc') and instance.trx.catatan_modal.confirmed == False:
                 if instance.rc in ['99','10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
-                    try :
-                        modal_create_obj = CatatanModal.objects.create(
-                            debit = instance.catatan_modal.kredit,
-                            saldo = last_catatan.saldo + instance.catatan_modal.kredit,
-                            parent_id = instance.catatan_modal,
-                            type_transaksi = 3
-                        )
-                    except:
-                        modal_create_obj = CatatanModal.objects.create(
-                            debit = instance.catatan_modal.kredit,
-                            saldo = 0,
-                            parent_id = instance.catatan_modal,
-                            type_transaksi = 3
-                        )
+                    modal_create_obj_new = CatatanModal.objects.create(
+                        debit = instance.trx.catatan_modal.kredit,
+                        saldo = last_catatan.saldo + instance.trx.catatan_modal.kredit,
+                        parent_id = instance.trx.catatan_modal,
+                        type_transaksi = 3,
+                        confirmed = True
+                    )
+                instance_modal.type_transaksi = 2
+                instance_modal.confirmed = True
+                instance_modal.save()
 
-                    instance.response_code = 2
-                    instance.save()
+                elif instance.serialno != '' and instance.rc == '00' and instance.trx.catatan_modal.kredit != instance.price:
+                    modal_create_obj_new = CatatanModal.objects.create(
+                        debit = instance.trx.catatan_modal.kredit,
+                        kredit = instance.price,
+                        saldo = last_catatan.saldo + instance.trx.catatan_modal.kredit - instance.price,
+                        parent_id = instance.trx.catatan_modal,
+                        confirmed = True
+                    )
+                    instance_modal.type_transaksi = 2
+                    instance_modal.confirmed = True
+                    instance_modal.save()
+
+                Transaksi.objects.filter(
+                    responsetransaksi = instance
+                ).update(catatan_modal=modal_create_obj_new)
+                    

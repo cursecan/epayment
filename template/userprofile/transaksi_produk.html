@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
+{% load templatehelpers %}
 
 {% block css %}
     <style>
@@ -13,6 +14,14 @@
 {% block content %}
 <div class="ui vertical adbase segment" style="margin-top:70px">
     <div class="ui container">
+        <form action="" class="ui form">
+            <div class="ui action input">
+                <input type="text" placeholder="Search..." name="search">
+                <button type="submit" class="ui button">Search</button>
+            </div>
+        </form>
+    </div>
+    <div class="ui container">
         <table class="ui celled small table">
             <thead>
                 <tr>
@@ -22,14 +31,17 @@
                     <th>Harga</th>
                     <th>Balance</th>
                     <th>Status</th>
-                    <th>Owner</th>
+                    <th>User</th>
+                    <th>Agen Collection</th>
+                    <th>Profit</th>
                     <th>Timestamp</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 {% for trx in trxs %}
                 <tr>
-                    <td>{{ forloop.counter0 }}</td>
+                    <td>{{ forloop.counter0|add:trxs.start_index }}</td>
                     <td>
                         <i>
                                 {{ trx.transaksi }}
@@ -56,13 +68,92 @@
                         {{ trx.get_status_type_display }}
                     </td>
                     <td>{{ trx.user }}</td>
+                    <td>{{ trx.user.profile.profile_member|default_if_none:'-' }}</td>
+                    <td>{{ trx.profit|intcomma }}</td>
                     <td>
                         {{ trx.timestamp|date:"d/m/y H:i" }}
                     </td>
+                    <td>
+                        <a class="ui link js-trx-detail-link" href="#" target-url="{% if trx.bukutrans %}{% url 'userprofile:trans_trx' trx.bukutrans.id %}{% endif %}{% if trx.bukupln %}{% url 'userprofile:pln_trx' trx.bukupln.id %}{% endif %}{% if trx.transaksi %}{% url 'userprofile:pulsa_trx' trx.transaksi.id %}{% endif %}"><i title="View Transaction" class="icon sign in alternate"></i></a>
+                        <a href="#" class="ui link" title="Modify Transaksi"><i class="pencil icon"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td class="center aligned" colspan="11">No data</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    {% if trxs.has_other_pages %}
+    <div class="ui container">
+        <div class="ui pagination menu">
+            {% if trxs.has_previous %}
+            <a href="{% relative_url trxs.previous_page_number 'page' request.GET.urlencode %}" class="item">Prev</a>
+            {% else %}
+            <div class="item"><span>&laquo;</span></div>
+            {% endif %}
+            {% for i in trxs.paginator.page_range %}
+                {% if trxs.number == i%}
+                <div class="item active">{{ i }}</div>
+                {% else %}
+                <a href="{% relative_url i 'page' request.GET.urlencode %}" class="item">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if trxs.has_next %}
+            <a href="{% relative_url trxs.next_page_number 'page' request.GET.urlencode %}" class="item">Next</a>
+            {% else %}
+            <div class="item"><span>&laquo;</span></div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </div>
+{% endblock %}
+
+
+{% block modal %}
+<div class="ui modal">
+    <!-- <i class="close icon"></i>
+    <div class="header">
+        Modal Title
+    </div>
+    <div class="image content">
+        <div class="image">
+        An image can appear on left or an icon
+        </div>
+        <div class="description">
+        A description can appear on the right
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui button">Cancel</div>
+        <div class="ui button">OK</div>
+    </div> -->
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function() {
+        var loadModalink = function () {
+            $('.ui.modal').modal('show');
+            var btn = $(this);
+
+            $.ajax({
+                url: btn.attr('target-url'),
+                dataType: 'json',
+                success: function(data) {
+                    $('.ui.modal').html(data.html);
+                }
+            });
+            return false;
+        }
+
+
+        $('.js-trx-detail-link').click(loadModalink);
+
+    });
+</script>
 {% endblock %}
