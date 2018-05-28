@@ -252,8 +252,15 @@ def checkTrxView(request):
                 balance=rjson.get('balance', 0),
                 refca=rjson.get('refca',''),
                 refsb=rjson.get('refsb',''),
-                response_code=rjson.get('rc',''),
+                # response_code=rjson.get('rc',''),
             )
+            trxs = pulsa_model.ResponseTransaksi.objects.get(trx=trx_p)
+            try :
+                trxs.response_code = rjson.get('rc','')
+                trxs.save(update_fields=['response_code'])
+            except :
+                pass
+
             if trx_p.responsetransaksi.response_code in ['10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
                 trx_p.status = 9
                 trx_p.save(update_fields=['status'])
@@ -280,8 +287,16 @@ def checkTrxView(request):
                 balance=rjson.get('balance', 0),
                 refca=rjson.get('refca',''),
                 refsb=rjson.get('refsb',''),
-                response_code=rjson.get('rc',''),
+                # response_code=rjson.get('rc',''),
             )
+
+            trxs = trans_model.ResponseTransaksi.objects.get(trx=trx_e)
+            try :
+                trxs.response_code = rjson.get('rc','')
+                trxs.save(update_fields=['response_code'])
+            except :
+                pass
+
             if trx_e.responsetransaksi.response_code in ['10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
                 trx_e.status = 9
                 trx_e.save(update_fields=['status'])
@@ -298,7 +313,7 @@ def checkTrxView(request):
             pln_model.ResponseTransaksi.objects.filter(
                 trx = trx_pln
             ).update(
-                rc = rson.get('rc', ''),
+                # rc = rson.get('rc', ''),
                 info = rson.get('info', ''),
                 productcode = rson.get('productcode', ''),
                 trxtime = rson.get('trxtime', ''),
@@ -315,6 +330,14 @@ def checkTrxView(request):
                 refca = rson.get('refca', ''),
                 refsb = rson.get('refsb', '')
             )
+
+            trxs = pln_model.ResponseTransaksi.objects.get(trx=trx_pln)
+            try :
+                trxs.rc = rjson.get('rc','')
+                trxs.save(update_fields=['rc'])
+            except :
+                pass
+
             if trx_pln.responsetransaksi.rc in ['10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
                 trx_pln.status = 9
                 trx_pln.save(update_fields=['status'])
