@@ -130,9 +130,9 @@ def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
                         type_transaksi = 3,
                         confirmed = True
                     )
-                instance_modal.type_transaksi = 2
-                instance_modal.confirmed = True
-                instance_modal.save()
+                    instance_modal.type_transaksi = 2
+                    instance_modal.confirmed = True
+                    instance_modal.save()
 
                 elif instance.serial_no != '' and instance.response_code == '00' and instance.trx.catatan_modal.kredit != instance.price:
                     modal_create_obj_new = CatatanModal.objects.create(
