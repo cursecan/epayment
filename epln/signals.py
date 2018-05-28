@@ -96,8 +96,8 @@ def precess_requesting_to_sb(sender, instance, created, update_fields, **kwargs)
 
 @receiver(post_save, sender=ResponseTransaksi)
 def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
+    last_catatan = CatatanModal.objects.latest()
     if created :
-        last_catatan = CatatanModal.objects.latest()
         if instance.trx.request_type == 'p' and instance.rc in ['00','']:
             try :
                 modal_create_obj = CatatanModal.objects.create(
@@ -122,7 +122,7 @@ def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
 
 
 
-    if not update_fields is None:
+    if not update_fields:
         if 'response_code' in update_fields:
             instance_modal = instance.trx.catatan_modal
             if instance.has_changed('rc') and instance.trx.catatan_modal.confirmed == False:

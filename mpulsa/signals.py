@@ -95,8 +95,8 @@ def transaction_recording(sender, instance, created, update_fields=[], **kwargs)
 
 @receiver(post_save, sender=ResponseTransaksi)
 def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
+    last_catatan = CatatanModal.objects.latest()
     if created :
-        last_catatan = CatatanModal.objects.latest()
         if instance.response_code in ['00','']:
             try :
                 modal_create_obj = CatatanModal.objects.create(
@@ -121,7 +121,7 @@ def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
 
 
 
-    if not update_fields is None:
+    if not update_fields:
         if 'response_code' in update_fields:
             instance_modal = instance.trx.catatan_modal
             if instance.has_changed('response_code') and instance.trx.catatan_modal.confirmed == False:

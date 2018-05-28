@@ -118,7 +118,7 @@ def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
 
 
 
-    if not update_fields is None:
+    if not update_fields:
         if 'response_code' in update_fields:
             instance_modal = instance.trx.catatan_modal
             if instance.has_changed('response_code') and instance.trx.catatan_modal.confirmed == False:
