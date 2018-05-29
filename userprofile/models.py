@@ -69,15 +69,27 @@ class PembukuanTransaksi(models.Model):
         return str(self.id)
 
     
+    def get_transaksi_obj(self):
+        try:
+            if hasattr(self, 'transaksi'):
+                return self.transaksi
+            elif hasattr(self, 'bukutrans'):
+                return self.bukutrans
+            else :
+                return self.bukupln
+        except Exception as e:
+            return None
+
+    
     def harga_beli(self):
         try:
-            if self.transaksi:
+            if hasattr(self, 'transaksi'):
                 return self.transaksi.responsetransaksi.price
-            elif self.bukutrans:
+            elif hasattr(self, 'bukutrans'):
                 return self.bukutrans.responsetransaksi.price
             else :
                 return self.bukupln.responsetransaksi.price
-        except:
+        except Exception as e:
             return 0
 
     
@@ -106,5 +118,5 @@ class CatatanModal(models.Model):
         get_latest_by = 'timestamp'
 
     def __str__(self):
-        return str(self.saldo)
+        return str(self.id)
 

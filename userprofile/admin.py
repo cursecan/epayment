@@ -29,7 +29,7 @@ class CatatanModalAdmin(admin.ModelAdmin):
     class Meta:
         model = CatatanModal
 
-    list_display = ['debit', 'kredit', 'saldo', 'type_transaksi','parent_id','confirmed','keterangan','timestamp']
+    list_display = ['id','debit', 'kredit', 'saldo', 'type_transaksi','parent_id','confirmed','keterangan','timestamp']
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdminCustom)

@@ -143,7 +143,8 @@ def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
                         kredit = instance.price,
                         saldo = last_catatan.saldo + instance.trx.catatan_modal.kredit - instance.price,
                         parent_id = instance.trx.catatan_modal,
-                        confirmed = True
+                        confirmed = True,
+                        keterangan = 'Harga beli berubah!', 
                     )
                     instance_modal.type_transaksi = 2
                     instance_modal.confirmed = True

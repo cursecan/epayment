@@ -43,20 +43,13 @@
                 <tr>
                     <td>{{ forloop.counter0|add:trxs.start_index }}</td>
                     <td>
-                        <i>
-                                {{ trx.transaksi }}
-                                {{ trx.bukutrans }}
-                                {{ trx.bukupln }}
-                        </i>
-                        /
-                        {{ trx.transaksi.product.keterangan }}
-                        {{ trx.bukutrans.product.keterangan }}
-                        {{ trx.bukupln.product.nama_produk }}
+                        <i>{{ trx.get_transaksi_obj.trx_code }}</i>
+                        <br>
+                        {{ trx.get_transaksi_obj.product.keterangan }}
+                        {{ trx.get_transaksi_obj.product.nama_produk }}
                     </td>
                     <td>
-                        {{ trx.transaksi.phone }}
-                        {{ trx.bukutrans.phone }}
-                        {{ trx.bukupln.account_num }}
+                        {{ trx.get_transaksi_obj.phone|truncatechars:15 }}
                     </td>
                     <td>
                         {{ trx.kredit|intcomma }}
@@ -67,15 +60,18 @@
                     <td>
                         {{ trx.get_status_type_display }}
                     </td>
-                    <td>{{ trx.user }}</td>
+                    <td>{{ trx.user|truncatechars:13 }}</td>
                     <td>{{ trx.user.profile.profile_member|default_if_none:'-' }}</td>
                     <td>{{ trx.profit|intcomma }}</td>
                     <td>
                         {{ trx.timestamp|date:"d/m/y H:i" }}
                     </td>
                     <td>
-                        <a class="ui link js-trx-detail-link" href="#" target-url="{% if trx.bukutrans %}{% url 'userprofile:trans_trx' trx.bukutrans.id %}{% endif %}{% if trx.bukupln %}{% url 'userprofile:pln_trx' trx.bukupln.id %}{% endif %}{% if trx.transaksi %}{% url 'userprofile:pulsa_trx' trx.transaksi.id %}{% endif %}"><i title="View Transaction" class="icon sign in alternate"></i></a>
-                        <a href="#" class="ui link" title="Modify Transaksi"><i class="pencil icon"></i></a>
+                        <div class="ui mini basic icon vertical buttons">
+                            <a class="ui icon button js-trx-detail-link" href="#" target-url="{% if trx.bukutrans %}{% url 'userprofile:trans_trx' trx.bukutrans.id %}{% endif %}{% if trx.bukupln %}{% url 'userprofile:pln_trx' trx.bukupln.id %}{% endif %}{% if trx.transaksi %}{% url 'userprofile:pulsa_trx' trx.transaksi.id %}{% endif %}"><i title="View Transaction" class="icon sign in alternate"></i></a>                        
+                            <a href="#" class="ui icon button" title="Modify Transaksi"><i class="pencil red icon"></i></a>
+                        </div>
+                        
                     </td>
                 </tr>
                 {% empty %}
