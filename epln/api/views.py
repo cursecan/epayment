@@ -87,7 +87,8 @@ class TopupTokenListrikView(APIView):
                 result['nominal'] = produk_obj.nominal
                 result['price'] = produk_obj.price
                 result['saldo'] = user_obj.profile.saldo
-                result['phone'] = trx_obj_2.account_num+', Phone.'+trx_obj_2.phone
+                result['account_num'] = trx_obj_2.account_num
+                result['phone'] = trx_obj_2.phone
                 result['struk'] = trx_obj_2.struk
                 
                 

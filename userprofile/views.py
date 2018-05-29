@@ -38,7 +38,7 @@ def userindex(request):
 
     content = {
         'laporan': laporan,
-        'c_trx': pembukuan_objs.count(),
+        'c_trx': pembukuan_objs.filter(status_type=9).count(),
         'members': profile_objs.count(),
     }
     return render(request, 'userprofile/userindex.html', content)
@@ -439,6 +439,7 @@ def trx_produk_all(request):
 
 
 # DETAIL TRX PULSA
+@login_required()
 def trx_detail_pulsa_view(request, id):
     data = dict()
     trx_obj = get_object_or_404(pulsa_model.Transaksi, pk=id)
@@ -451,6 +452,7 @@ def trx_detail_pulsa_view(request, id):
     return JsonResponse(data)
 
 
+@login_required()
 def trx_detail_trans_view(request, id):
     data = dict()
     trx_obj = get_object_or_404(trans_model.Transaksi, pk=id)
@@ -463,6 +465,7 @@ def trx_detail_trans_view(request, id):
     return JsonResponse(data)
 
 
+@login_required()
 def trx_detail_pln_view(request, id):
     data = dict()
     trx_obj = get_object_or_404(pln_model.Transaksi, pk=id)

@@ -59,25 +59,26 @@ def precess_requesting_to_sb(sender, instance, created, update_fields, **kwargs)
             refsb = rson.get('refsb', '')
         )
 
-        if instance.request_type == 'p' and res.rc in ['', '00']:
-            pebukuan_obj = PembukuanTransaksi.objects.create(
-                user = instance.user,
-                kredit = instance.price,
-                balance = instance.user.profile.saldo - instance.price
-            )
+        if instance.request_type == 'p':
+            if res.rc in ['', '00']:
+                pebukuan_obj = PembukuanTransaksi.objects.create(
+                    user = instance.user,
+                    kredit = instance.price,
+                    balance = instance.user.profile.saldo - instance.price
+                )
 
-            try :
-                r = requests.get(res.url_struk)
-                tree = html.fromstring(r.content)
-                instance.struk = tree.xpath('//pre/text()')[0]
-            except :
-                pass
+                try :
+                    r = requests.get(res.url_struk)
+                    tree = html.fromstring(r.text.replace(u'\xa0', ''))
+                    instance.struk = tree.xpath('//pre/text()')[0]
+                except Exception as es :
+                    pass
 
-            instance.pembukuan = pebukuan_obj
-            instance.save(update_fields=['pembukuan', 'struk'])
-        else :
-            instance.status = 9
-            instance.save()
+                instance.pembukuan = pebukuan_obj
+                instance.save(update_fields=['pembukuan', 'struk'])
+            else :
+                instance.status = 9
+                instance.save()
 
     if update_fields is not None :
         # update in admin to gagal transaksi    
@@ -122,7 +123,7 @@ def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
 
 
 
-    if not update_fields:
+    if update_fields is not None:
         if 'response_code' in update_fields:
             instance_modal = instance.trx.catatan_modal
             if instance.has_changed('rc') and instance.trx.catatan_modal.confirmed == False:
