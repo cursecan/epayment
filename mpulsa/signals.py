@@ -83,16 +83,21 @@ def transaction_recording(sender, instance, created, update_fields=[], **kwargs)
         # update in form
         if 'status' in update_fields and instance.status == 9:
             diskon_pembukuan = PembukuanTransaksi.objects.create(
-                user = user,
+                user = instance.user,
                 parent_id = instance.pembukuan,
                 seq = instance.pembukuan.seq +1,
                 kredit = -instance.pembukuan.kredit,
-                balance = user.profile.saldo + instance.pembukuan.kredit,
+                balance = instance.user.profile.saldo + instance.pembukuan.kredit,
                 status_type = 2
             )
             PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)
 
+            response_trx_obj = ResponseTransaksi.objects.get(trx=instance)
+            response_trx_obj.response_code = '99'
+            response_trx_obj.save(update_fields=['response_code'])
 
+
+# SIGNAL PERHITUNGAN MODAL THD RESPONSE TRX
 @receiver(post_save, sender=ResponseTransaksi)
 def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
     last_catatan = CatatanModal.objects.latest()
@@ -120,24 +125,30 @@ def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
             ).update(catatan_modal=modal_create_obj)
 
 
-
     if update_fields is not None:
         if 'response_code' in update_fields:
             instance_modal = instance.trx.catatan_modal
-            if instance.has_changed('response_code') and instance.trx.catatan_modal.confirmed == False:
-                if instance.response_code in ['99','10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
-                    modal_create_obj_new = CatatanModal.objects.create(
-                        debit = instance.trx.catatan_modal.kredit,
-                        saldo = last_catatan.saldo + instance.trx.catatan_modal.kredit,
-                        parent_id = instance.trx.catatan_modal,
-                        type_transaksi = 3,
-                        confirmed = True
-                    )
-                    instance_modal.type_transaksi = 2
-                    instance_modal.confirmed = True
-                    instance_modal.save()
+            # FILTER RESPON TRX GAGAL
+            if instance.response_code in ['99','10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
+                modal_create_obj_new = CatatanModal.objects.create(
+                    debit = instance.trx.catatan_modal.kredit,
+                    saldo = last_catatan.saldo + instance.trx.catatan_modal.kredit,
+                    parent_id = instance.trx.catatan_modal,
+                    type_transaksi = 3,
+                    confirmed = True,
+                    keterangan = 'Pembelian telah di gagalkan!'
+                )
+                instance_modal.type_transaksi = 2
+                instance_modal.confirmed = True
+                instance_modal.save()
+                
+                Transaksi.objects.filter(
+                    responsetransaksi = instance
+                ).update(catatan_modal=modal_create_obj_new)
 
-                elif instance.serial_no != '' and instance.response_code == '00' and instance.trx.catatan_modal.kredit != instance.price:
+            # FILTER RESPON TRX SUCCESS
+            elif instance.serial_no != '' and instance.response_code == '00':
+                if instance.trx.catatan_modal.kredit != instance.price :
                     modal_create_obj_new = CatatanModal.objects.create(
                         debit = instance.trx.catatan_modal.kredit,
                         kredit = instance.price,
@@ -146,11 +157,13 @@ def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
                         confirmed = True,
                         keterangan = 'Harga beli berubah!', 
                     )
-                    instance_modal.type_transaksi = 2
-                    instance_modal.confirmed = True
-                    instance_modal.save()
-
-                Transaksi.objects.filter(
-                    responsetransaksi = instance
-                ).update(catatan_modal=modal_create_obj_new)
                     
+                    instance_modal.type_transaksi = 2
+
+                    Transaksi.objects.filter(
+                        responsetransaksi = instance
+                    ).update(catatan_modal=modal_create_obj_new)
+                
+                instance_modal.confirmed = True
+                instance_modal.save()
+                

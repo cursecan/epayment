@@ -4,12 +4,18 @@ from django.contrib.auth.models import User
 from django.db.models import F
 
 
-from .models import PembukuanTransaksi, Profile
+from .models import PembukuanTransaksi, Profile, CatatanModal
 
 
+# UPDATE SALDO USER DARI RECORD PEMBUKUAN
 @receiver(post_save, sender=PembukuanTransaksi)
 def saldo_profile(sender, instance, created, **kwargs):
     if created:
+        get_last_modal = CatatanModal.objects.latest()
+
+        instance.balance = instance.user.profile.saldo + instance.debit - instance.kredit
+        instance.save()
+
         Profile.objects.filter(user = instance.user).update(saldo=instance.balance)
 
 
@@ -19,7 +25,3 @@ def initial_profile(sender, instance, created, **kwargs):
         profile_obj = Profile.objects.create(
             user=instance,
         )
-
-# @receiver(pre_delete, sender=PembukuanTransaksi)
-# def delete_failed_trx(sender, instance, **kwargs):
-#     profile_objs = Profile.objects.filter(user=instance.user).update(saldo=F('saldo')+instance.kredit)

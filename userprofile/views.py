@@ -477,3 +477,28 @@ def trx_detail_pln_view(request, id):
     )
     return JsonResponse(data)
 
+
+
+@login_required
+def trx_edit_pulsa_view(request, id):
+    data = dict()
+    data['id'] = id
+    data['form_is_valid'] = False
+    trx_obj = get_object_or_404(pulsa_model.Transaksi, pk=id, status__lt=9)
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_trx_edit.html',
+        {'trx': trx_obj},
+        request=request
+    )
+
+    if request.method == 'POST':
+        trx_obj.status = 9
+        trx_obj.save(update_fields=['status'])
+        data['html'] = render_to_string(
+            'userprofile/includes/partial_trx_data.html',
+            {'trx': trx_obj},
+            request=request
+        )
+        data['form_is_valid'] = True
+    
+    return JsonResponse(data)
