@@ -1,0 +1,111 @@
+{% extends 'base_admin.html' %}
+{% load humanize %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block content %}
+<div class="ui vertical basic segment">
+    <div class="ui fluid container">
+        <div class="ui equal width padded stackable grid">
+            <!-- Main Chart -->
+            <div class="row">
+                <div class="column">
+                    <div class="ui basic segment" id="chart-1" data-url="{% url 'userprofile:trx_dataset' %}">
+                        <!-- chart trx -->
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    <div class="ui inverted orange segment clearing">
+                        <div class="ui grid">
+                            <div class="row">
+                                <div class="column">
+                                    <div class="ui tiny inverted statistic">
+                                        <div class="value">{{ laporan.c_trx|intcomma }}</div>
+                                        <div class="label">Transaction</div>
+                                    </div>
+                                    <h4 class="ui icon header inverted right floated">
+                                        <i class="trademark icon"></i>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="ui inverted blue segment">
+                        <div class="ui grid">
+                            <div class="row">
+                                <div class="column">
+                                    <div class="ui tiny inverted statistic">
+                                        <div class="value">{{ col_rasio|floatformat:1 }}%</div>
+                                        <div class="label">Collection Rasio</div>
+                                    </div>
+                                    <h4 class="ui icon header inverted right floated">
+                                        <i class="chart pie icon"></i>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="ui inverted red segment">
+                        <div class="ui grid">
+                            <div class="row">
+                                <div class="column">
+                                    <div class="ui tiny inverted statistic">
+                                        <div class="value">{{ c_member|intcomma }}</div>
+                                        <div class="label">Members</div>
+                                    </div>
+                                    <h4 class="ui icon header inverted right floated">
+                                        <i class="users icon"></i>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="ui inverted green segment">
+                        <div class="ui grid">
+                            <div class="row">
+                                <div class="column">
+                                    <div class="ui tiny inverted statistic">
+                                        <div class="value">Rp {{ user.profile.saldo|intcomma }}</div>
+                                        <div class="label">Saldo</div>
+                                    </div>
+                                    <h4 class="ui icon header inverted right floated">
+                                        <i class="pound sign icon"></i>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function() {
+        $.ajax({
+            url: $('#chart-1').attr('data-url'),
+            type: 'get',
+            dataType: 'json',
+            success: function(data) {
+                Highcharts.chart('chart-1', data);
+            }
+        });
+    });
+</script>
+{% endblock %}

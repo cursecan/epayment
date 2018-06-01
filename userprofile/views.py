@@ -3,17 +3,20 @@ from django.http.response import JsonResponse
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import F, Sum, Q, Count
+from django.db.models import F, Sum, Q, Count, Value as V
+from django.db.models.functions import TruncDate, Coalesce
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.postgres.search import SearchVector
 
-import requests, json
+import requests, json, pendulum
 
 from mpulsa import models as pulsa_model
 from etransport import models as trans_model
 from epln import models as pln_model
 from .models import PembukuanTransaksi
+from .forms import AddSaldoForm
+
 
 from .models import Profile
 
@@ -25,190 +28,170 @@ def userindex(request):
 
     if not request.user.is_staff :
         pembukuan_objs = pembukuan_objs.filter(
-            Q(user=request.user) | Q(user__profile__profile_member=request.user)
+            Q(user=request.user) | Q(user__profile__profile_member=request.user.profile)
         )
         profile_objs = profile_objs.filter(
-            profile_member = request.user
+            profile_member = request.user.profile
         )
 
     laporan = pembukuan_objs.aggregate(
-        penjualan = Sum('kredit', filter=Q(status_type=9)),
-        collect = Sum('debit', filter=Q(status_type=1)),
+        c_trx = Coalesce(Count('user', filter=Q(status_type=9)), V(0)),
+        v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
+        v_sold = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
     )
+
+    col_rasio = 0
+    try :
+        col_rasio = laporan.get('v_collect')/laporan.get('v_sold') * 100
+    except:
+        pass
 
     content = {
         'laporan': laporan,
-        'c_trx': pembukuan_objs.filter(status_type=9).count(),
-        'members': profile_objs.count(),
+        'col_rasio': col_rasio,
+        'c_member': profile_objs.count(),
     }
-    return render(request, 'userprofile/userindex.html', content)
+    return render(request, 'userprofile/index.html', content)
 
 
-# PRODUK PULSA
-@login_required()
-def pulsaProdukView(request):
-    pulsa_objs_list = pulsa_model.Product.objects.order_by('operator', 'nominal')
+# DATASET STATISTIK TRX
+@login_required
+def trx_dataset(request):
+    pembukuan_objs = PembukuanTransaksi.unclosed_book.filter(status_type=9)
 
+    if not request.user.is_staff :
+        pembukuan_objs = pembukuan_objs.filter(
+            Q(user = request.user) | Q(user__profile__profile_member=request.user.profile)
+        )
+
+    data_in_date = dict()
+
+    dataset = pembukuan_objs.annotate(
+        date_on = TruncDate('timestamp')
+    ).values('date_on').annotate(c_value = Count('id')).values('date_on', 'c_value').order_by()
+    
+    for i in dataset :
+        data_in_date[i['date_on']] = i['c_value']
+
+    sort_days = sorted(list(data_in_date.keys()))
+
+    chart = {
+        'chart': {'type': 'line', 'backgroundColor': 'transparent', 'height':350},
+        'title': {'text': 'Transaksi'},
+        'xAxis': {
+            'categories': list(map(lambda x: x.strftime('%d/%m'), sort_days))
+        },
+        'series': [
+            {
+                'name': 'Trx',
+                'data': list(map(lambda x : data_in_date[x], sort_days)),
+            }
+        ]
+    }
+    
+    return JsonResponse(chart)
+
+
+# MEMBER LIST
+@login_required
+def member_View(request):
     page = request.GET.get('page', 1)
-    op = request.GET.get('op', None)
-    if op :
-        pulsa_objs_list = pulsa_objs_list.filter(operator_id=op).select_related(
-            'operator'
+    profile_objs = Profile.objects.all()
+    if not request.user.is_staff:
+        profile_objs = profile_objs.filter(
+            profile_member = request.user.profile
         )
-
-    oppulsa_obj = pulsa_model.Operator.objects.values('id', 'operator')
     
+    paginator = Paginator(profile_objs, 10)
 
-    paginator = Paginator(pulsa_objs_list, 10)
-    try :
-        pulsa_objs = paginator.page(page)
-    except PageNotAnInteger :
-        pulsa_objs = paginator.page(1)
+    try:
+        member_objs = paginator.page(page)
+    except PageNotAnInteger:
+        member_objs = paginator.page(1)
     except EmptyPage:
-        pulsa_objs = paginator.page(paginator.num_pages)
+        member_objs = paginator.page(paginator.page_range)
 
     content = {
-        'operators': oppulsa_obj,
-        'produks': pulsa_objs,
+        'members': member_objs,
+        'has_members': profile_objs.exists(),
     }
-    return render(request, 'userprofile/produk.html', content)
+
+    return render(request, 'userprofile/members.html', content)
 
 
-# PRODUK TRANSPORT
-@login_required()
-def etransProdukView(request):
-    trans_objs_list = trans_model.Product.objects.order_by('operator', 'nominal')
-    page = request.GET.get('page', None)
 
-    op = request.GET.get('op', None)
-    if op :
-        trans_objs_list = trans_produk_list.filter(operator_id=op).select_related(
-            'operator'
+# DATA COLLECTTION
+@login_required
+def colrasio_dataset(request):
+    buku_objs = PembukuanTransaksi.objects.all()
+    if not request.user.is_staff:
+        buku_objs = buku_objs.filter(
+            Q(user = request.user) | Q(user__profile__profile_member=request.user.profile)
         )
-
-    optrans_obj = trans_model.Operator.objects.values('id', 'operator')
     
+    collection = buku_objs.aggregate(
+        v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
+        v_sold = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
+    )
 
-    paginator = Paginator(trans_objs_list, 10)
-    try :
-        trans_objs = paginator.page(page)
-    except PageNotAnInteger :
-        trans_objs = paginator.page(1)
-    except EmptyPage:
-        trans_objs = paginator.page(paginator.num_pages)
+    chart = {
+        'chart': {'type': 'pie'},
+        'title': {'text': 'Collection Rasio'},
+        'series': [
+            {
+                'name': 'admin',
+                'data': [
+                    {
+                        'name': 'Collect',
+                        'y': collection.get('v_collect', 0)
+                    },
+                    {
+                        'name': 'Uncollect',
+                        'y': collection.get('v_sold')-collection.get('v_collect')
+                    }
+                ]
+            }
+        ]
+    }
+    return JsonResponse(chart)
+
+
+# TAMBAH SALDO USER
+@login_required
+def tambahSaldo_view(request, id):
+    profile_obj = get_object_or_404(Profile, pk=id)
+    data = dict()
+    data['form_is_valid'] = False
+    form = AddSaldoForm(request.POST or None)
 
     content = {
-        'operators': optrans_obj,
-        'produks': trans_objs,
+        'form': form,
+        'profile': profile_obj,
     }
-    return render(request, 'userprofile/produk.html', content)
 
-
-# PRODUK LISTRIK
-@login_required()
-def listrikProdView(request):
-    listrik_produk_list = pln_model.Product.objects.order_by('nominal')
-    page = request.GET.get('page', None)
-
-    paginator = Paginator(listrik_produk_list, 10)
-    try :
-        listrik_objs = paginator.page(page)
-    except PageNotAnInteger:
-        listrik_objs = paginator.page(1)
-    except:
-        listrik_objs = paginator.page(paginator.num_pages)
-
-    content = {
-        'produks': listrik_objs,
-    }
-    return render(request, 'userprofile/produk_listrik.html', content)
-
-
-# TRX PULSA
-@login_required()
-def pulsaTrxView(request):
-    trx_pulsa_list = pulsa_model.Transaksi.objects.annotate(
-        profit = F('price') - F('responsetransaksi__price')
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_add_saldo.html',
+        content,
+        request = request
     )
 
-    page = request.GET.get('page', None)
+    
+    if request.method == 'POST':
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.user = profile_obj.user
+            instance.status_type = 1
+            instance.save()
+            data['form_is_valid'] = True
 
-    paginator = Paginator(trx_pulsa_list, 10)
-    try :
-        trx_objs = paginator.page(page)
-    except PageNotAnInteger:
-        trx_objs = paginator.page(1)
-    except EmptyPage:
-        trx_objs = paginator.page(paginator.num_pages)
+            profile_obj = profile_obj.refresh_from_db
+            data['html'] = render_to_string(
+                'userprofile/includes/partial-member-data.html',
+                {'profile': profile_obj, 'id': id},
+                request = request
+            )
 
-    selling_sumary = trx_pulsa_list.aggregate(
-        t_profit = Sum('profit', filter=Q(status=0)),
-        t_selling = Sum('price', filter=Q(status=0))
-    )
-
-    content = {
-        'trxs': trx_objs,
-        'profit': selling_sumary
-    }
-    return render(request, 'userprofile/transaksi.html', content)
-
-
-# TRX TRANSPORT
-@login_required()
-def transTrxView(request):
-    trx_trans_list = trans_model.Transaksi.objects.annotate(
-        profit = F('price') - F('responsetransaksi__price')
-    )
-    page = request.GET.get('page', None)
-
-    paginator = Paginator(trx_trans_list, 10)
-    try :
-        trx_objs = paginator.page(page)
-    except PageNotAnInteger:
-        trx_objs = paginator.page(1)
-    except EmptyPage:
-        trx_objs = paginator.page(paginator.num_pages)
-
-    selling_sumary = trx_trans_list.aggregate(
-        t_profit = Sum('profit', filter=Q(status=0)),
-        t_selling = Sum('price', filter=Q(status=0))
-    )
-
-    content = {
-        'trxs': trx_objs,
-        'profit': selling_sumary,
-    }
-    return render(request, 'userprofile/transaksi.html', content)
-
-
-# TRX LISTRIK
-@login_required()
-def transListrikView(request):
-    trx_listrik_list = pln_model.Transaksi.objects.filter(
-        request_type = 'p'    
-    ).annotate(
-        profit = F('price') - F('nominal') - 400
-    )
-    page = request.GET.get('page', None)
-
-    paginator = Paginator(trx_listrik_list, 10)
-    try :
-        trx_objs = paginator.page(page)
-    except PageNotAnInteger:
-        trx_objs = paginator.page(1)
-    except EmptyPage:
-        trx_objs = paginator.page(paginator.num_pages)
-
-    selling_sumary = trx_listrik_list.aggregate(
-        t_profit = Sum('profit', filter=Q(status=0)),
-        t_selling = Sum('price', filter=Q(status=0))
-    )
-
-    content = {
-        'trxs': trx_objs,
-        'profit': selling_sumary
-    }
-    return render(request, 'userprofile/transaksi_listrik.html', content)
+    return JsonResponse(data)
 
 
 # UPDATE TRX RESPONSE
@@ -433,9 +416,10 @@ def trx_produk_all(request):
         trxs = paginator.page(paginator.page_range)
 
     content = {
-        'trxs' : trxs
+        'trxs' : trxs,
+        'c_trx': publish_trx.count(),
     }
-    return render(request, 'userprofile/transaksi_produk.html', content)
+    return render(request, 'userprofile/transaksi.html', content)
 
 
 # DETAIL TRX PULSA
@@ -452,6 +436,7 @@ def trx_detail_pulsa_view(request, id):
     return JsonResponse(data)
 
 
+# DETAIL TRX TRANSPORT
 @login_required()
 def trx_detail_trans_view(request, id):
     data = dict()
@@ -465,6 +450,7 @@ def trx_detail_trans_view(request, id):
     return JsonResponse(data)
 
 
+# DETAIL TRX PLN
 @login_required()
 def trx_detail_pln_view(request, id):
     data = dict()
@@ -478,7 +464,7 @@ def trx_detail_pln_view(request, id):
     return JsonResponse(data)
 
 
-
+# GAGAL PULSA
 @login_required
 def trx_edit_pulsa_view(request, id):
     data = dict()
@@ -502,3 +488,5 @@ def trx_edit_pulsa_view(request, id):
         data['form_is_valid'] = True
     
     return JsonResponse(data)
+
+

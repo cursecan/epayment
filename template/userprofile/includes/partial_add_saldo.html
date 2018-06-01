@@ -1,0 +1,32 @@
+{% load humanize %}
+<i class="close icon"></i>
+<div class="header">
+    <div class="ui header">
+        <i class="icon plus"></i>
+        <div class="content">
+            Tambah Saldo
+            <div class="sub header">
+                {{ profile.user.first_name|title }}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="content">
+    <form class="ui form js-saldo-form" action="{% url 'userprofile:tambah_saldo' profile.id %}" method="post">
+        {% csrf_token %}
+        <div class="field">
+            <label for="{{ form.debit.id_for_label }}">Nominal</label>
+            {{ form.debit }}
+        </div>
+        <div class="field">
+            <label for="{{ form.keterangan.id_for_label }}">Keterangan</label>
+            {{ form.keterangan }}
+        </div>
+        <!-- <div class="actions">
+            <div class="ui cancel secondary button">Close</div>
+            <div class="ui button">OK</div>
+        </div> -->
+        <button class="ui positive button" type="submit"><i class="plus icon"></i> Tambah</button>
+    </form>
+</div>
+

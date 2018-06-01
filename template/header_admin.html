@@ -1,0 +1,31 @@
+{% load static %}
+<div class="ui small top menu">
+    <div class="ui fluid container">
+        <div class="left menu">
+            <a href="#" class="item labeled icon" id="side-button">
+                <i class="align justify icon"></i>
+            </a>
+            <div class="item">
+                <div class="ui search">
+                    <div class="ui icon input">
+                        <input class="prompt" type="text" placeholder="Search...">
+                        <i class="search icon"></i>
+                    </div>
+                    <div class="results"></div>
+                </div>
+            </div>
+        </div>
+        <div class="right menu">
+                <a href="#" class="item labeled icon">
+                    <i class="icon bell"></i>
+                    <div class="ui red label mini circular">6</div>
+                </a>
+            <a href="#" class="item">
+                <img src="{% static 'images/user.jpg' %}" alt="" class="ui avatar image">
+            </a>
+            <a href="#" class="item labeled icon">
+                <i class="settings icon"></i>
+            </a>
+        </div>
+    </div>
+</div>

@@ -24,6 +24,9 @@ class Profile(models.Model):
     objects = models.Manager()
     active_profile = GetActiveProfile()
 
+    class Meta:
+        ordering = ['user__first_name']
+
     def __str__(self):
         return str(self.user)
 

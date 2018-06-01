@@ -1,0 +1,154 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% load templatehelpers %}
+{% load humanize %}
+
+
+{% block title %}
+Managemen Member
+{% endblock %}
+
+{% if has_member %}
+{% block content %}
+<div class="ui vertical basic segment">
+    <div class="ui fluid container">
+        <div class="ui padded equal width grid">
+            <div class="row">
+                <div class="twelve wide column">
+                    <div class="ui top attached segment">
+                        <h5 class="ui header">
+                                User List
+                        </h5>
+                    </div>
+                    <div class="ui attached segment">
+                        <table class="ui very basic celled table" id="user-tb">
+                            <div class="thead">
+                                <tr>
+                                    <th>Nama</th>
+                                    <th class="center aligned">Saldo / Tagihan</th>
+                                    <th class="right aligned">Action</th>
+                                </tr>
+                                <div class="tbody">
+                                    {% for member in members %}
+                                        <tr>
+                                            <td>
+                                                <h4 class="ui image header">
+                                                    <img src="{% static '/images/user.jpg' %}" class="ui mini rounded image">
+                                                    <div class="content">
+                                                        {{ member.user.first_name|title }}
+                                                        <div class="sub header">Member
+                                                    </div>
+                                                    </div>
+                                                </h4>
+                                            </td>
+                                            <td class="center aligned" id="td-{{ member.id }}">
+                                                <div class="ui sub header {% if member.saldo > 0 %}green{% else %}red{% endif %}">{{ member.saldo|intcomma }} IDR</div>
+                                            </td>
+                                            <td class="right aligned">
+                                                <a href="#" target-url="{% url 'userprofile:tambah_saldo' member.id %}" class="ui mini button positive js-add-saldo"><i class="plus icon"></i> Top Up</a>
+                                                <!-- <a class="ui mini icon button teal"><i class="user icon"></i></a>
+                                                <a href="#" class="ui mini icon button pink"><i class="mail icon"></i></a> -->
+                                                <a href="{% url 'userprofile:transaksi' %}?search={{ user.username }}" class="ui mini button orange">Lihat Transaksi</a>
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="3">Anda tidak memiliki member.</td>
+                                        </tr>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </table>
+                        
+                        {% if members.has_other_pages %}
+                            <div class="ui mini pagination menu">
+                                {% if members.has_previous %}
+                                <a href="{% relative_url members.previous_page_number 'page' request.GET.urlencode %}" class="item"><span>&laquo;</span></a>
+                                {% else %}
+                                <div class="item"><span>&laquo;</span></div>
+                                {% endif %}
+                                
+                                {% if members.has_next %}
+                                <a href="{% relative_url members.next_page_number 'page' request.GET.urlencode %}" class="item"><span>&raquo;</span></a>
+                                {% else %}
+                                <div class="item"><span>&raquo;</span></div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="ui segment">
+                        <div id="col-chart-1" data-url="{% url 'userprofile:collect_rasio' %}">
+                            <!-- Collection chart -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modal %}
+    <div id="modal-form" class="ui tiny modal">
+        <!-- Modal kontent -->
+    </div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function() {
+        $.ajax({
+            url: $('#col-chart-1').attr('data-url'),
+            dataType: 'json',
+            success: function(data) {
+                Highcharts.chart("col-chart-1", data);
+            }
+        });
+
+
+        var loadAddsaldo = function() {
+            var btn = $(this);
+
+            $.ajax({
+                url: btn.attr('target-url'),
+                dataType: 'json',
+                beforeSend: function() {
+                    $('#modal-form').modal('show');
+                },
+                success: function(data) {
+                    $('#modal-form').html(data.html);
+                }
+            });
+            return false;
+        }
+
+        var postSaldo = function() {
+            var form = $(this);
+
+            $.ajax({
+                url: form.attr('action'),
+                dataType: 'json',
+                type: form.attr('method'),
+                data: form.serialize(),
+                success: function(data) {
+                    if (data.form_is_valid) {
+                        $('#td-'+data.id).html(data.html);
+                        $('#modal-form').modal('hide');
+                    } else {
+                        $('#modal-form').html(data.html);
+                    }
+                }
+            });
+            return false;
+        }
+
+
+        $('#user-tb').on('click', '.js-add-saldo', loadAddsaldo);
+        $('#modal-form').on('submit', '.js-saldo-form', postSaldo);
+    });
+</script>
+
+{% endblock %}
+{% endif %}
