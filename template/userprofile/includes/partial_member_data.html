@@ -1,0 +1,22 @@
+{% load humanize %}
+{% load static %}
+
+<td>
+    <h4 class="ui image header">
+        <img src="{% static '/images/user.jpg' %}" class="ui mini rounded image">
+        <div class="content">
+            {{ member.user.first_name|title }}
+            <div class="sub header">Member
+        </div>
+        </div>
+    </h4>
+</td>
+<td class="center aligned">
+    <div class="ui sub header {% if member.saldo >= 0 %}green{% else %}red{% endif %}">{{ member.saldo|intcomma }} IDR</div>
+</td>
+<td class="right aligned">
+    <a href="#" target-url="{% url 'userprofile:tambah_saldo' member.id %}" class="ui mini button positive js-add-saldo"><i class="plus icon"></i> Top Up</a>
+    <!-- <a class="ui mini icon button teal"><i class="user icon"></i></a>
+    <a href="#" class="ui mini icon button pink"><i class="mail icon"></i></a> -->
+    <a href="{% url 'userprofile:transaksi' %}?search={{ member.user.username }}" class="ui mini button orange">Lihat Transaksi</a>
+</td>

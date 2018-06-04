@@ -107,6 +107,10 @@ class CatatanModal(models.Model):
         (3, 'Refund'),
         (4, 'Tambah Saldo')
     )
+    LIST_BILLER = (
+        ('SB', 'Siap Bayar'),
+        ('RB', 'Raja Biller'),
+    )
 
     debit = models.PositiveIntegerField(default=0)
     kredit = models.PositiveIntegerField(default=0)
@@ -115,6 +119,7 @@ class CatatanModal(models.Model):
     parent_id = models.OneToOneField('self', on_delete=models.SET_NULL, null=True, blank=True)
     confirmed = models.BooleanField(default=False)
     keterangan = models.CharField(max_length=200, blank=True)
+    biller = models.CharField(max_length=2, choices=LIST_BILLER, default='RB')
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:

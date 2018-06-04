@@ -154,6 +154,10 @@ SIAPBAYAR_ID = config('SIAPBAYAR_ID')
 SIAPBAYAR_PASS = config('SIAPBAYAR_PASS')
 SIAP_URL = config('SIAP_URL')
 
+RAJABILLER_ID = config('RAJABILLER_ID')
+RAJABILLER_PASS = config('RAJABILLER_PASS')
+RAJA_URL = config('RAJA_URL')
+
 # REST_FRAMEWORK = {
 #     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
 #     'PAGE_SIZE': 100

@@ -92,6 +92,20 @@ def trx_dataset(request):
     return JsonResponse(chart)
 
 
+# PRODUK
+def produk_View(request):
+    produk_objs = pulsa_model.Product.objects.filter(operator__kode='TEL')
+    p_operator = pulsa_model.Operator.objects.values('operator')
+    t_operator = trans_model.Operator.objects.values('operator')
+    content = {
+        'products': produk_objs,
+        'pulsa_operators': p_operator,
+        'trans_operators': t_operator,
+    }
+    return render(request, 'userprofile/produk.html', content)
+
+
+
 # MEMBER LIST
 @login_required
 def member_View(request):
@@ -119,11 +133,10 @@ def member_View(request):
     return render(request, 'userprofile/members.html', content)
 
 
-
 # DATA COLLECTTION
 @login_required
 def colrasio_dataset(request):
-    buku_objs = PembukuanTransaksi.objects.all()
+    buku_objs = PembukuanTransaksi.unclosed_book.all()
     if not request.user.is_staff:
         buku_objs = buku_objs.filter(
             Q(user = request.user) | Q(user__profile__profile_member=request.user.profile)
@@ -166,7 +179,7 @@ def tambahSaldo_view(request, id):
 
     content = {
         'form': form,
-        'profile': profile_obj,
+        'member': profile_obj,
     }
 
     data['html'] = render_to_string(
@@ -184,12 +197,13 @@ def tambahSaldo_view(request, id):
             instance.save()
             data['form_is_valid'] = True
 
-            profile_obj = profile_obj.refresh_from_db
+            profile_obj.refresh_from_db()
             data['html'] = render_to_string(
-                'userprofile/includes/partial-member-data.html',
-                {'profile': profile_obj, 'id': id},
+                'userprofile/includes/partial_member_data.html',
+                {'member': profile_obj},
                 request = request
             )
+            data['id'] = profile_obj.id
 
     return JsonResponse(data)
 
@@ -397,6 +411,7 @@ def trx_produk_all(request):
                 'transaksi__trx_code', 'transaksi__phone', 
                 'bukutrans__trx_code', 'bukutrans__phone',
                 'bukupln__trx_code', 'bukupln__account_num',
+                'user__username',
             )
         ).filter(
             search = search

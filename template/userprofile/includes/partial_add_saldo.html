@@ -6,13 +6,13 @@
         <div class="content">
             Tambah Saldo
             <div class="sub header">
-                {{ profile.user.first_name|title }}
+                {{ member.user.first_name|title }}
             </div>
         </div>
     </div>
 </div>
 <div class="content">
-    <form class="ui form js-saldo-form" action="{% url 'userprofile:tambah_saldo' profile.id %}" method="post">
+    <form class="ui form js-saldo-form" action="{% url 'userprofile:tambah_saldo' member.id %}" method="post">
         {% csrf_token %}
         <div class="field">
             <label for="{{ form.debit.id_for_label }}">Nominal</label>

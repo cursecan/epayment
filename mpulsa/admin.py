@@ -2,7 +2,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
 
-from .models import Operator, PrefixNumber, Product, Transaksi, ResponseTransaksi
+from .models import Operator, PrefixNumber, Product, Transaksi, ResponseTransaksi, TransaksiRb, ResponseTransaksiRb
 from .forms import ProductForm, TransaksiForm
 from .resources import ProductResource, TransaksiResource
 
@@ -36,6 +36,6 @@ class TransaksiAdmin(ImportExportModelAdmin):
     search_fields = ['trx_code', 'phone']
 
 
-# admin.site.register(Product)
-# admin.site.register(Transaksi)
+admin.site.register(ResponseTransaksiRb)
+admin.site.register(TransaksiRb)
 admin.site.register(ResponseTransaksi)

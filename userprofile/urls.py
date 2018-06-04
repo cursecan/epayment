@@ -19,4 +19,6 @@ urlpatterns = [
     path('usergroups/collectrasio/', views.colrasio_dataset, name='collect_rasio'),
     path('checktrx/', views.checkTrxView, name='checktrx'),
     path('sistemprice/', views.checkHargaView, name='price'),
+
+    path('produk/', views.produk_View, name='produk'),
 ]

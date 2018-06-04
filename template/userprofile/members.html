@@ -30,26 +30,8 @@ Managemen Member
                                 </tr>
                                 <div class="tbody">
                                     {% for member in members %}
-                                        <tr>
-                                            <td>
-                                                <h4 class="ui image header">
-                                                    <img src="{% static '/images/user.jpg' %}" class="ui mini rounded image">
-                                                    <div class="content">
-                                                        {{ member.user.first_name|title }}
-                                                        <div class="sub header">Member
-                                                    </div>
-                                                    </div>
-                                                </h4>
-                                            </td>
-                                            <td class="center aligned" id="td-{{ member.id }}">
-                                                <div class="ui sub header {% if member.saldo > 0 %}green{% else %}red{% endif %}">{{ member.saldo|intcomma }} IDR</div>
-                                            </td>
-                                            <td class="right aligned">
-                                                <a href="#" target-url="{% url 'userprofile:tambah_saldo' member.id %}" class="ui mini button positive js-add-saldo"><i class="plus icon"></i> Top Up</a>
-                                                <!-- <a class="ui mini icon button teal"><i class="user icon"></i></a>
-                                                <a href="#" class="ui mini icon button pink"><i class="mail icon"></i></a> -->
-                                                <a href="{% url 'userprofile:transaksi' %}?search={{ user.username }}" class="ui mini button orange">Lihat Transaksi</a>
-                                            </td>
+                                        <tr id="member-{{ member.id }}">
+                                            {% include 'userprofile/includes/partial_member_data.html' %}
                                         </tr>
                                     {% empty %}
                                         <tr>
@@ -134,7 +116,7 @@ Managemen Member
                 data: form.serialize(),
                 success: function(data) {
                     if (data.form_is_valid) {
-                        $('#td-'+data.id).html(data.html);
+                        $('#member-'+data.id).html(data.html);
                         $('#modal-form').modal('hide');
                     } else {
                         $('#modal-form').html(data.html);

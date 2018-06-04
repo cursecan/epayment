@@ -1,87 +1,71 @@
-{% extends 'base.html' %}
+{% extends 'base_admin.html' %}
+{% load static %}
+{% load humanize %}
 
-{% block css %}
-    <style>
-    .adbase .ui.container {
-        margin-bottom: 15px;
-    }
-    </style>
+{% block title %}
+Produk
 {% endblock %}
 
 {% block content %}
-<div class="ui vertical adbase segment" style="margin-top:70px">
-    <div class="ui container">
-        <button class="ui primary icon button"><i class="ui icon add"></i> Tambah Produk</button>
-    </div>
-    <div class="ui grid container">
-        <div class="twelve wide column">
-            <table class="ui table">
-                <thead>
-                    <tr>
-                        <th>NO</th>
-                        <th>KODE</th>
-                        <th>PRODUK</th>
-                        <th>HARGA</th>
-                        <th>AKTIF</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for produk in produks %}
-                        <tr>
-                            <td>{{ forloop.counter0|add:produks.start_index }}</td>
-                            <td>{{ produk.kode_internal }}</td>
-                            <td>{{ produk.keterangan }}</td>
-                            <td>{{ produk.price }}</td>
-                            <td>{{ produk.active }}</td>
-                            <td class="right aligned">
-                                <a href="#"><i class="ui icon eye"></i></a>
-                                <a href="#"><i class="ui icon pencil yellow"></i></a>
-                                <a href="#"><i class="ui icon trash red"></i></a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div class="four wide column">
-            <div class="ui vertical menu">
-                <div class="item">
-                    <div class="header">
-                        List Operator
+<div class="ui vertical basic segment">
+    <div class="ui fluid container">
+        <div class="ui equal width padded grid">
+            <div class="row">
+                <div class="three wide column">
+                    <div class="ui vertical menu">
+                       <div class="item">
+                            <div class="header">Data & Pulsa</div>
+                            <div class="menu">
+                                {% for operator in pulsa_operators %}
+                                <a href="#" class="item">{{ operator.operator|title }}</a>
+                                {% endfor %}
+                            </div>
+                       </div>
+                       <div class="item">
+                           <div class="header">Top Up</div>
+                           <div class="menu">
+                               {% for operator in trans_operators %}
+                               <a href="#" class="item">{{ operator.operator|title }}</a>
+                               {% endfor %}
+                               <a href="#" class="item">Token Listrik</a>
+                           </div>
+                       </div>
                     </div>
-                    <div class="menu">
-                        <a href="?op=" class="item">All</a>
-                        {% for operator in operators %}
-                        <a href="?op={{ operator.id }}" class="item">{{ operator.operator|title }}</a>
-                        {% endfor %}
-                    </div>
+                </div>
+                <div class="column">
+                    <table class="ui small table" id="porduk-id">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Produk</th>
+                                <th>Type</th>
+                                <th>Biller</th>
+                                <th>Harga</th>
+                                <th>Profit</th>
+                                <th>Aktif</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ product.keterangan }}</td>
+                                <td>{{ product.get_type_layanan_display|title }}</td>
+                                <td>{{ product.biller }}</td>
+                                <td>Rp {{ product.price |intcomma }}</td>
+                                <td>Rp {{ product.biller.price|intcomma }}</td>
+                                <td>{{ product.active }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6">Tidak ada produk terdaftar.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-    {% if produks.has_other_pages %}
-    <div class="ui container">
-        <div class="ui pagination menu">
-            {% if produks.has_previous %}
-            <a href="?page={{ produks.previous_page_number }}" class="item">Prev</a>
-            {% else %}
-            <div class="item"><span>&laquo;</span></div>
-            {% endif %}
-            {% for i in produks.paginator.page_range %}
-                {% if produks.number == i%}
-                <div class="item active">{{ i }}</div>
-                {% else %}
-                <a href="?page={{ i }}" class="item">{{ i }}</a>
-                {% endif %}
-            {% endfor %}
-            {% if produks.has_next %}
-            <a href="?page={{ produks.next_page_number }}" class="item">Next</a>
-            {% else %}
-            <div class="item"><span>&laquo;</span></div>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}
