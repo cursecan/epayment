@@ -2,7 +2,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
 
-from .models import Operator, PrefixNumber, Product, Transaksi, ResponseTransaksi, TransaksiRb, ResponseTransaksiRb
+from .models import Operator, PrefixNumber, Product, Transaksi, ResponseTransaksi, TransaksiRb, ResponseTransaksiRb, Biller
 from .forms import ProductForm, TransaksiForm
 from .resources import ProductResource, TransaksiResource
 
@@ -39,3 +39,4 @@ class TransaksiAdmin(ImportExportModelAdmin):
 admin.site.register(ResponseTransaksiRb)
 admin.site.register(TransaksiRb)
 admin.site.register(ResponseTransaksi)
+admin.site.register(Biller)
