@@ -13,6 +13,7 @@ import requests, re, json
 
 trx_record = telepot.helper.SafeDict()
 _URL = 'http://127.0.0.1:8000/'
+TOKEN = '528057329:AAFBShP7yaoh2ZgOl0Fg4Fzipw1kYitx9Iw'  # get token from command-line
 
 def group_li(li, n):
     return [li[i:i+n] for i in range(0, len(li), n)]
@@ -52,6 +53,7 @@ class Epaybot(telepot.helper.ChatHandler):
             self.bot.editMessageReplyMarkup(self._edit_mgs_ident)
         except:
             pass
+            
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
@@ -265,6 +267,19 @@ class Epaybot(telepot.helper.ChatHandler):
                     pass
 
 
+    # BROADCAST IMAGE
+    def broadcast_img(self, image, caption=None):
+        users = self.get_all_user()
+        for u in users:
+            if u['telegram'] != '':
+                try :
+                    bot.sendPhoto(
+                        u['telegram'], image, caption
+                    )
+                except :
+                    pass
+
+
     # DETAIL PRODUK PULSA
     def pulsa_detail_prod(self, val):
         url = _URL+'api/pulsa/produks/?kd='+val
@@ -296,7 +311,7 @@ class Epaybot(telepot.helper.ChatHandler):
         self._editor_2 = telepot.helper.Editor(self.bot, sent)
         self._edit_mgs_ident_2 = telepot.message_identifier(sent)
 
-
+    # PROCESS POST TOPUP PULSA
     def topup_pulsa(self, code, val, chat_id):
         payload = {
             'telegram': chat_id,
@@ -307,7 +322,18 @@ class Epaybot(telepot.helper.ChatHandler):
         rson = r.json()
         self.fedback_message(rson)
 
+    # PROCESS POST TOPUP PULSA RAJABILER
+    def topup_pulsa_rb(self, code, val, chat_id):
+        payload = {
+            'telegram': chat_id,
+            'produk': code,
+            'phone': val
+        }
+        r = requests.post(_URL+'api/pulsa/topup_rb/', data=json.dumps(payload), headers={'Content-Type':'application/json'})
+        rson = r.json()
+        self.fedback_message(rson)
 
+    # PROCESS POST TOPUP ETRANS
     def topup_etrans(self, code, val, chat_id):
         payload = {
             'telegram': chat_id,
@@ -318,7 +344,7 @@ class Epaybot(telepot.helper.ChatHandler):
         rson = r.json()
         self.fedback_message(rson)
 
-
+    # PROCESS POST TOPUP LISTRIK
     def topup_listrik(self, code, acc, chat_id, phone=None):
         payload = {
             'telegram': chat_id,
@@ -392,65 +418,79 @@ class Epaybot(telepot.helper.ChatHandler):
     # MAIN ON CHAT
     def on_chat_message(self, msg):
         content_type, chat_type, chat_id = telepot.glance(msg)
-        if content_type != 'text':
-            return
+        if content_type == 'text':
+            try :
+                dt_match = re.match(r'^/broadcast_img (https?://[\w\d/\._\-]+\.jpe?g) (.+)$', msg['text'])
+                img = dt_match.group(1)
+                caption = dt_match.group(2)
+                self.broadcast_img(img, caption)
+                return
+            except :
+                pass
 
-        if '/broadcast' in msg['text']:
-            code , data = msg['text'].split(' ', 1)
-            self.broadcast_msg(data)
-            return
+            try :
+                dt_match = re.match(r'^/broadcast (.+)$', msg['text'])
+                data = dt_match.group(1) 
+                self.broadcast_msg(data)
+                return
+            except:
+                pass
 
-        if '/code' in msg['text']:
-            code , data = msg['text'].split(' ', 1)
-            self.integrate_telegram(chat_id, data)
-            return
+            try :
+                data = re.match(r'^/code (\d+)$', msg['text'])
+                code = data.group(1)
+                self.integrate_telegram(chat_id, code)
+                return
+            except:
+                pass
 
-        if '/menu' in msg['text'] or '/start' in msg['text']:
+            if msg['text'] in ['/start', '/menu']:
+                self.main_menu()
+                return
+
+            if self._code != None:
+                data = msg['text']
+                if self._code in self._list_pulsa_prod:
+                    valid = re.match(r'^0\d+$', data)
+                    if not valid:
+                        self.sender.sendMessage('Silahkan masukan nomor handphone anda dengan benar atau ketik /menu untuk kembali ke menu utama.')
+                        return
+                    self.sender.sendMessage('Mohon tunggu transaksi anda sedang diproses.')
+                    self.topup_pulsa(self._code, data, chat_id)
+                    # self.topup_pulsa_rb(self._code, data, chat_id)
+                    self._code = None
+                    self._editor_2 = None
+                    self._edit_mgs_ident_2 = None
+                    self.close()
+                    return
+                if self._code in self._list_topup_prod:
+                    valid = re.match(r'^0\d+$', data)
+                    if not valid:
+                        self.sender.sendMessage('Silahkan masukan nomor handphone anda dengan benar atau ketik /menu untuk kembali ke menu utama.')
+                        return
+                    self.sender.sendMessage('Mohon tunggu transaksi anda sedang diproses.')
+                    self.topup_etrans(self._code, data, chat_id)
+                    self._code = None
+                    self._editor_2 = None
+                    self._edit_mgs_ident_2 = None
+                    self.close()
+                    return
+                if self._code in self._list_listrik_prod:
+                    valid = re.match(r'^(\d+)$', data)
+                    if not valid:
+                        self.sender.sendMessage('Silahkan masukan Nomor Meter / ID Pelanggan anda dengan benar atau ketik /menu untuk kembali ke menu utama.')
+                        return
+                    self.sender.sendMessage('Mohon tunggu transaksi anda sedang diproses.')
+                    acc = valid.group(1)
+                        
+                    self.topup_listrik(self._code, acc, chat_id)
+                    self._code = None
+                    self._editor_2 = None
+                    self._edit_mgs_ident_2 = None
+                    self.close()
+                    return
+
             self.main_menu()
-            return
-
-        if self._code != None:
-            data = msg['text']
-            if self._code in self._list_pulsa_prod:
-                valid = re.match(r'^0\d+$', data)
-                if not valid:
-                    self.sender.sendMessage('Silahkan masukan nomor handphone anda dengan benar atau ketik /menu untuk kembali ke menu utama.')
-                    return
-                self.sender.sendMessage('Mohon tunggu transaksi anda sedang diproses.')
-                self.topup_pulsa(self._code, data, chat_id)
-                self._code = None
-                self._editor_2 = None
-                self._edit_mgs_ident_2 = None
-                self.close()
-                return
-            if self._code in self._list_topup_prod:
-                valid = re.match(r'^0\d+$', data)
-                if not valid:
-                    self.sender.sendMessage('Silahkan masukan nomor handphone anda dengan benar atau ketik /menu untuk kembali ke menu utama.')
-                    return
-                self.sender.sendMessage('Mohon tunggu transaksi anda sedang diproses.')
-                self.topup_etrans(self._code, data, chat_id)
-                self._code = None
-                self._editor_2 = None
-                self._edit_mgs_ident_2 = None
-                self.close()
-                return
-            if self._code in self._list_listrik_prod:
-                valid = re.match(r'^(\d+)$', data)
-                if not valid:
-                    self.sender.sendMessage('Silahkan masukan Nomor Meter / ID Pelanggan anda dengan benar atau ketik /menu untuk kembali ke menu utama.')
-                    return
-                self.sender.sendMessage('Mohon tunggu transaksi anda sedang diproses.')
-                acc = valid.group(1)
-                    
-                self.topup_listrik(self._code, acc, chat_id)
-                self._code = None
-                self._editor_2 = None
-                self._edit_mgs_ident_2 = None
-                self.close()
-                return
-
-        self.main_menu()
     
 
     # MAIN CALLBACK
@@ -544,7 +584,6 @@ class Epaybot(telepot.helper.ChatHandler):
 
 
 
-TOKEN = '528057329:AAFBShP7yaoh2ZgOl0Fg4Fzipw1kYitx9Iw'  # get token from command-line
 
 bot = telepot.DelegatorBot(TOKEN, [
     include_callback_query_chat_id(

@@ -105,7 +105,6 @@ def produk_View(request):
     return render(request, 'userprofile/produk.html', content)
 
 
-
 # MEMBER LIST
 @login_required
 def member_View(request):
@@ -287,12 +286,12 @@ def checkTrxView(request):
                 # response_code=rjson.get('rc',''),
             )
 
-            trxs = trans_model.ResponseTransaksi.objects.get(trx=trx_e)
-            try :
-                trxs.response_code = rjson.get('rc','')
-                trxs.save(update_fields=['response_code'])
-            except :
-                pass
+            # trxs = trans_model.ResponseTransaksi.objects.get(trx=trx_e)
+            # try :
+            #     trxs.response_code = rjson.get('rc','')
+            #     trxs.save(update_fields=['response_code'])
+            # except :
+            #     pass
 
             if trx_e.responsetransaksi.response_code in ['10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
                 trx_e.status = 9
@@ -328,12 +327,12 @@ def checkTrxView(request):
                 refsb = rson.get('refsb', '')
             )
 
-            trxs = pln_model.ResponseTransaksi.objects.get(trx=trx_pln)
-            try :
-                trxs.rc = rjson.get('rc','')
-                trxs.save(update_fields=['rc'])
-            except :
-                pass
+            # trxs = pln_model.ResponseTransaksi.objects.get(trx=trx_pln)
+            # try :
+            #     trxs.rc = rjson.get('rc','')
+            #     trxs.save(update_fields=['rc'])
+            # except :
+            #     pass
 
             if trx_pln.responsetransaksi.rc in ['10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
                 trx_pln.status = 9
@@ -400,7 +399,7 @@ def trx_produk_all(request):
     search = request.GET.get('search', None)
     pembukuan_obj = PembukuanTransaksi.unclosed_book.select_related(
         'user', 'transaksi__product', 'transaksi', 'bukutrans', 'bukutrans__product',
-        'bukupln', 'bukupln__product'
+        'bukupln', 'bukupln__product', 'mpulsa_rbbuku_transaksi', 'mpulsa_rbbuku_transaksi.product'
     )
 
     # TRX SUCCESS & FAILED
@@ -411,6 +410,7 @@ def trx_produk_all(request):
                 'transaksi__trx_code', 'transaksi__phone', 
                 'bukutrans__trx_code', 'bukutrans__phone',
                 'bukupln__trx_code', 'bukupln__account_num',
+                'mpulsa_rbbuku_transaksi__trx_code', 'mpulsa_rbbuku_transaksi__phone'
                 'user__username',
             )
         ).filter(

@@ -78,8 +78,10 @@ class PembukuanTransaksi(models.Model):
                 return self.transaksi
             elif hasattr(self, 'bukutrans'):
                 return self.bukutrans
-            else :
+            elif hasattr(self, 'bukupln') :
                 return self.bukupln
+            else :
+                return self.mpulsa_rbbuku_transaksi
         except Exception as e:
             return None
 
@@ -90,8 +92,10 @@ class PembukuanTransaksi(models.Model):
                 return self.transaksi.responsetransaksi.price
             elif hasattr(self, 'bukutrans'):
                 return self.bukutrans.responsetransaksi.price
-            else :
+            elif hasattr(self, 'bukupln') :
                 return self.bukupln.responsetransaksi.price
+            else :
+                return self.mpulsa_rbbuku_transaksi.responsetransaksirb.saldo_terpotong
         except Exception as e:
             return 0
 
@@ -119,7 +123,7 @@ class CatatanModal(models.Model):
     parent_id = models.OneToOneField('self', on_delete=models.SET_NULL, null=True, blank=True)
     confirmed = models.BooleanField(default=False)
     keterangan = models.CharField(max_length=200, blank=True)
-    biller = models.CharField(max_length=2, choices=LIST_BILLER, default='RB')
+    biller = models.CharField(max_length=2, choices=LIST_BILLER, default='SB')
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:

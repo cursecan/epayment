@@ -106,11 +106,13 @@ def response_trx_modal(sender, instance, created, update_fields, **kwargs):
                 modal_create_obj = CatatanModal.objects.create(
                     kredit = instance.saldo_terpotong,
                     saldo = last_catatan.saldo - instance.saldo_terpotong,
+                    biller = 'RB'
                 )
             except:
                 modal_create_obj = CatatanModal.objects.create(
                     kredit = instance.saldo_terpotong,
                     saldo = 0,
+                    biller = 'RB'
                 )
 
             
@@ -135,7 +137,8 @@ def response_trx_modal(sender, instance, created, update_fields, **kwargs):
                     parent_id = instance_modal,
                     type_transaksi = 3,
                     confirmed = True,
-                    keterangan = 'Pembelian telah di gagalkan oleh sistem!'
+                    keterangan = 'Pembelian telah di gagalkan oleh sistem!',
+                    biller = 'RB',
                 )
                 instance_modal.type_transaksi = 2
                 instance_modal.confirmed = True
@@ -295,6 +298,7 @@ def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
                 instance_modal.confirmed = True
                 instance_modal.save()
                 
+                # update trx u/ catatan baru
                 Transaksi.objects.filter(
                     responsetransaksi = instance
                 ).update(catatan_modal=modal_create_obj_new)

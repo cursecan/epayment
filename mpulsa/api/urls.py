@@ -9,4 +9,5 @@ urlpatterns = [
     path('produks/', views.ProductListingApi.as_view(), name='produk_list'),
     path('transaksi/', views.TransaksiListApi.as_view(), name='transaksi'),
     path('topup/', views.TopupCreateApiView.as_view(), name='topup'),
+    path('topup_rb/', views.TopupCreateApiView_Rajabiller.as_view(), name='topup_rb'),
 ]
