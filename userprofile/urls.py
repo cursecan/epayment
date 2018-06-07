@@ -9,6 +9,7 @@ urlpatterns = [
     path('transaksi/', views.trx_produk_all, name='transaksi'),
     path('transaksi/dataset/', views.trx_dataset, name='trx_dataset'),
     path('transaksi/mpulsa/<int:id>/', views.trx_detail_pulsa_view, name='pulsa_trx'),
+    path('transaksi/mpulsa-rb/<int:id>/', views.trx_detail_pulsa_rajabiler_view, name='pulsa_trx_rb'),
     path('transaksi/mpulsa/<int:id>/f/', views.trx_edit_pulsa_view, name='pulsa_failed'),
     path('transaksi/pln/<int:id>/', views.trx_detail_pln_view, name='pln_trx'),
     path('transaksi/transport/<int:id>/', views.trx_detail_trans_view, name='trans_trx'),

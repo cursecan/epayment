@@ -99,6 +99,34 @@ class PembukuanTransaksi(models.Model):
         except Exception as e:
             return 0
 
+
+    def customer(self):
+        try:
+            if hasattr(self, 'transaksi'):
+                return self.transaksi.phone
+            elif hasattr(self, 'bukutrans'):
+                return self.bukutrans.phone
+            elif hasattr(self, 'bukupln') :
+                return self.bukupln.account_num
+            else :
+                return self.mpulsa_rbbuku_transaksi.phone
+        except Exception as e:
+            return None
+
+
+    def product_label(self):
+        try:
+            if hasattr(self, 'transaksi'):
+                return self.transaksi.product.keterangan
+            elif hasattr(self, 'bukutrans'):
+                return self.bukutrans.product.keterangan
+            elif hasattr(self, 'bukupln') :
+                return self.bukupln.product.nama_produk
+            else :
+                return self.mpulsa_rbbuku_transaksi.product.keteranga
+        except Exception as e:
+            return None
+
     
     def profit(self):
         return self.kredit - self.harga_beli()

@@ -399,7 +399,7 @@ def trx_produk_all(request):
     search = request.GET.get('search', None)
     pembukuan_obj = PembukuanTransaksi.unclosed_book.select_related(
         'user', 'transaksi__product', 'transaksi', 'bukutrans', 'bukutrans__product',
-        'bukupln', 'bukupln__product', 'mpulsa_rbbuku_transaksi', 'mpulsa_rbbuku_transaksi.product'
+        'bukupln', 'bukupln__product', 'mpulsa_rbbuku_transaksi', 'mpulsa_rbbuku_transaksi__product'
     )
 
     # TRX SUCCESS & FAILED
@@ -451,6 +451,22 @@ def trx_detail_pulsa_view(request, id):
     return JsonResponse(data)
 
 
+
+#DETAIL TRX PULSA RAJABILER
+@login_required()
+def trx_detail_pulsa_rajabiler_view(request, id):
+    data = dict()
+    trx_obj = get_object_or_404(pulsa_model.TransaksiRb, pk=id)
+
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_pulsa_trx.html',
+        {'trx': trx_obj},
+        request=request
+    )
+    return JsonResponse(data)
+
+
+
 # DETAIL TRX TRANSPORT
 @login_required()
 def trx_detail_trans_view(request, id):
@@ -477,6 +493,7 @@ def trx_detail_pln_view(request, id):
         request=request
     )
     return JsonResponse(data)
+
 
 
 # GAGAL PULSA

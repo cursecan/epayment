@@ -20,7 +20,7 @@
             <tr>
                 <td>{{ trx.product.keterangan }}{{ trx.product.nama_produk }}</td>
                 <td>{{ trx.phone }}</td>
-                <td><span style="background: yellow">{{ trx.responsetransaksi.serial_no }}{{ trx.responsetransaksi.serialno }}</span></td>
+                <td><span style="background: yellow">{{ trx.responsetransaksi.serial_no }}{{ trx.responsetransaksi.serialno }}{{ trx.responsetransaksirb.sn }}</span></td>
                 <td>{{ trx.price|intcomma }}</td>
                 <td>{{ trx.pembukuan.balance|intcomma }}</td>
                 <td>{{ trx.get_status_display }}</td>
@@ -28,7 +28,7 @@
         </tbody>
     </table>
     <div class="ui segment">
-        <pre>{{ trx.struk }}{{ trx.responsetransaksi.info }}</pre>
+        <pre>{{ trx.struk }}{{ trx.responsetransaksi.info }}{{ trx.responsetransaksirb.ket}}</pre>
     </div>
 </div>
 <div class="actions">
