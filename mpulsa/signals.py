@@ -90,7 +90,7 @@ def transaction_recording_rajabiller(sender, instance, created, update_fields, *
             )
             PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)
 
-            response_trx_obj = ResponseTransaksi.objects.get(trx=instance)
+            response_trx_obj = ResponseTransaksiRb.objects.get(trx=instance)
             response_trx_obj.response_code = '99'
             response_trx_obj.save(update_fields=['response_code'])
 

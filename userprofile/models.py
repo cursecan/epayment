@@ -123,7 +123,7 @@ class PembukuanTransaksi(models.Model):
             elif hasattr(self, 'bukupln') :
                 return self.bukupln.product.nama_produk
             else :
-                return self.mpulsa_rbbuku_transaksi.product.keteranga
+                return self.mpulsa_rbbuku_transaksi.product.keterangan
         except Exception as e:
             return None
 

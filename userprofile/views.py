@@ -8,8 +8,9 @@ from django.db.models.functions import TruncDate, Coalesce
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.postgres.search import SearchVector
+from django.utils import timezone
 
-import requests, json, pendulum
+import requests, json, pendulum, datetime
 
 from mpulsa import models as pulsa_model
 from etransport import models as trans_model
@@ -215,6 +216,10 @@ def checkTrxView(request):
         status=0, responsetransaksi__serial_no=''
     )
 
+    pulsa_trx_rajabil = pulsa_model.TransaksiRb.objects.filter(
+        status=0, responsetransaksirb__sn=''
+    )
+
     etrans_trx = trans_model.Transaksi.objects.filter(
         status=0, responsetransaksi__serial_no=''
     )
@@ -230,6 +235,35 @@ def checkTrxView(request):
         "pin": settings.SIAPBAYAR_PASS,
         "refca": ""
     }
+
+    for trx_p in pulsa_trx_rajabil:
+        tm1 = timezone.localtime(trx_p.timestamp)
+        tm2 = tm1 + datetime.timedelta(days=1)
+        try:
+            payload = {
+                'method':rajabiller.datatransaksi,
+                'uid': settings.RAJABILLER_ID,
+                'pin': settings.RAJABILLER_PASS,
+                'tgl1': tm1.strftime('%Y%m%d%H%M%S'),
+                'tgl2': tm2.strftime('%Y%m%d%H%M%S'),
+                'id_transaksi': trx_p.responsetransaksirb__ref2,
+                'id_produk': trx_p.product.biller.code,
+                'idpel': trx_p.phone,
+                'limit': '10'
+            }
+            url = settings.RAJA_URL
+            r = requests.post(url, data=json.dumps(payload), verify=False, headers={'Content-Type':'application/json'})
+            rson = r.json()
+
+            pulsa_model.ResponseTransaksiRb.objects.filter(
+                trx=trx_p
+            ).update(
+                ket=rson['RESULT_TRANSAKSI'][0],
+                sn=rson['RESULT_TRANSAKSI'][0].split('#')[-1]
+            )
+        except:
+            pass
+
 
     for trx_p in pulsa_trx:
         try:
@@ -250,12 +284,12 @@ def checkTrxView(request):
                 refsb=rjson.get('refsb',''),
                 # response_code=rjson.get('rc',''),
             )
-            trxs = pulsa_model.ResponseTransaksi.objects.get(trx=trx_p)
-            try :
-                trxs.response_code = rjson.get('rc','')
-                trxs.save(update_fields=['response_code'])
-            except :
-                pass
+            # trxs = pulsa_model.ResponseTransaksi.objects.get(trx=trx_p)
+            # try :
+            #     trxs.response_code = rjson.get('rc','')
+            #     trxs.save(update_fields=['response_code'])
+            # except :
+            #     pass
 
             if trx_p.responsetransaksi.response_code in ['10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
                 trx_p.status = 9
@@ -410,7 +444,7 @@ def trx_produk_all(request):
                 'transaksi__trx_code', 'transaksi__phone', 
                 'bukutrans__trx_code', 'bukutrans__phone',
                 'bukupln__trx_code', 'bukupln__account_num',
-                'mpulsa_rbbuku_transaksi__trx_code', 'mpulsa_rbbuku_transaksi__phone'
+                'mpulsa_rbbuku_transaksi__trx_code', 'mpulsa_rbbuku_transaksi__phone',
                 'user__username',
             )
         ).filter(
@@ -505,6 +539,32 @@ def trx_edit_pulsa_view(request, id):
     trx_obj = get_object_or_404(pulsa_model.Transaksi, pk=id, status__lt=9)
     data['html'] = render_to_string(
         'userprofile/includes/partial_trx_edit.html',
+        {'trx': trx_obj},
+        request=request
+    )
+
+    if request.method == 'POST':
+        trx_obj.status = 9
+        trx_obj.save(update_fields=['status'])
+        data['html'] = render_to_string(
+            'userprofile/includes/partial_trx_data.html',
+            {'trx': trx_obj},
+            request=request
+        )
+        data['form_is_valid'] = True
+    
+    return JsonResponse(data)
+
+
+ GAGAL PULSA RAJABILLER
+@login_required
+def trx_edit_pulsa_view_rajabiller(request, id):
+    data = dict()
+    data['id'] = id
+    data['form_is_valid'] = False
+    trx_obj = get_object_or_404(pulsa_model.TransaksiRb, pk=id, status__lt=9)
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_trx_edit_raja_biller.html',
         {'trx': trx_obj},
         request=request
     )
