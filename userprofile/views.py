@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http.response import JsonResponse
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
@@ -237,17 +237,15 @@ def checkTrxView(request):
     }
 
     for trx_p in pulsa_trx_rajabil:
-        tm1 = timezone.localtime(trx_p.timestamp)
-        tm2 = tm1 + datetime.timedelta(days=1)
         try:
             payload = {
-                'method':rajabiller.datatransaksi,
+                'method':'rajabiller.datatransaksi',
                 'uid': settings.RAJABILLER_ID,
                 'pin': settings.RAJABILLER_PASS,
-                'tgl1': tm1.strftime('%Y%m%d%H%M%S'),
-                'tgl2': tm2.strftime('%Y%m%d%H%M%S'),
-                'id_transaksi': trx_p.responsetransaksirb__ref2,
-                'id_produk': trx_p.product.biller.code,
+                'tgl1': trx_p.responsetransaksirb.waktu,
+                'tgl2': trx_p.responsetransaksirb.waktu,
+                'id_transaksi': trx_p.responsetransaksirb.ref2,
+                'id_produk': trx_p.responsetransaksirb.kode_produk,
                 'idpel': trx_p.phone,
                 'limit': '10'
             }
@@ -376,6 +374,33 @@ def checkTrxView(request):
             pass
 
     return JsonResponse({'status':', '.join(data_update)})
+
+
+# UPDATE HARGA RAJABILLER
+@login_required
+def checkHargaViewRajabiller(request):
+    biller_objs = pulsa_model.Biller.objects.filter(biller='RB')
+    payload = {
+        'method': 'rajabiller.info_produk',
+        'uid': settings.RAJABILLER_ID,
+        'pin': settings.RAJABILLER_PASS,
+        'kode_produk': ''
+    }
+    url = settings.RAJA_URL
+
+    for biller in biller_objs:
+        payload['kode_produk'] = biller.code
+        try :
+            r = requests.post(url, data=json.dumps(payload), headers={'Content-Type':'application/json'}, verify=False)
+            rson = r.json()
+            print(rson)
+            if rson['STATUS'] == '00':
+                pulsa_model.Biller.objects.filter(
+                    pk=biller.id
+                ).update(price=int(rson['HARGA']))
+        except:
+            pass
+    return redirect('userprofile:index')
 
 
 # UPDATE HARGA SERVER

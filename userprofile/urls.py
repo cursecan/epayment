@@ -19,8 +19,9 @@ urlpatterns = [
     path('usergroups/', views.member_View, name='member_view'),
     path('usergroups/<int:id>/add-saldo/', views.tambahSaldo_view, name='tambah_saldo'),
     path('usergroups/collectrasio/', views.colrasio_dataset, name='collect_rasio'),
-    path('checktrx/', views.checkTrxView, name='checktrx'),
+    path('transaction-check/', views.checkTrxView, name='checktrx'),
     path('sistemprice/', views.checkHargaView, name='price'),
+    path('price-rajabiller/', views.checkHargaViewRajabiller, name='price_rajabiller'),
 
     path('produk/', views.produk_View, name='produk'),
 ]

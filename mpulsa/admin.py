@@ -21,7 +21,7 @@ class OperatorAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(ImportExportModelAdmin):
     form = ProductForm
-    list_display = ['id','operator','type_layanan', 'kode_internal', 'nominal', 'price','price_beli','benefit','parse_text','biller', 'active']
+    list_display = ['id','operator','type_layanan', 'kode_internal', 'nominal', 'price','benefit','parse_text','biller', 'active']
     resource_class = ProductResource
     list_filter = ['type_layanan','operator']
     actions = [make_published]

@@ -318,20 +318,23 @@ class Epaybot(telepot.helper.ChatHandler):
             'produk': code,
             'phone': val
         }
-        r = requests.post(_URL+'api/pulsa/topup/', data=json.dumps(payload), headers={'Content-Type':'application/json'})
-        rson = r.json()
+        try :
+            # PILIH BILLER
+            r = requests.get(_URL+'api/pulsa/produks/?kd='+code, headers={'Content-Type':'application/json'})
+            rson = r.json()
+            # SIAPBAYAR
+            if rson[0]['biller'] == 'SB':
+                r = requests.post(_URL+'api/pulsa/topup/', data=json.dumps(payload), headers={'Content-Type':'application/json'})
+            # RAJABILLER
+            elif rson[0]['biller']=='RB' :
+                r = requests.post(_URL+'api/pulsa/topup_rb/', data=json.dumps(payload), headers={'Content-Type':'application/json'})
+            
+            rson = r.json()
+        except :
+            rson = {}
+            
         self.fedback_message(rson)
 
-    # PROCESS POST TOPUP PULSA RAJABILER
-    def topup_pulsa_rb(self, code, val, chat_id):
-        payload = {
-            'telegram': chat_id,
-            'produk': code,
-            'phone': val
-        }
-        r = requests.post(_URL+'api/pulsa/topup_rb/', data=json.dumps(payload), headers={'Content-Type':'application/json'})
-        rson = r.json()
-        self.fedback_message(rson)
 
     # PROCESS POST TOPUP ETRANS
     def topup_etrans(self, code, val, chat_id):
@@ -457,7 +460,6 @@ class Epaybot(telepot.helper.ChatHandler):
                         return
                     self.sender.sendMessage('Mohon tunggu transaksi anda sedang diproses.')
                     self.topup_pulsa(self._code, data, chat_id)
-                    # self.topup_pulsa_rb(self._code, data, chat_id)
                     self._code = None
                     self._editor_2 = None
                     self._edit_mgs_ident_2 = None

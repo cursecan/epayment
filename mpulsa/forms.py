@@ -12,7 +12,7 @@ class TransaksiModelForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['kode_internal' ,'operator','type_layanan', 'nominal', 'price', 'kode_external','biller', 'keterangan', 'parse_text', 'active']
+        fields = ['kode_internal' ,'operator','type_layanan', 'nominal', 'price','biller', 'keterangan', 'parse_text', 'active']
 
 class TransaksiForm(forms.ModelForm):
     class Meta:

@@ -71,7 +71,10 @@ class Product(models.Model):
         return self.kode_internal
 
     def benefit(self):
-        return self.price - self.price_beli
+        try :
+            return self.price - self.biller.price
+        except :
+            return 0
 
 
 class Transaksi(models.Model):

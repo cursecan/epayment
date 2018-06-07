@@ -7,7 +7,7 @@ from mpulsa.models import Product, Transaksi, Operator
 class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'kode_internal', 'nominal', 'price', 'keterangan', 'parse_text']
+        fields = ['id', 'kode_internal', 'nominal', 'price', 'keterangan', 'parse_text','biller']
 
 
 class OperatorSerializer(serializers.ModelSerializer):

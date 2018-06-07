@@ -91,8 +91,8 @@ def transaction_recording_rajabiller(sender, instance, created, update_fields, *
             PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)
 
             response_trx_obj = ResponseTransaksiRb.objects.get(trx=instance)
-            response_trx_obj.response_code = '99'
-            response_trx_obj.save(update_fields=['response_code'])
+            response_trx_obj.status = '99'
+            response_trx_obj.save(update_fields=['status'])
 
     
 # CALCULATE MODAL THD PERUBAHAN RESPONSE TRX RB
@@ -263,11 +263,13 @@ def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
                 modal_create_obj = CatatanModal.objects.create(
                     kredit = instance.price,
                     saldo = last_catatan.saldo - instance.price,
+                    biller = 'SB',
                 )
             except:
                 modal_create_obj = CatatanModal.objects.create(
                     kredit = instance.price,
                     saldo = 0,
+                    biller = 'SB'
                 )
 
             
@@ -292,7 +294,8 @@ def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
                     parent_id = instance.trx.catatan_modal,
                     type_transaksi = 3,
                     confirmed = True,
-                    keterangan = 'Pembelian telah di gagalkan!'
+                    keterangan = 'Pembelian telah di gagalkan!',
+                    biller = 'SB'
                 )
                 instance_modal.type_transaksi = 2
                 instance_modal.confirmed = True
@@ -313,6 +316,7 @@ def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
                         parent_id = instance.trx.catatan_modal,
                         confirmed = True,
                         keterangan = 'Harga beli berubah!', 
+                        biller = 'SB'
                     )
                     
                     instance_modal.type_transaksi = 2
