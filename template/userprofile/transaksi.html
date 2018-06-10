@@ -27,6 +27,50 @@ Data Transaksi
                                         </div>
                                     </form>
                                 </div>
+                                <div class="eleven wide column">
+                                    <div class="ui five cards">
+                                        <div class="card blue">
+                                            <div class="content">
+                                                <div class="ui blue tiny statistic">
+                                                    <div class="label">Sold</div>
+                                                    <div class="value">{{ laporan.v_sold|intcomma }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card red">
+                                            <div class="content">
+                                                <div class="ui red tiny statistic">
+                                                    <div class="label">Piutang</div>
+                                                <div class="value">{{ piutang|intcomma }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card green">
+                                            <div class="content">
+                                                <div class="ui green tiny statistic">
+                                                    <div class="label">Collection</div>
+                                                    <div class="value">{{ collection|intcomma }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card yellow">
+                                            <div class="content">
+                                                <div class="ui yellow tiny statistic">
+                                                    <div class="label">Utip</div>
+                                                    <div class="value">{{ prof_resume.v_utip|intcomma }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card">
+                                            <div class="content">
+                                                <div class="ui tiny statistic">
+                                                    <div class="label">Profit</div>
+                                                    <div class="value">{{ v_profit|floatformat:0|intcomma }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="column">

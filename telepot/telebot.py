@@ -454,7 +454,7 @@ class Epaybot(telepot.helper.ChatHandler):
             if self._code != None:
                 data = msg['text']
                 if self._code in self._list_pulsa_prod:
-                    valid = re.match(r'^0\d+$', data)
+                    valid = re.match(r'^0?\d+$', data)
                     if not valid:
                         self.sender.sendMessage('Silahkan masukan nomor handphone anda dengan benar atau ketik /menu untuk kembali ke menu utama.')
                         return
@@ -466,7 +466,7 @@ class Epaybot(telepot.helper.ChatHandler):
                     self.close()
                     return
                 if self._code in self._list_topup_prod:
-                    valid = re.match(r'^0\d+$', data)
+                    valid = re.match(r'^0?\d+$', data)
                     if not valid:
                         self.sender.sendMessage('Silahkan masukan nomor handphone anda dengan benar atau ketik /menu untuk kembali ke menu utama.')
                         return

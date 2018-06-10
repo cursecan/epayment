@@ -64,7 +64,7 @@ class Product(models.Model):
     active_product = ActiveProdukmanager()
 
     class Meta:
-        ordering = ['operator','type_layanan', 'nominal']
+        ordering = ['operator','-type_layanan', 'nominal']
 
     
     def __str__(self):

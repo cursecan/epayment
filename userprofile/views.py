@@ -32,7 +32,7 @@ def userindex(request):
             Q(user=request.user) | Q(user__profile__profile_member=request.user.profile)
         )
         profile_objs = profile_objs.filter(
-            profile_member = request.user.profile
+            Q(profile_member = request.user.profile) | Q(user=request.user)
         )
 
     laporan = pembukuan_objs.aggregate(
@@ -41,16 +41,21 @@ def userindex(request):
         v_sold = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
     )
 
+    profile_resue = profile_objs.aggregate(
+        c_user = Coalesce(Count('id'), V(0)),
+        v_utip = Coalesce(Sum('saldo', filter=Q(saldo__gt=0)), V(0))
+    )
+
     col_rasio = 0
     try :
-        col_rasio = laporan.get('v_collect')/laporan.get('v_sold') * 100
+        col_rasio = (laporan.get('v_collect')-profile_resue.get('v_utip'))/laporan.get('v_sold') * 100
     except:
         pass
 
     content = {
         'laporan': laporan,
         'col_rasio': col_rasio,
-        'c_member': profile_objs.count(),
+        'member': profile_resue,
     }
     return render(request, 'userprofile/index.html', content)
 
@@ -94,6 +99,7 @@ def trx_dataset(request):
 
 
 # PRODUK
+@login_required
 def produk_View(request):
     produk_objs = pulsa_model.Product.objects.filter(operator__kode='TEL')
     p_operator = pulsa_model.Operator.objects.values('operator')
@@ -461,8 +467,11 @@ def trx_produk_all(request):
         'bukupln', 'bukupln__product', 'mpulsa_rbbuku_transaksi', 'mpulsa_rbbuku_transaksi__product'
     )
 
+    profile_objs = Profile.objects.all()
+
     # TRX SUCCESS & FAILED
     publish_trx = pembukuan_obj.filter(status_type__in = [3,9])
+    
     if search:
         publish_trx = publish_trx.annotate(
             search = SearchVector(
@@ -480,6 +489,27 @@ def trx_produk_all(request):
         publish_trx = publish_trx.filter(
             Q(user=request.user) | Q(user__profile__profile_member=request.user.profile)
         )
+
+        pembukuan_obj = pembukuan_obj.filter(
+            Q(user=request.user) | Q(user__profile__profile_member=request.user.profile)
+        )
+
+        profile_objs = profile_objs.filter(
+            Q(profile_member = request.user.profile) | Q(user=request.user)
+        )
+
+
+    buku_laporan = pembukuan_obj.aggregate(
+        c_trx = Coalesce(Count('user', filter=Q(status_type=9)), V(0)),
+        v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
+        v_sold = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
+        v_beli = Coalesce(Sum('transaksi__responsetransaksi__price'), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price'), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price'), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong'), V(0))
+    )
+
+    profile_resue = profile_objs.aggregate(
+        v_utip = Coalesce(Sum('saldo', filter=Q(saldo__gt=0)), V(0))
+    )
+    
     paginator = Paginator(publish_trx, 10)
 
     try :
@@ -489,9 +519,21 @@ def trx_produk_all(request):
     except EmptyPage:
         trxs = paginator.page(paginator.page_range)
 
+    v_collect = buku_laporan.get('v_collect')-profile_resue.get('v_utip')
+    v_profit = 0
+    try :
+        v_profit = (buku_laporan.get('v_sold') - buku_laporan.get('v_beli')) * 0.8 * v_collect / buku_laporan.get('v_sold')
+    except : 
+        pass
+
     content = {
         'trxs' : trxs,
         'c_trx': publish_trx.count(),
+        'laporan': buku_laporan,
+        'prof_resume': profile_resue,
+        'collection': v_collect,
+        'piutang': buku_laporan.get('v_sold')-v_collect,
+        'v_profit': v_profit,
     }
     return render(request, 'userprofile/transaksi.html', content)
 
