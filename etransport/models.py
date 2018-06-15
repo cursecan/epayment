@@ -56,7 +56,7 @@ class Transaksi(models.Model):
     phone = models.CharField(max_length=20)
     status = models.PositiveSmallIntegerField(choices=status_number, default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=1, related_name='usertrans')
-    pembukuan = models.OneToOneField(PembukuanTransaksi, on_delete=models.SET_NULL, null=True, related_name='bukutrans')
+    pembukuan = models.OneToOneField(PembukuanTransaksi, on_delete=models.SET_NULL, null=True, blank=True, related_name='bukutrans')
     catatan_modal = models.OneToOneField(CatatanModal, on_delete=models.SET_NULL, null=True, blank=True, related_name='ctt_trans')
     timestamp = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)

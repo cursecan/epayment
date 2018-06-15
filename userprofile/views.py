@@ -503,7 +503,7 @@ def trx_produk_all(request):
         c_trx = Coalesce(Count('user', filter=Q(status_type=9)), V(0)),
         v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
         v_sold = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
-        v_beli = Coalesce(Sum('transaksi__responsetransaksi__price'), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price'), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price'), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong'), V(0))
+        v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
     )
 
     profile_resue = profile_objs.aggregate(
