@@ -1,10 +1,13 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
+from import_export.admin import ImportExportModelAdmin
+
 
 
 from .models import Profile, PembukuanTransaksi, CatatanModal
 from .forms import PembukuanTransaksiForm
+from .resources import PembukuanResource
 
 
 class ProfileInline(admin.TabularInline):
@@ -17,11 +20,12 @@ class UserAdminCustom(UserAdmin):
 
 
 @admin.register(PembukuanTransaksi)
-class PembukuanTransaksiAdmin(admin.ModelAdmin):
+class PembukuanTransaksiAdmin(ImportExportModelAdmin):
     form = PembukuanTransaksiForm
     list_display = [
         'id', 'debit', 'kredit', 'balance','status_type', 'keterangan', 'user','parent_id','seq','confrmed', 'timestamp'
     ]
+    resource_class = PembukuanResource
 
 
 @admin.register(CatatanModal)
