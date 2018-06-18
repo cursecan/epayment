@@ -15,7 +15,7 @@ urlpatterns = [
     path('transaksi/pln/<int:id>/', views.trx_detail_pln_view, name='pln_trx'),
     path('transaksi/transport/<int:id>/', views.trx_detail_trans_view, name='trans_trx'),
 
-
+    path('detail-pendapatan/', views.pendapatanAgen, name='pendapatan_agen'),
     path('usergroups/', views.member_View, name='member_view'),
     path('usergroups/<int:id>/add-saldo/', views.tambahSaldo_view, name='tambah_saldo'),
     path('usergroups/collectrasio/', views.colrasio_dataset, name='collect_rasio'),

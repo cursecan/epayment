@@ -98,6 +98,53 @@ def trx_dataset(request):
     return JsonResponse(chart)
 
 
+# VIEW DETAIL PENDAPATAN AGEN
+@login_required
+def pendapatanAgen(request):
+    pembukuan_objs = PembukuanTransaksi.unclosed_book.all()
+    profile_objs = Profile.objects.all()
+
+    if not request.user.is_staff :
+        pembukuan_objs = pembukuan_objs.filter(
+            Q(user=request.user) | Q(user__profile__profile_member=request.user.profile)
+        )
+
+        profile_objs = profile_objs.filter(
+            Q(profile_member = request.user.profile) | Q(user=request.user)
+        )
+
+    resume_pemmbukuan = pembukuan_objs.aggregate(
+        v_penjualan = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
+        v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
+        v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
+    )
+
+    resume_profile = profile_objs.aggregate(
+        v_utip = Coalesce(Sum('saldo', filter=Q(saldo__gt=0)), V(0))
+    )
+
+    net_collect = resume_pemmbukuan.get('v_collect') - resume_profile.get('v_utip')
+    uncollect = resume_pemmbukuan.get('v_penjualan') - net_collect
+    
+    try :
+        prensen_collect = net_collect / resume_pemmbukuan.get('v_penjualan') * 100
+    except :
+        prensen_collect = 0
+
+    agen_salary = resume_pemmbukuan.get('v_penjualan') - resume_pemmbukuan.get('v_beli')
+
+    content = {
+        'penjualan': resume_pemmbukuan.get('v_penjualan'),
+        'persen_coll': prensen_collect,
+        'net_collect': net_collect,
+        'uncollect': uncollect,
+        'utip': resume_profile.get('v_utip'),
+        'salary': agen_salary,
+    }
+
+    return render(request, 'userprofile/perolehan_agen.html', content)
+
+
 # PRODUK
 @login_required
 def produk_View(request):

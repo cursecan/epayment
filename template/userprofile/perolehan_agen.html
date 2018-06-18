@@ -1,0 +1,47 @@
+{% extends 'base_admin.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="ui vertical segment">
+    <div class="ui fluid container">
+        <div class="ui equal width padded grid">
+            <div class="eight wide column">
+                <div class="ui segment">
+                    <h3 class="ui header">
+                        Detail Pendapatan
+                        <div class="sub header">
+                            {{ request.user|upper }}
+                        </div>
+                    </h3>
+                    <table class="ui celled table">
+                        <tr>
+                            <td>Penjualan (IDR)</td>
+                            <td class="right aligned">{{ penjualan|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td>Piutang Bulan Sebelumnya (IDR)</td>
+                            <td class="right aligned">0</td>
+                        </tr>
+                        <tr>
+                            <td>Collection (IDR)</td>
+                            <td class="right aligned">{{ net_collect|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td>Utip (IDR)</td>
+                            <td class="right aligned">{{ utip|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td>Collection Rasio</td>
+                            <td class="right aligned">{{ persen_coll }} %</td>
+                        </tr>
+                        <tr>
+                            <td>Income (IDR)</td>
+                            <td class="right aligned">{{ salary|intcomma }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
