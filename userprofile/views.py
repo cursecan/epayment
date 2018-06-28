@@ -19,7 +19,7 @@ from .models import PembukuanTransaksi
 from .forms import AddSaldoForm
 
 
-from .models import Profile
+from .models import Profile, Payroll
 
 # USER INDEX
 @login_required()
@@ -103,6 +103,7 @@ def trx_dataset(request):
 def pendapatanAgen(request):
     pembukuan_objs = PembukuanTransaksi.unclosed_book.all()
     profile_objs = Profile.objects.all()
+    payroll_objs = Payroll.objects.filter(agen=request.user)
 
     if not request.user.is_staff :
         pembukuan_objs = pembukuan_objs.filter(
@@ -125,6 +126,8 @@ def pendapatanAgen(request):
     )
 
     net_collect = resume_pemmbukuan.get('v_collect') - resume_profile.get('v_utip')
+    if net_collect < 0:
+        net_collect = 0 
     uncollect = -resume_profile.get('v_piutang')
     
     try :
@@ -133,18 +136,81 @@ def pendapatanAgen(request):
         prensentase_collect = 0
 
     agen_salary = resume_pemmbukuan.get('v_penjualan') - resume_pemmbukuan.get('v_beli')
+    if not request.user.is_staff :
+        agen_salary = agen_salary * 0.8 * prensentase_collect
 
     content = {
         'sisa_piutang': net_collect + uncollect - resume_pemmbukuan.get('v_penjualan'),
         'penjualan': resume_pemmbukuan.get('v_penjualan'),
+        'total_piutang': net_collect + uncollect,
         'persen_coll': prensentase_collect,
         'net_collect': net_collect,
         'uncollect': uncollect,
         'utip': resume_profile.get('v_utip'),
         'salary': agen_salary,
+        'payroll': payroll_objs,
     }
 
     return render(request, 'userprofile/perolehan_agen.html', content)
+
+
+
+# PAYROL
+@login_required
+def generate_payroll(request):
+    agen_objs = Profile.objects.filter(agen=True)
+    if request.method == 'POST':
+        periode = request.POST.get('periode', None)
+        if periode is not None :
+            for agen in agen_objs:
+                pembukuan_objs = PembukuanTransaksi.unclosed_book.filter(user__profile__profile_member__user__profile=agen, timestamp__date__lte=periode)
+                profile_objs = Profile.objects.filter(profile_member=agen)
+                
+                if agen.user.is_staff :
+                    pembukuan_objs = PembukuanTransaksi.unclosed_book.filter(timestamp__date__lte=periode)
+                    profile_objs = Profile.objects.all()
+
+                resume_pemmbukuan = pembukuan_objs.aggregate(
+                    v_penjualan = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
+                    v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
+                    v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
+                )
+
+                resume_profile = profile_objs.aggregate(
+                    v_utip = Coalesce(Sum('saldo', filter=Q(saldo__gt=0)), V(0)),
+                    v_piutang = Coalesce(Sum('saldo', filter=Q(saldo__lt=0)), V(0))
+                )
+
+                utip = resume_profile.get('v_utip')
+                net_collect = resume_pemmbukuan.get('v_collect') - utip
+                if net_collect < 0:
+                    net_collect = 0 
+
+                uncollect = -resume_profile.get('v_piutang')
+
+                penjualan = resume_pemmbukuan.get('v_penjualan')
+                piutang = net_collect + uncollect
+
+                agen_salary = resume_pemmbukuan.get('v_penjualan') - resume_pemmbukuan.get('v_beli')
+                if not request.user.is_staff :
+                    agen_salary = agen_salary * 0.8 * (net_collect/net_collect+uncollect)
+
+                # save payroll
+                Payroll.objects.create(
+                    agen = agen.user,
+                    periode = periode,
+                    piutang = piutang,
+                    utip = utip,
+                    collection = net_collect,
+                    uncollect = uncollect,
+                    salary = agen_salary,
+                    penjualan = penjualan,
+                )
+
+                pembukuan_objs.update(closed=True)
+
+            return redirect('userprofile:index')
+    return render(request, 'userprofile/payroll.html')
 
 
 # PRODUK

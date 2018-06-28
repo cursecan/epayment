@@ -24,4 +24,5 @@ urlpatterns = [
     path('price-rajabiller/', views.checkHargaViewRajabiller, name='price_rajabiller'),
 
     path('produk/', views.produk_View, name='produk'),
+    path('payroll/', views.generate_payroll, name='payroll'),
 ]

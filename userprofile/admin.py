@@ -4,10 +4,18 @@ from django.contrib.auth.admin import UserAdmin
 from import_export.admin import ImportExportModelAdmin
 
 
-
-from .models import Profile, PembukuanTransaksi, CatatanModal
+from .models import Profile, PembukuanTransaksi, CatatanModal, Payroll
 from .forms import PembukuanTransaksiForm
 from .resources import PembukuanResource
+
+
+@admin.register(Payroll)
+class PayrollAdmin(admin.ModelAdmin):
+    list_display = [
+        'agen', 'periode','penjualan','piutang', 'utip', 'collection', 'uncollect', 'salary', 'complete'
+    ]
+    class Meta:
+        model = Payroll
 
 
 class ProfileInline(admin.TabularInline):
@@ -37,4 +45,4 @@ class CatatanModalAdmin(admin.ModelAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdminCustom)
-# admin.site.register(CatatanModal)
+# admin.site.register(Payroll)

@@ -160,3 +160,21 @@ class CatatanModal(models.Model):
     def __str__(self):
         return str(self.id)
 
+
+
+class Payroll(models.Model):
+    agen = models.ForeignKey(User, on_delete=models.CASCADE)
+    periode = models.DateField()
+    penjualan = models.PositiveIntegerField(default=0)
+    piutang = models.PositiveIntegerField(default=0)
+    utip = models.PositiveIntegerField(default=0)
+    collection = models.PositiveIntegerField(default=0)
+    uncollect = models.PositiveIntegerField(default=0)
+    salary = models.PositiveIntegerField(default=0)
+    complete = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.agen)
+
+
+

@@ -1,26 +1,50 @@
 {% extends 'base_admin.html' %}
 {% load humanize %}
 
+{% block title %}
+Komisi & Pendapatan Agen
+{% endblock %}
+
 {% block content %}
 <div class="ui vertical segment">
     <div class="ui fluid container">
         <div class="ui equal width padded grid">
-            <div class="eight wide column">
-                <div class="ui segment">
+            <div class="ten wide column">
+                <div class="ui top attached segment">
                     <h3 class="ui header">
-                        Detail Pendapatan
-                        <div class="sub header">
-                            {{ request.user|upper }}
+                        <!-- <i class="ui money icon"></i> -->
+                        <div class="content">
+                            Komisi & Pendapatan
+                            <div class="sub header">
+                                {{ request.user|upper }}
+                            </div>
                         </div>
                     </h3>
+                </div>
+                <div class="ui bottom attached segment">
                     <table class="ui celled table">
+                        <tr>
+                            <td colspan="2">
+                                <h5 class="ui header">PIUTANG PENJUALAN</h5>
+                            </td>
+                        </tr>
                         <tr>
                             <td>Penjualan Berjalan (IDR)</td>
                             <td class="right aligned">{{ penjualan|intcomma }}</td>
                         </tr>
                         <tr>
-                            <td>Piutang Bulan Sebelumnya (IDR)</td>
+                            <td >Piutang Bulan Sebelumnya (IDR)</td>
                             <td class="right aligned">{{ sisa_piutang|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td class="right aligned"></td>
+                            <td class="right aligned"><b>{{ total_piutang|intcomma }}</b></td>
+                        </tr>
+                        
+                        <tr>
+                            <td colspan="2">
+                                <h5 class="ui header">COLLECTION</h5>
+                            </td>
                         </tr>
                         <tr>
                             <td>Collection (IDR)</td>
@@ -31,13 +55,58 @@
                             <td class="right aligned">{{ utip|intcomma }}</td>
                         </tr>
                         <tr>
-                            <td>Collection Rasio</td>
+                            <td>
+                                Collection Rasio <br>
+                                <small>Collection / Total Piutang Penjualan * 100</small>
+                            </td>
                             <td class="right aligned">{{ persen_coll }} %</td>
                         </tr>
                         <tr>
-                            <td>Income (IDR)</td>
-                            <td class="right aligned">{{ salary|intcomma }}</td>
+                            <td colspan="2">
+                                <h5 class="ui header">
+                                        PENDAPATAN / KOMISI
+                                </h5>
+                            </td>
                         </tr>
+                        <tr>
+                            <td>
+                                Income (IDR) <br>
+                                <small>CR * 80% * Total Keuntungan</small>
+                            </td>
+                            <td class="right aligned"><b>{{ salary|intcomma }}</b></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="column">
+                <div class="ui segment">
+                    <h3 class="ui header">
+                        <i class="ui history i"></i>
+                        <div class="content">
+                            History Pendapatan
+                        </div>
+                    </h3>
+                    <table class="ui striped table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Periode</th>
+                                <th>Uncollect</th>
+                                <th>Komisi</th>
+                            </tr>
+                        </thead>
+                        {% for pay in payroll %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ pay.periode }}</td>
+                            <td>{{ pay.uncollect|intcomma }}</td>
+                            <td>{{ pay.salary|intcomma }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4">Empty</td>
+                        </tr>
+                        {% endfor %}
                     </table>
                 </div>
             </div>
