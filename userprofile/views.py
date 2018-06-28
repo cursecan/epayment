@@ -120,22 +120,24 @@ def pendapatanAgen(request):
     )
 
     resume_profile = profile_objs.aggregate(
-        v_utip = Coalesce(Sum('saldo', filter=Q(saldo__gt=0)), V(0))
+        v_utip = Coalesce(Sum('saldo', filter=Q(saldo__gt=0)), V(0)),
+        v_piutang = Coalesce(Sum('saldo', filter=Q(saldo__lt=0)), V(0))
     )
 
     net_collect = resume_pemmbukuan.get('v_collect') - resume_profile.get('v_utip')
-    uncollect = resume_pemmbukuan.get('v_penjualan') - net_collect
+    uncollect = -resume_profile.get('v_piutang')
     
     try :
-        prensen_collect = net_collect / resume_pemmbukuan.get('v_penjualan') * 100
+        prensentase_collect = net_collect / (net_collect + uncollect) * 100
     except :
-        prensen_collect = 0
+        prensentase_collect = 0
 
     agen_salary = resume_pemmbukuan.get('v_penjualan') - resume_pemmbukuan.get('v_beli')
 
     content = {
+        'sisa_piutang': net_collect + uncollect - resume_pemmbukuan.get('v_penjualan'),
         'penjualan': resume_pemmbukuan.get('v_penjualan'),
-        'persen_coll': prensen_collect,
+        'persen_coll': prensentase_collect,
         'net_collect': net_collect,
         'uncollect': uncollect,
         'utip': resume_profile.get('v_utip'),

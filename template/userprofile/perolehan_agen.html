@@ -15,12 +15,12 @@
                     </h3>
                     <table class="ui celled table">
                         <tr>
-                            <td>Penjualan (IDR)</td>
+                            <td>Penjualan Berjalan (IDR)</td>
                             <td class="right aligned">{{ penjualan|intcomma }}</td>
                         </tr>
                         <tr>
                             <td>Piutang Bulan Sebelumnya (IDR)</td>
-                            <td class="right aligned">0</td>
+                            <td class="right aligned">{{ sisa_piutang|intcomma }}</td>
                         </tr>
                         <tr>
                             <td>Collection (IDR)</td>
