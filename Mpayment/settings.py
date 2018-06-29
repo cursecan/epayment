@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
 
+    'widget_tweaks',
     'rest_framework',
     'import_export',
 
@@ -150,6 +151,9 @@ STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'env_root', 'static_root')
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'env_root', 'media_root')
 
 
+LOGIN_REDIRECT_URL = 'userprofile:index'
+
+
 SIAPBAYAR_ID = config('SIAPBAYAR_ID')
 SIAPBAYAR_PASS = config('SIAPBAYAR_PASS')
 SIAP_URL = config('SIAP_URL')
@@ -162,3 +166,13 @@ RAJA_URL = config('RAJA_URL')
 #     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
 #     'PAGE_SIZE': 100
 # }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'postmaster@mg.warungid.com'
+EMAIL_HOST_PASSWORD = 'bc8f34d4cc772dd3f84dfdd84f9df8c9'
+EMAIL_USE_TLS = True

@@ -19,6 +19,8 @@ def saldo_profile(sender, instance, created, **kwargs):
         Profile.objects.filter(user = instance.user).update(saldo=instance.balance)
 
 
+
+# CREATE USER SIGNAL
 @receiver(post_save, sender=User)
 def initial_profile(sender, instance, created, **kwargs):
     if created:

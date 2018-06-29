@@ -1,0 +1,85 @@
+{% extends 'base_register.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+
+{% block title %}
+Registration
+{% endblock %}
+
+{% block css %}
+<style>
+    body {
+        background-image: url('/static/images/light-blue-3.jpg')
+    }
+    .grid {
+        height: 100vh;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="ui container">
+        <div class="ui middle aligned stackable grid">
+        <div class="eight wide column">
+            <img src="{% static 'images/img5.png' %}" alt="" class="ui image">
+        </div>
+        <div class="six wide right floated column">
+            <div class="ui segment">
+                <img src="{% static 'images/logo3.png' %}" alt="" class="ui small centered image">
+                <form action="" method="post" class="ui form">
+                    {% csrf_token %}
+                    <div class="field">
+                        <label for="{{ form.username.id_for_label }}">Username</label>
+                        <div class="ui left icon input">
+                            {% render_field form.username placeholder="Username" %}
+                            <i class="user icon"></i>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                        <div class="ui input">
+                            {{ form.first_name }}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                        <div class="ui input">
+                            {% render_field form.last_name placeholder="Optional"%}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.email.id_for_label }}">Email Address</label>
+                        <div class="ui left icon input">
+                            {% render_field form.email placeholder="axyz@domain.com"%}
+                            <i class="mail icon"></i>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.password1.id_for_label }}">Password</label>
+                        <div class="ui left icon input">
+                            {{ form.password1 }}
+                            <i class="key icon"></i>
+                        </div>
+                    </div>
+                        <div class="field">
+                        <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                        <div class="ui left icon input">
+                            {{ form.password2 }}
+                            <i class="key icon"></i>
+                        </div>
+                    </div>
+    
+                    <button class="ui large teal fluid button" type="submit">Register</button>
+                </form>
+            </div>
+            <div class="ui link horizontal divided list">
+                <a href="{% url 'login' %}" class="item active">Login</a>
+                <a href="{% url 'password_reset' %}" class="item">Lupa Password</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

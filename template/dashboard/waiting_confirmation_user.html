@@ -1,0 +1,35 @@
+{% extends 'base_register.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+
+{% block title %}
+Waiting Confirmation Page
+{% endblock %}
+
+{% block css %}
+<style>
+    .topdash.grid {
+        min-height: 150px;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="ui vertical inverted teal tertiary segment">
+    <div class="ui container">
+       <div class="ui middle aligned center aligned topdash grid">
+            <div class="ten wide column">
+                <h1 class="ui inverted header">
+                    Waiting Confirmation
+                </h1>
+                <p>
+                    Terimakasih sudah mendaftar, saat ini akun masih dalam proses validasi. Team kami akan segera manghubungi Anda saat proses selesai atau silahkan cek inbox email Anda. Terimakasih
+                </p>
+            </div>
+       </div>
+    </div>
+</div>
+.ui
+{% endblock %}

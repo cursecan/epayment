@@ -18,11 +18,11 @@ from epln import models as pln_model
 from .models import PembukuanTransaksi
 from .forms import AddSaldoForm
 
-
 from .models import Profile, Payroll
 
+
 # USER INDEX
-@login_required()
+@login_required(login_url='/login/')
 def userindex(request):
     pembukuan_objs = PembukuanTransaksi.unclosed_book.all()
     profile_objs = Profile.objects.all()
@@ -61,7 +61,7 @@ def userindex(request):
 
 
 # DATASET STATISTIK TRX
-@login_required
+@login_required(login_url='/login/')
 def trx_dataset(request):
     pembukuan_objs = PembukuanTransaksi.unclosed_book.filter(status_type=9)
 
@@ -99,7 +99,7 @@ def trx_dataset(request):
 
 
 # VIEW DETAIL PENDAPATAN AGEN
-@login_required
+@login_required(login_url='/login/')
 def pendapatanAgen(request):
     pembukuan_objs = PembukuanTransaksi.unclosed_book.all()
     profile_objs = Profile.objects.all()
@@ -137,7 +137,7 @@ def pendapatanAgen(request):
 
     agen_salary = resume_pemmbukuan.get('v_penjualan') - resume_pemmbukuan.get('v_beli')
     if not request.user.is_staff :
-        agen_salary = agen_salary * 0.8 * prensentase_collect
+        agen_salary = int(agen_salary * 0.8 * prensentase_collect)
 
     content = {
         'sisa_piutang': net_collect + uncollect - resume_pemmbukuan.get('v_penjualan'),
@@ -156,7 +156,7 @@ def pendapatanAgen(request):
 
 
 # PAYROL
-@login_required
+@login_required(login_url='/login/')
 def generate_payroll(request):
     agen_objs = Profile.objects.filter(agen=True)
     if request.method == 'POST':
@@ -193,7 +193,7 @@ def generate_payroll(request):
 
                 agen_salary = resume_pemmbukuan.get('v_penjualan') - resume_pemmbukuan.get('v_beli')
                 if not request.user.is_staff :
-                    agen_salary = agen_salary * 0.8 * (net_collect/net_collect+uncollect)
+                    agen_salary = int(agen_salary * 0.8 * (net_collect/net_collect+uncollect))
 
                 # save payroll
                 Payroll.objects.create(
@@ -214,7 +214,7 @@ def generate_payroll(request):
 
 
 # PRODUK
-@login_required
+@login_required(login_url='/login/')
 def produk_View(request):
     produk_objs = pulsa_model.Product.objects.filter(operator__kode='TEL')
     p_operator = pulsa_model.Operator.objects.values('operator')
@@ -228,7 +228,7 @@ def produk_View(request):
 
 
 # MEMBER LIST
-@login_required
+@login_required(login_url='/login/')
 def member_View(request):
     page = request.GET.get('page', 1)
     profile_objs = Profile.objects.all()
@@ -255,7 +255,7 @@ def member_View(request):
 
 
 # DATA COLLECTTION
-@login_required
+@login_required(login_url='/login/')
 def colrasio_dataset(request):
     buku_objs = PembukuanTransaksi.unclosed_book.all()
     if not request.user.is_staff:
@@ -291,7 +291,7 @@ def colrasio_dataset(request):
 
 
 # TAMBAH SALDO USER
-@login_required
+@login_required(login_url='/login/')
 def tambahSaldo_view(request, id):
     profile_obj = get_object_or_404(Profile, pk=id)
     data = dict()
@@ -330,7 +330,7 @@ def tambahSaldo_view(request, id):
 
 
 # UPDATE TRX RESPONSE
-@login_required()
+@login_required(login_url='/login/')
 def checkTrxView(request):
     data_update = []
     pulsa_trx = pulsa_model.Transaksi.objects.filter(
@@ -498,7 +498,7 @@ def checkTrxView(request):
 
 
 # UPDATE HARGA RAJABILLER
-@login_required
+@login_required(login_url='/login/')
 def checkHargaViewRajabiller(request):
     biller_objs = pulsa_model.Biller.objects.filter(biller='RB')
     payload = {
@@ -525,7 +525,7 @@ def checkHargaViewRajabiller(request):
 
 
 # UPDATE HARGA SERVER
-@login_required()
+@login_required(login_url='/login/')
 def checkHargaView(request):
     group_name =['TELKOMSEL','ISAT','XL','AXIS','BOLT','FREN','SMART','THREE', 'XL']
     url = settings.SIAP_URL
@@ -573,7 +573,7 @@ def checkHargaView(request):
 
 
 # TRX ALL VIEW
-@login_required
+@login_required(login_url='/login/')
 def trx_produk_all(request):
     page = request.GET.get('page', 1)
     search = request.GET.get('search', None)
@@ -654,7 +654,7 @@ def trx_produk_all(request):
 
 
 # DETAIL TRX PULSA
-@login_required()
+@login_required(login_url='/login/')
 def trx_detail_pulsa_view(request, id):
     data = dict()
     trx_obj = get_object_or_404(pulsa_model.Transaksi, pk=id)
@@ -669,7 +669,7 @@ def trx_detail_pulsa_view(request, id):
 
 
 #DETAIL TRX PULSA RAJABILER
-@login_required()
+@login_required(login_url='/login/')
 def trx_detail_pulsa_rajabiler_view(request, id):
     data = dict()
     trx_obj = get_object_or_404(pulsa_model.TransaksiRb, pk=id)
@@ -684,7 +684,7 @@ def trx_detail_pulsa_rajabiler_view(request, id):
 
 
 # DETAIL TRX TRANSPORT
-@login_required()
+@login_required(login_url='/login/')
 def trx_detail_trans_view(request, id):
     data = dict()
     trx_obj = get_object_or_404(trans_model.Transaksi, pk=id)
@@ -698,7 +698,7 @@ def trx_detail_trans_view(request, id):
 
 
 # DETAIL TRX PLN
-@login_required()
+@login_required(login_url='/login/')
 def trx_detail_pln_view(request, id):
     data = dict()
     trx_obj = get_object_or_404(pln_model.Transaksi, pk=id)
@@ -713,7 +713,7 @@ def trx_detail_pln_view(request, id):
 
 
 # GAGAL PULSA
-@login_required
+@login_required(login_url='/login/')
 def trx_edit_pulsa_view(request, id):
     data = dict()
     data['id'] = id
@@ -739,7 +739,7 @@ def trx_edit_pulsa_view(request, id):
 
 
 # GAGAL PULSA RAJABILLER
-@login_required
+@login_required(login_url='/login/')
 def trx_edit_pulsa_view_rajabiller(request, id):
     data = dict()
     data['id'] = id

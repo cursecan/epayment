@@ -1,12 +1,43 @@
-{% extends 'base.html' %}
+{% extends 'base_register.html' %}
+{% load static %}
 
 {% block title %}Login{% endblock %}
 
+{% block css %}
+<style>
+.grid {
+  height: 100%;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-  <h2>Login</h2>
+<!-- <div class="ui vertical methead segment">
+  <div class="ui fluid container"> -->
+    <div class="ui three column middle aligned centered grid">
+      <div class="column">
+          <div class="ui basic vertical segment">
+            <img src="{% static 'images/logo3.png' %}" alt="" class="ui small centered image">
+          </div>
+        <div class="ui basic vertical segment">
+          <form method="post" action="" class="ui form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="ui button large fluid teal" type="submit">Login</button>
+          </form>
+        </div>
+        <div class="ui basic vertical segment">
+          <a href="#">Lupa password?</a> <a href="#">Register</a> jika belum memiliki akun.
+        </div>
+      </div>
+    </div>
+  <!-- </div>
+</div> -->
+
+  <!-- <h2>Login</h2>
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Login</button>
-  </form>
+  </form> -->
 {% endblock %}
