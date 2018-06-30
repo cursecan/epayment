@@ -1,0 +1,146 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% load humanize %}
+{% load templatehelpers %}
+
+
+{% block title %}
+Managemen Member
+{% endblock %}
+
+{% block content %}
+<div class="ui basic vertical segment">
+    <div class="ui fluid container">
+        <div class="ui padded stackable grid">
+            <div class="three wide column">
+                <div class="ui vertical fluid small menu">
+                    <div class="item">
+                        <div class="ui input">
+                            <input type="text" placeholder="Search..">
+                        </div>
+                    </div>
+                    <div class="item">
+                        User View
+                        <div class="menu">
+                            <div class="item">
+                                Dana Masuk
+                                <div class="ui orange label">{{ payment.debit__sum|default_if_none:0|intcomma }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <a id="js-add-saldo" href="#" target-url="{% url 'userprofile:tambah_saldo2' %}" class="item">
+                        <i class="add icon"></i>
+                        Tambah Saldo
+                    </a>
+                </div>
+            </div>
+            <div class="thirteen wide column">
+                <table class="ui small celled stackable selectable table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>First Name</th>
+                            <th>Aktif / Telegram</th>
+                            <th>Limit</th>
+                            <th>Saldo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in members %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ member.user }}</td>
+                            <td>{{ member.user.email }}</td>
+                            <td>{{ member.user.first_name }}</td>
+                            <td>{{ member.active }} / {{ member.email_confirmed }}</td>
+                            <td>{{ member.limit|intcomma }}</td>
+                            <td>{{ member.saldo|intcomma }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="center aligned">Data kosong</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if members.has_other_pages %}
+                    <div class="ui mini pagination menu">
+                        {% if members.has_previous %}
+                        <a href="{% relative_url members.previous_page_number 'page' request.GET.urlencode %}" class="item"><span>&laquo;</span></a>
+                        {% endif %}
+
+                        {% for i in members.paginator.page_range %}
+                            {% if members.number == i%}
+                            <div class="item active">{{ i }}</div>
+                            {% else %}
+                            <a href="{% relative_url i 'page' request.GET.urlencode %}" class="item">{{ i }}</a>
+                            {% endif %}
+                        {% endfor %}
+        
+                        {% if members.has_next %}
+                        <a href="{% relative_url members.next_page_number 'page' request.GET.urlencode %}" class="item"><span>&raquo;</span></a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block modal %}
+    <div id="modal-form" class="ui tiny modal">
+        <!-- Modal kontent -->
+    </div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function() {
+        var loadAddsaldo = function() {
+            var btn = $(this);
+
+            $.ajax({
+                url: btn.attr('target-url'),
+                dataType: 'json',
+                beforeSend: function() {
+                    $('#modal-form').modal('show');
+                },
+                success: function(data) {
+                    $('#modal-form').html(data.html);
+                }
+            });
+            return false;
+        }
+
+        var postSaldo = function() {
+            var form = $(this);
+
+            $.ajax({
+                url: form.attr('action'),
+                dataType: 'json',
+                type: form.attr('method'),
+                data: form.serialize(),
+                success: function(data) {
+                    if (data.form_is_valid) {
+                        // $('#member-'+data.id).html(data.html);
+                        $('#modal-form').modal('hide');
+                    } 
+                    // else {
+                    //     $('#modal-form').html(data.html);
+                    // }
+                }
+            });
+            return false;
+        }
+
+
+
+        $('#js-add-saldo').on('click', loadAddsaldo);
+        $('#modal-form').on('submit', '.js-saldo-form', postSaldo);
+    });
+</script>
+{% endblock %}

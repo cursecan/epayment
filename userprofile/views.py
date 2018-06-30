@@ -16,9 +16,9 @@ from mpulsa import models as pulsa_model
 from etransport import models as trans_model
 from epln import models as pln_model
 from .models import PembukuanTransaksi
-from .forms import AddSaldoForm
+from .forms import AddSaldoForm, AddSaldoNewForm
 
-from .models import Profile, Payroll
+from .models import Profile, Payroll, UserPayment
 
 
 # USER INDEX
@@ -232,10 +232,13 @@ def produk_View(request):
 def member_View(request):
     page = request.GET.get('page', 1)
     profile_objs = Profile.objects.all()
+    userpayment_objs = UserPayment.objects.filter(setor_payment=False)
     if not request.user.is_staff:
         profile_objs = profile_objs.filter(
             profile_member = request.user.profile
         )
+        userpayment_objs = userpayment_objs.filter(agen=request.user)
+
     
     paginator = Paginator(profile_objs, 10)
 
@@ -249,9 +252,10 @@ def member_View(request):
     content = {
         'members': member_objs,
         'has_members': profile_objs.exists(),
+        'payment': userpayment_objs.aggregate(Sum('debit'))
     }
 
-    return render(request, 'userprofile/members.html', content)
+    return render(request, 'userprofile/members.1.html', content)
 
 
 # DATA COLLECTTION
@@ -327,6 +331,37 @@ def tambahSaldo_view(request, id):
             data['id'] = profile_obj.id
 
     return JsonResponse(data)
+
+
+# TAMBAH SALDO USER 2
+@login_required(login_url='/login/')
+def tambahSaldo2_view(request):
+    form = AddSaldoNewForm(request.user, request.POST or None)
+    data = dict()
+    if request.method == 'POST':
+        if form.is_valid():
+            instance = form.save(commit=False)
+            try :
+                instance.agen = instance.user.profile.profile_member.user
+            except :
+                pass
+            instance.save()
+            data['form_is_valid'] = True
+        else :
+            data['form_is_valid'] = False
+
+    content = {
+        'form': form,
+    }
+
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_add_saldo.1.html',
+        content,
+        request = request
+    )
+    return JsonResponse(data)
+    
+
 
 
 # UPDATE TRX RESPONSE

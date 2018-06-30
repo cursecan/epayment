@@ -6,23 +6,17 @@ Komisi & Pendapatan Agen
 {% endblock %}
 
 {% block content %}
-<div class="ui vertical segment">
+<div class="ui vertical basic segment">
     <div class="ui fluid container">
         <div class="ui equal width padded grid">
             <div class="ten wide column">
                 <div class="ui top attached segment">
-                    <h3 class="ui header">
-                        <!-- <i class="ui money icon"></i> -->
-                        <div class="content">
+                    <h5 class="ui header">
                             Komisi & Pendapatan
-                            <div class="sub header">
-                                {{ request.user|upper }}
-                            </div>
-                        </div>
-                    </h3>
+                    </h5>
                 </div>
                 <div class="ui bottom attached segment">
-                    <table class="ui celled table">
+                    <table class="ui celled small table">
                         <tr>
                             <td colspan="2">
                                 <h5 class="ui header">PIUTANG PENJUALAN</h5>
@@ -80,13 +74,13 @@ Komisi & Pendapatan Agen
             </div>
             <div class="column">
                 <div class="ui segment">
-                    <h3 class="ui header">
+                    <h5 class="ui header">
                         <i class="ui history i"></i>
                         <div class="content">
                             History Pendapatan
                         </div>
-                    </h3>
-                    <table class="ui striped table">
+                    </h5>
+                    <table class="ui striped small table">
                         <thead>
                             <tr>
                                 <th>#</th>

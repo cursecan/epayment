@@ -26,6 +26,7 @@ from dashboard.views import home as homepage, signupView  as signup, waiting_con
 urlpatterns = [
     path('', homepage, name='home'),
     path('login/', auth_views.login, name='login'),
+    path('logout/', auth_views.logout, name='logout'),
     path('register/', signup, name='register'),
     path('waiting_confirmation_user/', wcu, name='waiting_confirm'),
     url(r'^password_reset/$', auth_views.password_reset, name='password_reset'),

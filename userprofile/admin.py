@@ -4,9 +4,17 @@ from django.contrib.auth.admin import UserAdmin
 from import_export.admin import ImportExportModelAdmin
 
 
-from .models import Profile, PembukuanTransaksi, CatatanModal, Payroll
+from .models import Profile, PembukuanTransaksi, CatatanModal, Payroll, UserPayment
 from .forms import PembukuanTransaksiForm
 from .resources import PembukuanResource
+
+@admin.register(UserPayment)
+class UserPayment(admin.ModelAdmin):
+    list_display = [
+        'timestamp','user', 'agen','method_payment', 'berita_acara', 'debit'
+    ]
+    class Meta:
+        model = UserPayment
 
 
 @admin.register(Payroll)

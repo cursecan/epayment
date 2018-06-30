@@ -18,6 +18,7 @@ urlpatterns = [
     path('detail-pendapatan/', views.pendapatanAgen, name='pendapatan_agen'),
     path('usergroups/', views.member_View, name='member_view'),
     path('usergroups/<int:id>/add-saldo/', views.tambahSaldo_view, name='tambah_saldo'),
+    path('usergroups/add-saldo/', views.tambahSaldo2_view, name='tambah_saldo2'),
     path('usergroups/collectrasio/', views.colrasio_dataset, name='collect_rasio'),
     path('transaction-check/', views.checkTrxView, name='checktrx'),
     path('sistemprice/', views.checkHargaView, name='price'),

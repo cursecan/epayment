@@ -1,0 +1,46 @@
+{% load humanize %}
+<i class="close icon"></i>
+<div class="ui vertical header inverted blue segment">
+    <h3 class="ui inverted header">
+        <i class="icon plus"></i>
+        <div class="content">
+            Form Tambah Saldo
+            <div class="sub header">
+                Agen {{ user }}
+            </div>
+        </div>
+    </h3>
+</div>
+<div class="ui vertical content clearing segment ">
+    <form class="ui form js-saldo-form" action="{% url 'userprofile:tambah_saldo2' %}" method="post">
+        {% csrf_token %}
+        <div class="field">
+            <label for="{{ form.user.id_for_label }}">Nama User</label>
+            <div class="ui input">
+                {{ form.user }}
+            </div>
+        </div>
+        <div class="fields">
+            <div class="six wide field">
+                <label for="{{ form.method_payment.id_for_label }}">Metode Pembayaran</label>
+                <div class="ui input">
+                    {{ form.method_payment }}
+                </div>
+            </div>
+            <div class="ten wide field">
+                <label for="{{ form.debit.id_for_label }}">Debit</label>
+                <div class="ui input">
+                    {{ form.debit }}
+                </div>
+            </div>
+        </div>
+        <div class="field">
+            <label for="{{ form.berita_acara.id_for_label }}">Berita Acara</label>
+            <div class="ui input">
+                {{ form.berita_acara }}
+            </div>
+        </div>
+        <button class="ui right floated positive button" type="submit"><i class="plus icon"></i> Tambah Saldo</button>
+    </form>
+</div>
+

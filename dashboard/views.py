@@ -1,9 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from userprofile.forms import SignUpForm
 from userprofile.models import Profile
 
 # Create your views here.
 def home(request):
+    if request.user.is_authenticated:
+        return redirect('userprofile:index')
     return render(request, 'dashboard/home.html')
 
 

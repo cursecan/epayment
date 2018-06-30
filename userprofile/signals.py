@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models import F
 
 
-from .models import PembukuanTransaksi, Profile, CatatanModal
+from .models import PembukuanTransaksi, Profile, CatatanModal, UserPayment
 
 
 # UPDATE SALDO USER DARI RECORD PEMBUKUAN
@@ -26,4 +26,15 @@ def initial_profile(sender, instance, created, **kwargs):
     if created:
         profile_obj = Profile.objects.create(
             user=instance,
+        )
+
+
+# TAMBAH SALDO
+@receiver(post_save, sender=UserPayment)
+def update_bukutransaksi_payment(sender, instance, created, **kwargs):
+    if created:
+        PembukuanTransaksi.objects.create(
+            user = instance.user,
+            debit = instance.debit,
+            status_type = 1,
         )

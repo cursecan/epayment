@@ -152,6 +152,7 @@ MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'env_root', 'media_root')
 
 
 LOGIN_REDIRECT_URL = 'userprofile:index'
+LOGOUT_REDIRECT_URL = 'login'
 
 
 SIAPBAYAR_ID = config('SIAPBAYAR_ID')
@@ -171,8 +172,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_HOST = config('EMAIL_HOST')
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'postmaster@mg.warungid.com'
-EMAIL_HOST_PASSWORD = 'bc8f34d4cc772dd3f84dfdd84f9df8c9'
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True

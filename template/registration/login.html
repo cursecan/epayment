@@ -17,7 +17,9 @@
     <div class="ui three column middle aligned centered grid">
       <div class="column">
           <div class="ui basic vertical segment">
-            <img src="{% static 'images/logo3.png' %}" alt="" class="ui small centered image">
+            <a href="{% url 'home' %}">
+                <img src="{% static 'images/logo3.png' %}" alt="" class="ui small centered image">
+            </a>
           </div>
         <div class="ui basic vertical segment">
           <form method="post" action="" class="ui form">
@@ -27,7 +29,10 @@
           </form>
         </div>
         <div class="ui basic vertical segment">
-          <a href="#">Lupa password?</a> <a href="#">Register</a> jika belum memiliki akun.
+          <div class="ui link divided horizontal list">
+            <a href="{% url 'password_reset' %}" class="item active">Lupa Password?</a>
+            <a href="{% url 'register' %}" class="item">Register</a>
+          </div>
         </div>
       </div>
     </div>

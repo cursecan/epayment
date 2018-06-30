@@ -178,3 +178,19 @@ class Payroll(models.Model):
 
 
 
+class UserPayment(models.Model):
+    MPAYMENT = (
+        ('MN', 'MANUAL PAYMENT'),
+        ('VA', 'VIRTUAL ACCOUNT'),
+        ('TR', 'TRANSFER')
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
+    agen = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='agen')
+    debit = models.PositiveIntegerField(default=1000)
+    method_payment = models.CharField(max_length=2, choices=MPAYMENT, default='MN')
+    berita_acara = models.CharField(max_length=200, blank=True)
+    setor_payment = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.user)
