@@ -80,8 +80,10 @@ class PembukuanTransaksi(models.Model):
                 return self.bukutrans
             elif hasattr(self, 'bukupln') :
                 return self.bukupln
-            else :
+            elif hasattr(self, 'mpulsa_rbbuku_transaksi'):
                 return self.mpulsa_rbbuku_transaksi
+            else :
+                return self.epln_rbbuku_transaksi
         except Exception as e:
             return None
 
@@ -94,8 +96,10 @@ class PembukuanTransaksi(models.Model):
                 return self.bukutrans.responsetransaksi.price
             elif hasattr(self, 'bukupln') :
                 return self.bukupln.responsetransaksi.price
-            else :
+            elif hasattr(self, 'mpulsa_rbbuku_transaksi'):
                 return self.mpulsa_rbbuku_transaksi.responsetransaksirb.saldo_terpotong
+            else :
+                return self.epln_rbbuku_transaksi.responsetransaksirb.saldo_terpotong
         except Exception as e:
             return 0
 
@@ -108,8 +112,10 @@ class PembukuanTransaksi(models.Model):
                 return self.bukutrans.phone
             elif hasattr(self, 'bukupln') :
                 return self.bukupln.account_num
-            else :
+            elif hasattr(self, 'mpulsa_rbbuku_transaksi'):
                 return self.mpulsa_rbbuku_transaksi.phone
+            else :
+                return self.epln_rbbuku_transaksi.idpel
         except Exception as e:
             return None
 
@@ -122,8 +128,10 @@ class PembukuanTransaksi(models.Model):
                 return self.bukutrans.product.keterangan
             elif hasattr(self, 'bukupln') :
                 return self.bukupln.product.nama_produk
-            else :
+            elif hasattr(self, 'mpulsa_rbbuku_transaksi'):
                 return self.mpulsa_rbbuku_transaksi.product.keterangan
+            else :
+                return self.epln_rbbuku_transaksi.product.nama_produk
         except Exception as e:
             return None
 

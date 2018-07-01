@@ -3,7 +3,7 @@ from django.dispatch import receiver
 
 from django.conf import settings
 
-import requests, json
+import requests, json, re
 from lxml import html
 
 
@@ -194,7 +194,7 @@ def process_requesting_to_rb(sender, instance, created, update_fields, **kwargs)
                 "idpel2":"",
                 "idpel3":"",
                 "ref1": instance.trx_code,
-                "ref2": instance.responsetransaksirb.ref2,
+                "ref2": instance.ref_inquery.responsetransaksirb.ref2,
                 "ref3": "",
                 "nominal": str(instance.product.nominal)
             }
@@ -204,9 +204,16 @@ def process_requesting_to_rb(sender, instance, created, update_fields, **kwargs)
         else:
             payload['idpel2'] = instance.idpel
             
-
-        r = requests.post(settings.RAJA_URL, data=json.dumps(payload), headers={'Content-Type':'application/json'})
-        rson = r.json()
+        url = settings.RAJA_URL
+        try:
+            r = requests.post(settings.RAJA_URL, data=json.dumps(payload), headers={'Content-Type':'application/json'}, verify=False)
+            if r.status_code == requests.codes.ok :
+                rson = r.json()
+            r.raise_for_status()
+        except :
+            rson['STATUS'] = '99'
+            rson['KET'] = 'Gagal terhubung ke server atau timeout.'
+       
         res = ResponseTransaksiRb.objects.create(
             trx = instance,
             kode_produk = rson.get('KODE_PRODUK',''),
@@ -238,9 +245,11 @@ def process_requesting_to_rb(sender, instance, created, update_fields, **kwargs)
                 )
 
                 try :
-                    instance.struk = rson['DETAIL']['TOKEN']
+                    token = re.findall(r'^(\d{5})(\d{5})(\d{5})(\d{5})$', rson['DETAIL']['TOKEN'])
+                    kwh = rson['DETAIL']['PURCHASEDKWHUNIT']
+                    struk = "STRUK PEMBELIAN\n\n"+"NO METER / IDPEL".ljust(20)+": "+instance.idpel+"\n"+"JML KWH".ljust(20)+": "+str(int(kwh)/100)+"\n"+"RP BAYAR".ljust(20)+": "+"Rp "+str(instance.price)+"\n"+"TOKEN".ljust(20)+": "+" ".join(token[0])+"\n\nTERIMA KASIH."
                 except:
-                    pass
+                    struk = rson['DETAIL']['TOKEN']
 
                 # try :
                 #     r = requests.get(res.url_struk)
