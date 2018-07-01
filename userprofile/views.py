@@ -137,7 +137,7 @@ def pendapatanAgen(request):
 
     agen_salary = resume_pemmbukuan.get('v_penjualan') - resume_pemmbukuan.get('v_beli')
     if not request.user.is_staff :
-        agen_salary = int(agen_salary * 0.8 * prensentase_collect)
+        agen_salary = int(agen_salary * 0.8)
 
     content = {
         'sisa_piutang': net_collect + uncollect - resume_pemmbukuan.get('v_penjualan'),
@@ -163,7 +163,7 @@ def generate_payroll(request):
         periode = request.POST.get('periode', None)
         if periode is not None :
             for agen in agen_objs:
-                pembukuan_objs = PembukuanTransaksi.unclosed_book.filter(user__profile__profile_member__user__profile=agen, timestamp__date__lte=periode)
+                pembukuan_objs = PembukuanTransaksi.unclosed_book.filter(user__profile__profile_member__user__profile=agen)
                 profile_objs = Profile.objects.filter(profile_member=agen)
                 
                 if agen.user.is_staff :
@@ -192,8 +192,8 @@ def generate_payroll(request):
                 piutang = net_collect + uncollect
 
                 agen_salary = resume_pemmbukuan.get('v_penjualan') - resume_pemmbukuan.get('v_beli')
-                if not request.user.is_staff :
-                    agen_salary = int(agen_salary * 0.8 * (net_collect/net_collect+uncollect))
+                if not agen.user.is_staff :
+                    agen_salary = int(agen_salary * 0.8)
 
                 # save payroll
                 Payroll.objects.create(
@@ -207,8 +207,7 @@ def generate_payroll(request):
                     penjualan = penjualan,
                 )
 
-                pembukuan_objs.update(closed=True)
-
+            PembukuanTransaksi.unclosed_book.update(closed=True)
             return redirect('userprofile:index')
     return render(request, 'userprofile/payroll.html')
 
@@ -672,7 +671,7 @@ def trx_produk_all(request):
     v_collect = buku_laporan.get('v_collect')-profile_resue.get('v_utip')
     v_profit = 0
     try :
-        v_profit = (buku_laporan.get('v_sold') - buku_laporan.get('v_beli')) * 0.8 * v_collect / buku_laporan.get('v_sold')
+        v_profit = buku_laporan.get('v_sold') - buku_laporan.get('v_beli')
     except : 
         pass
 

@@ -7,8 +7,8 @@ import requests, json
 from lxml import html
 
 
-from .models import Transaksi, ResponseTransaksi, CatatanModal
-from userprofile.models import PembukuanTransaksi
+from .models import Transaksi, ResponseTransaksi, TransaksiRb, ResponseTransaksiRb
+from userprofile.models import PembukuanTransaksi, CatatanModal
 
 
 @receiver(post_save, sender=Transaksi)
@@ -167,4 +167,178 @@ def proses_catatan_modal(sender, instance, created, update_fields, **kwargs):
 
                 instance_modal.confirmed = True
                 instance_modal.save()
-                    
+
+
+# Process Transaksi RajaBiller
+@receiver(post_save, sender=TransaksiRb)
+def process_requesting_to_rb(sender, instance, created, update_fields, **kwargs):
+    if created:
+        if instance.request_type == 'i':
+            payload = {
+                "method": "rajabiller.inq",
+                "uid": settings.RAJABILLER_ID,
+                "pin": settings.RAJABILLER_PASS,
+                "kode_produk": "PLNPRAH",
+                "idpel1":"",
+                "idpel2":"",
+                "idpel3":"",
+                "ref1": instance.trx_code,
+            }
+        else :
+            payload = {
+                "method": "rajabiller.paydetail",
+                "uid": settings.RAJABILLER_ID,
+                "pin": settings.RAJABILLER_PASS,
+                "kode_produk": "PLNPRAH",
+                "idpel1":"",
+                "idpel2":"",
+                "idpel3":"",
+                "ref1": instance.trx_code,
+                "ref2": instance.responsetransaksirb.ref2,
+                "ref3": "",
+                "nominal": str(instance.product.nominal)
+            }
+
+        if len(instance.idpel) == 11:
+            payload["idpel1"] = instance.idpel
+        else:
+            payload['idpel2'] = instance.idpel
+            
+
+        r = requests.post(settings.RAJA_URL, data=json.dumps(payload), headers={'Content-Type':'application/json'})
+        rson = r.json()
+        res = ResponseTransaksiRb.objects.create(
+            trx = instance,
+            kode_produk = rson.get('KODE_PRODUK',''),
+            waktu = rson.get('WAKTU',''),
+            idpel1 = rson.get('IDPEL1',''),
+            idpel2 = rson.get('IDPEL2',''),
+            idpel3 = rson.get('IDPEL3',''),
+            nama_pelanggan = rson.get('NAMA_PELANGGAN',''),
+            periode = rson.get('PERIODE',''),
+            nominal = int(rson.get('NOMINAL',0)),
+            admin = int(rson.get('ADMIN',0)),
+            ref1 = rson.get('REF1',''),
+            ref2 = rson.get('REF2',''),
+            ref3 = rson.get('REF3',''),
+            status = rson.get('STATUS',''),
+            ket = rson.get('KET',''),
+            saldo_terpotong = int(rson.get('SALDO_TERPOTONG',0)),
+            sisa_saldo = int(rson.get('SISA_SALDO',0)),
+            url_struk = rson.get('URL_STRUK',''),
+            detail = str(rson.get('DETAIL','')),
+        )
+
+        if instance.request_type == 'p':
+            if res.status in ['', '00']:
+                pebukuan_obj = PembukuanTransaksi.objects.create(
+                    user = instance.user,
+                    kredit = instance.price,
+                    balance = instance.user.profile.saldo - instance.price
+                )
+
+                try :
+                    instance.struk = rson['DETAIL']['TOKEN']
+                except:
+                    pass
+
+                # try :
+                #     r = requests.get(res.url_struk)
+                #     tree = html.fromstring(r.text.replace(u'\xa0', ' '))
+                #     instance.struk = tree.xpath('//pre/text()')[0]
+                # except Exception as es :
+                #     pass
+
+                instance.pembukuan = pebukuan_obj
+                instance.save(update_fields=['pembukuan', 'struk'])
+            else :
+                instance.status = 9
+                instance.save()
+
+    if update_fields is not None :
+        # update in admin to gagal transaksi    
+        if instance.request_type == 'p':
+            if 'status' in update_fields and instance.status == 9:
+                diskon_pembukuan = PembukuanTransaksi.objects.create(
+                    user = instance.user,
+                    parent_id = instance.pembukuan,
+                    seq = instance.pembukuan.seq +1,
+                    kredit = -instance.pembukuan.kredit,
+                    balance = instance.user.profile.saldo + instance.pembukuan.kredit,
+                    status_type = 2
+                )
+                PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)
+
+                response_trx_obj = ResponseTransaksiRb.objects.get(trx=instance)
+                response_trx_obj.status = '99'
+                response_trx_obj.save(update_fields=['status'])
+
+
+
+@receiver(post_save, sender=ResponseTransaksiRb)
+def proses_catatan_modal_Rb(sender, instance, created, update_fields, **kwargs):
+    last_catatan = CatatanModal.objects.latest()
+    if created :
+        if instance.trx.request_type == 'p' and instance.status in ['00','']:
+            try :
+                modal_create_obj = CatatanModal.objects.create(
+                    kredit = instance.saldo_terpotong,
+                    saldo = last_catatan.saldo - instance.saldo_terpotong,
+                )
+            except:
+                modal_create_obj = CatatanModal.objects.create(
+                    kredit = instance.saldo_terpotong,
+                    saldo = 0,
+                )
+
+            # if instance.serialno != '' and instance.rc == '00':
+            #     modal_create_obj.confirmed = True
+            #     modal_create_obj.save(update_fields=['confirmed'])
+
+
+            trx_obj = TransaksiRb.objects.filter(
+                trx_code = instance.trx.trx_code
+            ).update(catatan_modal=modal_create_obj)
+
+
+
+    if update_fields is not None:
+        if 'status' in update_fields:
+            instance_modal = instance.trx.catatan_modal
+            # filter jika gagal catatan modal
+            if instance.status not in ['00','']:
+                modal_create_obj_new = CatatanModal.objects.create(
+                    debit = instance.saldo_terpotong,
+                    saldo = last_catatan.saldo + instance.saldo_terpotong,
+                    parent_id = instance_modal,
+                    type_transaksi = 3,
+                    confirmed = True
+                )
+                instance_modal.type_transaksi = 2
+                instance_modal.confirmed = True
+                instance_modal.save()
+
+                TransaksiRb.objects.filter(
+                    responsetransaksirb = instance
+                ).update(catatan_modal=modal_create_obj_new)
+
+            # Filter jika berhasil
+            elif instance.status == '00' :
+                # berhasil dengan perubahan harga
+                if instance_modal.kredit != instance.saldo_terpotong:
+                    modal_create_obj_new = CatatanModal.objects.create(
+                        debit = instance_modal.kredit,
+                        kredit = instance.saldo_terpotong,
+                        saldo = last_catatan.saldo + instance_modal.kredit - instance.saldo_terpotong,
+                        parent_id = instance_modal,
+                        confirmed = True,
+                        keterangan = 'Harga beli berubah!', 
+                    )
+                    instance_modal.type_transaksi = 2
+
+                    TransaksiRb.objects.filter(
+                        responsetransaksirb = instance
+                    ).update(catatan_modal=modal_create_obj_new)
+
+                instance_modal.confirmed = True
+                instance_modal.save()

@@ -301,7 +301,7 @@ class Epaybot(telepot.helper.ChatHandler):
         self._editor_2 = telepot.helper.Editor(self.bot, sent)
         self._edit_mgs_ident_2 = telepot.message_identifier(sent)
 
-
+    # LIHAT pln produk
     def listrik_detail_prod(self, val):
         url = _URL+'api/pln/produk/?p='+val
         r = requests.get(url)
@@ -356,7 +356,10 @@ class Epaybot(telepot.helper.ChatHandler):
             'phone': '081315667766',
         }
 
-        r = requests.post(_URL+'api/pln/topup/', data=json.dumps(payload), headers={'Content-Type':'application/json'})
+        # url = _URL+'api/pln/topup/'
+        url = _URL+'api/pln/topup_pln_rb/'
+
+        r = requests.post(url=url, data=json.dumps(payload), headers={'Content-Type':'application/json'})
         rson = r.json()
         self.fedback_message(rson)
 
@@ -478,7 +481,7 @@ class Epaybot(telepot.helper.ChatHandler):
                     self.close()
                     return
                 if self._code in self._list_listrik_prod:
-                    valid = re.match(r'^(\d+)$', data)
+                    valid = re.match(r'^(\d{11,12})$', data)
                     if not valid:
                         self.sender.sendMessage('Silahkan masukan Nomor Meter / ID Pelanggan anda dengan benar atau ketik /menu untuk kembali ke menu utama.')
                         return

@@ -13,9 +13,7 @@ def signupView(request):
     form = SignUpForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = False
-            user.save()
+            form.save()
 
     content = {
         'form': form

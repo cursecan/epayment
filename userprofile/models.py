@@ -18,7 +18,7 @@ class Profile(models.Model):
     agen = models.BooleanField(default=False)
     email_confirmed = models.BooleanField(default=False)
     token_code = models.CharField(max_length=10, blank=True)
-    limit = models.IntegerField(default=-110000)
+    limit = models.IntegerField(default=0)
     profile_member = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='usermember')
 
     objects = models.Manager()

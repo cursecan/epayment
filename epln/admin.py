@@ -1,7 +1,7 @@
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
-from .models import Product, Transaksi, ResponseTransaksi
+from .models import Product, Transaksi, ResponseTransaksi, TransaksiRb, ResponseTransaksiRb
 from .resources import ProductResource, TransaksiResource
 
 def make_published(modeladmin, request, queryset):
@@ -28,5 +28,6 @@ class TransaksiAdmin(ImportExportModelAdmin):
     search_fields = ['trx_code', 'phone']
 
 # admin.site.register(Product)
-# admin.site.register(Transaksi)
+admin.site.register(TransaksiRb)
 admin.site.register(ResponseTransaksi)
+admin.site.register(ResponseTransaksiRb)
