@@ -37,24 +37,27 @@ def userindex(request):
 
     laporan = pembukuan_objs.aggregate(
         c_trx = Coalesce(Count('user', filter=Q(status_type=9)), V(0)),
-        v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
-        v_sold = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
+        # v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
+        # v_sold = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
     )
 
     profile_resue = profile_objs.aggregate(
         c_user = Coalesce(Count('id'), V(0)),
-        v_utip = Coalesce(Sum('saldo', filter=Q(saldo__gt=0)), V(0))
+        # v_utip = Coalesce(Sum('saldo', filter=Q(saldo__gt=0)), V(0)),
+        v_piutang = Coalesce(Sum('saldo', filter=Q(saldo__lt=0)), V(0)),
     )
 
-    col_rasio = 0
-    try :
-        col_rasio = (laporan.get('v_collect')-profile_resue.get('v_utip'))/laporan.get('v_sold') * 100
-    except:
-        pass
+    # t_belanja = fix_collect - profile_resue.get('v_piutang')
+
+    # col_rasio = 0
+    # try :
+    #     col_rasio = 
+    # except:
+    #     pass
 
     content = {
         'laporan': laporan,
-        'col_rasio': col_rasio,
+        # 'col_rasio': col_rasio,
         'member': profile_resue,
     }
     return render(request, 'userprofile/index.html', content)
@@ -117,7 +120,6 @@ def pendapatanAgen(request):
     resume_pemmbukuan = pembukuan_objs.aggregate(
         v_penjualan = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
         v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
-        v_balance_positif = Coalesce(Sum('balance', filter=Q(status_type=1)&Q(balance__gt=0)), V(0)),
         v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('etrans_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))  
     )
 
@@ -126,17 +128,17 @@ def pendapatanAgen(request):
         v_piutang = Coalesce(Sum('saldo', filter=Q(saldo__lt=0)), V(0))
     )
 
-    net_collect = resume_pemmbukuan.get('v_collect') - resume_pemmbukuan.get('v_balance_positif')
+    net_collect = resume_pemmbukuan.get('v_collect')
     uncollect = -resume_profile.get('v_piutang')
 
     sisa_piutang_sebelumnya =  uncollect - resume_pemmbukuan.get('v_penjualan')
     if sisa_piutang_sebelumnya < 0:
         sisa_piutang_sebelumnya = 0
     
-    try :
-        prensentase_collect = net_collect / (net_collect + uncollect) * 100
-    except :
-        prensentase_collect = 0
+    # try :
+    #     prensentase_collect = net_collect / (net_collect + uncollect) * 100
+    # except :
+    #     prensentase_collect = 0
 
     agen_salary = resume_pemmbukuan.get('v_penjualan') - resume_pemmbukuan.get('v_beli')
     if not request.user.is_staff :
@@ -146,7 +148,7 @@ def pendapatanAgen(request):
         'sisa_piutang': sisa_piutang_sebelumnya,
         'penjualan': resume_pemmbukuan.get('v_penjualan'),
         'total_piutang': uncollect,
-        'persen_coll': prensentase_collect,
+        # 'persen_coll': prensentase_collect,
         'net_collect': net_collect,
         'uncollect': uncollect,
         'utip': resume_profile.get('v_utip'),
@@ -176,7 +178,6 @@ def generate_payroll(request):
                 resume_pemmbukuan = pembukuan_objs.aggregate(
                     v_penjualan = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
                     v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
-                    v_balance_positif = Coalesce(Sum('balance', filter=Q(status_type=1)&Q(balance__gt=0)), V(0)),
                     v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('etrans_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
                 )
 
@@ -186,12 +187,12 @@ def generate_payroll(request):
                 )
 
                 utip = resume_profile.get('v_utip')
-                net_collect = resume_pemmbukuan.get('v_collect') - resume_pemmbukuan.get('v_balance_positif')
+                net_collect = resume_pemmbukuan.get('v_collect')
 
                 uncollect = -resume_profile.get('v_piutang')
 
                 penjualan = resume_pemmbukuan.get('v_penjualan')
-                piutang = net_collect + uncollect
+                piutang = uncollect
 
                 agen_salary = resume_pemmbukuan.get('v_penjualan') - resume_pemmbukuan.get('v_beli')
                 if not agen.user.is_staff :
@@ -362,8 +363,6 @@ def tambahSaldo2_view(request):
     )
     return JsonResponse(data)
     
-
-
 
 # UPDATE TRX RESPONSE
 @login_required(login_url='/login/')

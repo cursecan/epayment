@@ -37,23 +37,6 @@ Dashboard
                     </div>
                 </div>
                 <div class="column">
-                    <div class="ui inverted blue segment">
-                        <div class="ui grid">
-                            <div class="row">
-                                <div class="column">
-                                    <div class="ui tiny inverted statistic">
-                                        <div class="value">{{ col_rasio|floatformat:1 }}%</div>
-                                        <div class="label">Collection Rasio</div>
-                                    </div>
-                                    <h4 class="ui icon header inverted right floated">
-                                        <i class="chart pie icon"></i>
-                                    </h4>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="column">
                     <div class="ui inverted red segment">
                         <div class="ui grid">
                             <div class="row">
@@ -64,6 +47,23 @@ Dashboard
                                     </div>
                                     <h4 class="ui icon header inverted right floated">
                                         <i class="users icon"></i>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="ui inverted blue segment">
+                        <div class="ui grid">
+                            <div class="row">
+                                <div class="column">
+                                    <div class="ui tiny inverted statistic">
+                                        <div class="value">Rp {{ member.v_piutang|intcomma }}%</div>
+                                        <div class="label">Uncollect</div>
+                                    </div>
+                                    <h4 class="ui icon header inverted right floated">
+                                        <i class="chart pie icon"></i>
                                     </h4>
                                 </div>
                             </div>

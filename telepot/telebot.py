@@ -343,7 +343,11 @@ class Epaybot(telepot.helper.ChatHandler):
             'produk': code,
             'phone': val
         }
-        r = requests.post(_URL+'api/etrans/topup/', data=json.dumps(payload), headers={'Content-Type':'application/json'})
+
+        # url = _URL+'api/etrans/topup/'
+        url = _URL+'api/etrans/topup_trans_rb/'
+
+        r = requests.post(url=url, data=json.dumps(payload), headers={'Content-Type':'application/json'})
         rson = r.json()
         self.fedback_message(rson)
 
