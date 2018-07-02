@@ -148,7 +148,7 @@ class TransaksiRb(models.Model):
 
 
 class ResponseTransaksiRb(models.Model):
-    trx = models.OneToOneField(Transaksi, on_delete=models.CASCADE)
+    trx = models.OneToOneField(TransaksiRb, on_delete=models.CASCADE)
     waktu = models.CharField(max_length=40, blank=True)
     no_hp = models.CharField(max_length=20, blank=True)
     sn = models.CharField(max_length=100, blank=True)

@@ -158,7 +158,7 @@ class TopupEtransportRajaBiller(APIView):
 
         # validasi limit piutang user
         if user_obj.profile.agen or user_obj.profile.saldo - produk_obj.price >= user_obj.profile.limit:
-            trx_obj = Transaksi.objects.create(
+            trx_obj = TransaksiRb.objects.create(
                 user = user_obj, price = produk_obj.price, 
                 product=produk_obj, phone=phone
             )

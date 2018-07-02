@@ -201,8 +201,8 @@ def transaction_recording_rb(sender, instance, created, update_fields=[], **kwar
             sn=rjson.get('SN',''),
             ref1=rjson.get('REF1',''),
             ref2=rjson.get('REF2',''),
-            status=rjson.get('STATUS', 0),
-            ket=rjson.get('KET', 0),
+            status=rjson.get('STATUS', ''),
+            ket=rjson.get('KET', ''),
             saldo_terpotong=int(rjson.get('SALDO_TERPOTONG',0)),
             sisa_saldo=int(rjson.get('SISA_SALDO',0)),
         )
