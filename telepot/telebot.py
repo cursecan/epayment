@@ -323,10 +323,10 @@ class Epaybot(telepot.helper.ChatHandler):
             r = requests.get(_URL+'api/pulsa/produks/?kd='+code, headers={'Content-Type':'application/json'})
             rson = r.json()
             # SIAPBAYAR
-            if rson[0]['biller'] == 'SB':
+            if rson[0]['bill'] == 'SB':
                 r = requests.post(_URL+'api/pulsa/topup/', data=json.dumps(payload), headers={'Content-Type':'application/json'})
             # RAJABILLER
-            elif rson[0]['biller']=='RB' :
+            elif rson[0]['bill']=='RB' :
                 r = requests.post(_URL+'api/pulsa/topup_rb/', data=json.dumps(payload), headers={'Content-Type':'application/json'})
             
             rson = r.json()

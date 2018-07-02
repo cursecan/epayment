@@ -5,10 +5,13 @@ from mpulsa.models import Product, Transaksi, Operator
 
 # SERIALIZER LIST PRODUK
 class ProductListSerializer(serializers.ModelSerializer):
+    bill = serializers.SerializerMethodField()
     class Meta:
         model = Product
-        fields = ['id', 'kode_internal', 'nominal', 'price', 'keterangan', 'parse_text','biller']
+        fields = ['id', 'kode_internal', 'nominal', 'price', 'keterangan', 'parse_text', 'bill']
 
+    def get_bill(self, obj):
+        return obj.biller.biller
 
 class OperatorSerializer(serializers.ModelSerializer):
     class Meta:

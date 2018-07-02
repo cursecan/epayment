@@ -293,11 +293,13 @@ def proses_catatan_modal_Rb(sender, instance, created, update_fields, **kwargs):
                 modal_create_obj = CatatanModal.objects.create(
                     kredit = instance.saldo_terpotong,
                     saldo = last_catatan.saldo - instance.saldo_terpotong,
+                    biller = 'RB'
                 )
             except:
                 modal_create_obj = CatatanModal.objects.create(
                     kredit = instance.saldo_terpotong,
                     saldo = 0,
+                    biller = 'RB'
                 )
 
             # if instance.serialno != '' and instance.rc == '00':
@@ -321,7 +323,8 @@ def proses_catatan_modal_Rb(sender, instance, created, update_fields, **kwargs):
                     saldo = last_catatan.saldo + instance.saldo_terpotong,
                     parent_id = instance_modal,
                     type_transaksi = 3,
-                    confirmed = True
+                    confirmed = True,
+                    biller = 'RB',
                 )
                 instance_modal.type_transaksi = 2
                 instance_modal.confirmed = True
@@ -342,6 +345,7 @@ def proses_catatan_modal_Rb(sender, instance, created, update_fields, **kwargs):
                         parent_id = instance_modal,
                         confirmed = True,
                         keterangan = 'Harga beli berubah!', 
+                        biller = 'RB',
                     )
                     instance_modal.type_transaksi = 2
 

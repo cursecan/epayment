@@ -19,11 +19,11 @@ Komisi & Pendapatan Agen
                     <table class="ui celled small table">
                         <tr>
                             <td colspan="2">
-                                <h5 class="ui header">PIUTANG PENJUALAN</h5>
+                                <h5 class="ui header">DETAIL PIUTANG</h5>
                             </td>
                         </tr>
                         <tr>
-                            <td>Penjualan Berjalan (IDR)</td>
+                            <td>Piutang Berjalan (IDR)</td>
                             <td class="right aligned">{{ penjualan|intcomma }}</td>
                         </tr>
                         <tr>
@@ -31,7 +31,7 @@ Komisi & Pendapatan Agen
                             <td class="right aligned">{{ sisa_piutang|intcomma }}</td>
                         </tr>
                         <tr>
-                            <td class="right aligned"></td>
+                            <td>Total Piutang Belum Tagih</td>
                             <td class="right aligned"><b>{{ total_piutang|intcomma }}</b></td>
                         </tr>
                         
@@ -51,7 +51,7 @@ Komisi & Pendapatan Agen
                         <tr>
                             <td>
                                 Collection Rasio <br>
-                                <small>Collection / Total Piutang Penjualan * 100</small>
+                                <small>Collection / (Collection + Total Piutang Belum Tagih)</small>
                             </td>
                             <td class="right aligned">{{ persen_coll }} %</td>
                         </tr>
@@ -64,8 +64,8 @@ Komisi & Pendapatan Agen
                         </tr>
                         <tr>
                             <td>
-                                Income (IDR) <br>
-                                <small>CR * 80% * Total Keuntungan</small>
+                                Income / Pendapatan Diterima (IDR) <br>
+                                <small>CR * 80%</small>
                             </td>
                             <td class="right aligned"><b>{{ salary|intcomma }}</b></td>
                         </tr>
