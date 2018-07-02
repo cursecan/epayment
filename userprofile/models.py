@@ -136,7 +136,7 @@ class PembukuanTransaksi(models.Model):
                 return self.bukupln.product.nama_produk
             elif hasattr(self, 'mpulsa_rbbuku_transaksi'):
                 return self.mpulsa_rbbuku_transaksi.product.keterangan
-            else :
+            elif hasattr(self, 'epln_rbbuku_transaksi') :
                 return self.epln_rbbuku_transaksi.product.nama_produk
             else :
                 return self.etrans_rbbuku_transaksi.product.keterangan
