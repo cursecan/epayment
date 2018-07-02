@@ -118,7 +118,7 @@ def pendapatanAgen(request):
         v_penjualan = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
         v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
         v_balance_positif = Coalesce(Sum('balance', filter=Q(status_type=1)&Q(balance__gt=0)), V(0)),
-        v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
+        v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('etrans_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))  
     )
 
     resume_profile = profile_objs.aggregate(
@@ -177,7 +177,7 @@ def generate_payroll(request):
                     v_penjualan = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
                     v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
                     v_balance_positif = Coalesce(Sum('balance', filter=Q(status_type=1)&Q(balance__gt=0)), V(0)),
-                    v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
+                    v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('etrans_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
                 )
 
                 resume_profile = profile_objs.aggregate(
@@ -616,7 +616,8 @@ def trx_produk_all(request):
     pembukuan_obj = PembukuanTransaksi.unclosed_book.select_related(
         'user', 'transaksi__product', 'transaksi', 'bukutrans', 'bukutrans__product',
         'bukupln', 'bukupln__product', 'mpulsa_rbbuku_transaksi', 'mpulsa_rbbuku_transaksi__product',
-        'epln_rbbuku_transaksi', 'epln_rbbuku_transaksi__product'
+        'epln_rbbuku_transaksi', 'epln_rbbuku_transaksi__product',
+        'etrans_rbbuku_transaksi', 'etrans_rbbuku_transaksi__product'
     )
 
     profile_objs = Profile.objects.all()
@@ -631,7 +632,8 @@ def trx_produk_all(request):
                 'bukutrans__trx_code', 'bukutrans__phone',
                 'bukupln__trx_code', 'bukupln__account_num',
                 'mpulsa_rbbuku_transaksi__trx_code', 'mpulsa_rbbuku_transaksi__phone',
-                'user__username', 'epln_rbbuku_transaksi__idpel'
+                'user__username', 'epln_rbbuku_transaksi__idpel',
+                'etrans_rbbuku_transaksi__phone'
             )
         ).filter(
             search = search
@@ -655,7 +657,7 @@ def trx_produk_all(request):
         c_trx = Coalesce(Count('user', filter=Q(status_type=9)), V(0)),
         v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
         v_sold = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
-        v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
+        v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('etrans_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
     )
 
     profile_resue = profile_objs.aggregate(
