@@ -9,6 +9,7 @@ from .utils import generate_pulsa_trx, generate_code_etransrb_trx
 class Operator(models.Model):
     kode = models.CharField(max_length=10, unique=True)
     operator = models.CharField(max_length=50)
+    active = models.BooleanField(default=False)
 
     def __str__(self):
         return '{} ({})'.format(self.operator, self.kode)

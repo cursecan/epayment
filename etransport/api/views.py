@@ -11,7 +11,7 @@ from etransport.models import Operator, Product, Transaksi, TransaksiRb, Respons
 
 
 class OperatorListView(ListAPIView):
-    queryset = Operator.objects.all()
+    queryset = Operator.objects.filter(active=True)
     serializer_class = OperatorSerializer
 
 

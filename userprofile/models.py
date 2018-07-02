@@ -82,7 +82,7 @@ class PembukuanTransaksi(models.Model):
                 return self.bukupln
             elif hasattr(self, 'mpulsa_rbbuku_transaksi'):
                 return self.mpulsa_rbbuku_transaksi
-            elif hasattr(self, 'self.epln_rbbuku_transaksi') :
+            elif hasattr(self, 'epln_rbbuku_transaksi') :
                 return self.epln_rbbuku_transaksi
             else :
                 return self.etrans_rbbuku_transaksi
