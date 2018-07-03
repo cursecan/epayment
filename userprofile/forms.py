@@ -46,5 +46,5 @@ class AddSaldoNewForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(AddSaldoNewForm, self).__init__(*args, **kwargs)
         if not user.is_staff:
-            self.fields['user'].queryset = User.objects.filter(profile__profile_member__user=user, profile__active=True)
+            self.fields['user'].queryset = User.objects.filter(profile__profile_member__user=user, profile__active=True).order_by('username')
             self.fields['method_payment'].choices = (('MN', 'MANUAL PAYMENT'),)

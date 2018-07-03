@@ -1,6 +1,5 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
 from django.conf import settings
 
 import requests, json, re
@@ -37,8 +36,11 @@ def precess_requesting_to_sb(sender, instance, created, update_fields, **kwargs)
                 "refsbinq": instance.ref_sb_trx.responsetransaksi.refsb
             }
 
-        r = requests.post(settings.SIAP_URL, data=json.dumps(payload), headers={'Content-Type':'application/json'})
-        rson = r.json()
+        rson = dict()
+        if not settings.DEBUG:
+            r = requests.post(settings.SIAP_URL, data=json.dumps(payload), headers={'Content-Type':'application/json'})
+            rson = r.json()
+
         res = ResponseTransaksi.objects.create(
             trx = instance,
             rc = rson.get('rc', ''),
@@ -66,13 +68,13 @@ def precess_requesting_to_sb(sender, instance, created, update_fields, **kwargs)
                     kredit = instance.price,
                     balance = instance.user.profile.saldo - instance.price
                 )
-
-                try :
-                    r = requests.get(res.url_struk)
-                    tree = html.fromstring(r.text.replace(u'\xa0', ' '))
-                    instance.struk = tree.xpath('//pre/text()')[0]
-                except Exception as es :
-                    pass
+                if not settings.DEBUG:
+                    try :
+                        r = requests.get(res.url_struk)
+                        tree = html.fromstring(r.text.replace(u'\xa0', ' '))
+                        instance.struk = tree.xpath('//pre/text()')[0]
+                    except Exception as es :
+                        pass
 
                 instance.pembukuan = pebukuan_obj
                 instance.save(update_fields=['pembukuan', 'struk'])
@@ -203,16 +205,18 @@ def process_requesting_to_rb(sender, instance, created, update_fields, **kwargs)
             payload["idpel1"] = instance.idpel
         else:
             payload['idpel2'] = instance.idpel
-            
-        url = settings.RAJA_URL
-        try:
-            r = requests.post(settings.RAJA_URL, data=json.dumps(payload), headers={'Content-Type':'application/json'}, verify=False)
-            if r.status_code == requests.codes.ok :
-                rson = r.json()
-            r.raise_for_status()
-        except :
-            rson['STATUS'] = '99'
-            rson['KET'] = 'Gagal terhubung ke server atau timeout.'
+        
+        rson = dict()
+        if not settings.DEBUG :
+            url = settings.RAJA_URL
+            try:
+                r = requests.post(settings.RAJA_URL, data=json.dumps(payload), headers={'Content-Type':'application/json'}, verify=False)
+                if r.status_code == requests.codes.ok :
+                    rson = r.json()
+                r.raise_for_status()
+            except :
+                rson['STATUS'] = '99'
+                rson['KET'] = 'Gagal terhubung ke server atau timeout.'
        
         res = ResponseTransaksiRb.objects.create(
             trx = instance,
@@ -243,20 +247,15 @@ def process_requesting_to_rb(sender, instance, created, update_fields, **kwargs)
                     kredit = instance.price,
                     balance = instance.user.profile.saldo - instance.price
                 )
+                if res.status == '00':
+                    try :
+                        token = re.findall(r'^(\d{5})(\d{5})(\d{5})(\d{5})$', rson['DETAIL']['TOKEN'])
+                        kwh = rson['DETAIL']['PURCHASEDKWHUNIT']
+                        struk = "STRUK PEMBELIAN\n\n"+"NO METER / IDPEL".ljust(20)+": "+instance.idpel+"\n"+"JML KWH".ljust(20)+": "+str(int(kwh)/100)+"\n"+"RP BAYAR".ljust(20)+": "+"Rp "+str(instance.price)+"\n"+"TOKEN".ljust(20)+": "+" ".join(token[0])+"\n\nTERIMA KASIH."
+                    except:
+                        struk = rson['DETAIL']['TOKEN']
 
-                try :
-                    token = re.findall(r'^(\d{5})(\d{5})(\d{5})(\d{5})$', rson['DETAIL']['TOKEN'])
-                    kwh = rson['DETAIL']['PURCHASEDKWHUNIT']
-                    struk = "STRUK PEMBELIAN\n\n"+"NO METER / IDPEL".ljust(20)+": "+instance.idpel+"\n"+"JML KWH".ljust(20)+": "+str(int(kwh)/100)+"\n"+"RP BAYAR".ljust(20)+": "+"Rp "+str(instance.price)+"\n"+"TOKEN".ljust(20)+": "+" ".join(token[0])+"\n\nTERIMA KASIH."
-                except:
-                    struk = rson['DETAIL']['TOKEN']
-
-                # try :
-                #     r = requests.get(res.url_struk)
-                #     tree = html.fromstring(r.text.replace(u'\xa0', ' '))
-                #     instance.struk = tree.xpath('//pre/text()')[0]
-                # except Exception as es :
-                #     pass
+                    instance.struk = 'TOKEN : ' + struk
 
                 instance.pembukuan = pebukuan_obj
                 instance.save(update_fields=['pembukuan', 'struk'])

@@ -120,8 +120,21 @@ Data Transaksi
                                                 </td>
                                                 <td>
                                                     <div class="ui mini basic icon buttons">
-                                                        <a class="ui icon button js-trx-detail-link" href="#" target-url="{% if trx.bukutrans %}{% url 'userprofile:trans_trx' trx.bukutrans.id %}{% elif trx.mpulsa_rbbuku_transaksi %}{% url 'userprofile:pulsa_trx_rb' trx.mpulsa_rbbuku_transaksi.id %}{% elif trx.bukupln %}{% url 'userprofile:pln_trx' trx.bukupln.id %}{% elif trx.transaksi %}{% url 'userprofile:pulsa_trx' trx.transaksi.id %}{% endif %}"><i title="View Transaction" class="icon sign in alternate"></i></a>                        
-                                                        <a href="#" target-url="{% if trx.transaksi %}{% url 'userprofile:pulsa_failed' trx.transaksi.id %}{% elif trx.mpulsa_rbbuku_transaksi %}{% url 'userprofile:pulsa_failed_rajabiler' trx.mpulsa_rbbuku_transaksi.id %}{% endif %}" class="ui icon button js-trx-failed-btn {% if trx.get_transaksi_obj.status == 9 %}disabled{% endif %}" title="Modify to failed"><i class="close red icon"></i></a>
+                                                        <a class="ui icon button js-trx-detail-link" href="#" 
+                                                        target-url="{% if trx.bukutrans %}{% url 'userprofile:trans_trx' trx.bukutrans.id %}
+                                                        {% elif trx.etrans_rbbuku_transaksi %}{% url 'userprofile:trans_trx_rb' trx.etrans_rbbuku_transaksi.id %}
+                                                        {% elif trx.bukupln %}{% url 'userprofile:pln_trx' trx.bukupln.id %}
+                                                        {% elif trx.epln_rbbuku_transaksi %} {% url 'userprofile:pln_trx_rb' trx.epln_rbbuku_transaksi.id %}
+                                                        {% elif trx.transaksi %}{% url 'userprofile:pulsa_trx' trx.transaksi.id %}
+                                                        {% elif trx.mpulsa_rbbuku_transaksi %}{% url 'userprofile:pulsa_trx_rb' trx.mpulsa_rbbuku_transaksi.id %}
+                                                        {% endif %}"><i title="View Transaction" class="icon sign in alternate"></i></a>                        
+                                                        
+                                                        <a href="#" target-url="
+                                                        {% if trx.transaksi %}{% url 'userprofile:pulsa_failed' trx.transaksi.id %}
+                                                        {% elif trx.mpulsa_rbbuku_transaksi %}{% url 'userprofile:pulsa_failed_rajabiler' trx.mpulsa_rbbuku_transaksi.id %}
+                                                        {% elif trx.etrans_rbbuku_transaksi %}{% url 'userprofile:trans_failed_rb' trx.etrans_rbbuku_transaksi.id %}
+                                                        {% elif trx.epln_rbbuku_transaksi %} {% url 'userprofile:pln_failed_rb' trx.epln_rbbuku_transaksi.id %}
+                                                        {% endif %}" class="ui icon button js-trx-failed-btn {% if trx.get_transaksi_obj.status == 9 %}disabled{% endif %}" title="Modify to failed"><i class="close red icon"></i></a>
                                                     </div>
                                                     
                                                 </td>
@@ -225,8 +238,8 @@ Data Transaksi
                 data: form.serialize(),
                 success: function(data) {
                     if(data.form_is_valid) {
-                        $('#td-'+data.id).html(data.html);
-                        $('#td-'+data.id).parent().addClass('negative');
+                        // $('#td-'+data.id).html(data.html);
+                        // $('#td-'+data.id).parent().addClass('negative');
                         $('#notif-modal').modal('hide');
                     } 
                 }

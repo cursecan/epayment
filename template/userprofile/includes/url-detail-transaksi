@@ -1,0 +1,7 @@
+{% if trx.bukutrans %}{% url 'userprofile:trans_trx' trx.bukutrans.id %}
+{% elif trx.etrans_rbbuku_transaksi %}{% url 'userprofile:trans_trx_rb' trx.etrans_rbbuku_transaksi.id %}
+{% elif trx.bukupln %}{% url 'userprofile:pln_trx' trx.bukupln.id %}
+{% elif trx.epln_rbbuku_transaksi %} {% url 'userprofile:pln_trx_rb' trx.epln_rbbuku_transaksi.id %}
+{% elif trx.transaksi %}{% url 'userprofile:pulsa_trx' trx.transaksi.id %}
+{% elif trx.mpulsa_rbbuku_transaksi %}{% url 'userprofile:pulsa_trx_rb' trx.mpulsa_rbbuku_transaksi.id %}
+{% endif %}

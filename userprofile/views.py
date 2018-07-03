@@ -44,7 +44,7 @@ def userindex(request):
     profile_resue = profile_objs.aggregate(
         c_user = Coalesce(Count('id'), V(0)),
         # v_utip = Coalesce(Sum('saldo', filter=Q(saldo__gt=0)), V(0)),
-        v_piutang = Coalesce(Sum('saldo', filter=Q(saldo__lt=0)), V(0)),
+        v_piutang = -1 * Coalesce(Sum('saldo', filter=Q(saldo__lt=0)), V(0)),
     )
 
     # t_belanja = fix_collect - profile_resue.get('v_piutang')
@@ -720,7 +720,6 @@ def trx_detail_pulsa_rajabiler_view(request, id):
     return JsonResponse(data)
 
 
-
 # DETAIL TRX TRANSPORT
 @login_required(login_url='/login/')
 def trx_detail_trans_view(request, id):
@@ -729,6 +728,20 @@ def trx_detail_trans_view(request, id):
 
     data['html'] = render_to_string(
         'userprofile/includes/partial_pulsa_trx.html',
+        {'trx': trx_obj},
+        request=request
+    )
+    return JsonResponse(data)
+
+
+# DETAIL TRX TRANSPORT RAJABILLER
+@login_required(login_url='/login/')
+def trx_detail_trans_rb_view(request, id):
+    data = dict()
+    trx_obj = get_object_or_404(trans_model.TransaksiRb, pk=id)
+
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_trans_trx.html',
         {'trx': trx_obj},
         request=request
     )
@@ -749,8 +762,22 @@ def trx_detail_pln_view(request, id):
     return JsonResponse(data)
 
 
+# DETAIL TRX PLN RAJABILLER
+@login_required(login_url='/login/')
+def trx_detail_pln_rb_view(request, id):
+    data = dict()
+    trx_obj = get_object_or_404(pln_model.TransaksiRb, pk=id)
 
-# GAGAL PULSA
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_pln_trx.html',
+        {'trx': trx_obj},
+        request=request
+    )
+    return JsonResponse(data)
+
+
+
+# DELETE TRX PULSA
 @login_required(login_url='/login/')
 def trx_edit_pulsa_view(request, id):
     data = dict()
@@ -776,7 +803,7 @@ def trx_edit_pulsa_view(request, id):
     return JsonResponse(data)
 
 
-# GAGAL PULSA RAJABILLER
+# DELETE TRX PULSA RAJABILLER
 @login_required(login_url='/login/')
 def trx_edit_pulsa_view_rajabiller(request, id):
     data = dict()
@@ -800,5 +827,49 @@ def trx_edit_pulsa_view_rajabiller(request, id):
         data['form_is_valid'] = True
     
     return JsonResponse(data)
+
+
+# DELETE TRX ETRANS RAJABILLER
+@login_required(login_url='/login/')
+def trx_edit_trans_view_rajabiller(request, id):
+    data = dict()
+    data['id'] = id
+    data['form_is_valid'] = False
+    trx_obj = get_object_or_404(trans_model.TransaksiRb, pk=id, status__lt=9)
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_trx_edit_trans_rajabiller.html',
+        {'trx': trx_obj},
+        request=request
+    )
+
+    if request.method == 'POST':
+        trx_obj.status = 9
+        trx_obj.save(update_fields=['status'])
+        data['form_is_valid'] = True
+    
+    return JsonResponse(data)
+    
+
+
+# DELETE TRX PLN RAJABILLER
+@login_required(login_url='/login/')
+def trx_edit_pln_view_rajabiller(request, id):
+    data = dict()
+    data['id'] = id
+    data['form_is_valid'] = False
+    trx_obj = get_object_or_404(pln_model.TransaksiRb, pk=id, status__lt=9)
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_trx_edit_pln_rajabiller.html',
+        {'trx': trx_obj},
+        request=request
+    )
+
+    if request.method == 'POST':
+        trx_obj.status = 9
+        trx_obj.save(update_fields=['status'])
+        data['form_is_valid'] = True
+    
+    return JsonResponse(data)
+
 
 

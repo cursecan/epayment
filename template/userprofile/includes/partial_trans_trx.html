@@ -1,0 +1,37 @@
+{% load humanize %}
+<i class="close icon"></i>
+<div class="header">
+    {{ trx.product.keterangan }}
+    {{ trx.product.nama_produk }}
+</div>
+<div class="content">
+    <table class="ui very basic celled table">
+        <thead>
+            <tr>
+                <th>Produk</th>
+                <th>No. Pelanggan</th>
+                <th>Serial</th>
+                <th>Harga</th>
+                <th>Saldo</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ trx.product.keterangan }}</td>
+                <td>{{ trx.phone }}</td>
+                <td><span style="background: yellow">{{ trx.responsetransaksirb.sn }}</span></td>
+                <td>{{ trx.price|intcomma }}</td>
+                <td>{{ trx.pembukuan.balance|intcomma }}</td>
+                <td>{{ trx.get_status_display }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="ui segment">
+        <pre>{{ trx.responsetransaksirb.ket}}</pre>
+    </div>
+</div>
+<div class="actions">
+    <div class="ui cancel secondary button">Close</div>
+    <!-- <div class="ui button">OK</div> -->
+</div>

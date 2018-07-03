@@ -35,14 +35,15 @@ def transaction_recording(sender, instance, created, update_fields=[], **kwargs)
 
         url = settings.SIAP_URL
         rjson = dict()
-        try :
-            r = requests.post(url, data=json.dumps(data), headers={'Content-Type':'application/json'})
-            if r.status_code == requests.codes.ok :
-                rjson = r.json()
-            r.raise_for_status()
-        except :
-            rjson['rc'] = '99'
-            rjson['info'] = 'Gagal terhubung ke server atau timeout.'
+        if not settings.DEBUG :
+            try :
+                r = requests.post(url, data=json.dumps(data), headers={'Content-Type':'application/json'})
+                if r.status_code == requests.codes.ok :
+                    rjson = r.json()
+                r.raise_for_status()
+            except :
+                rjson['rc'] = '99'
+                rjson['info'] = 'Gagal terhubung ke server atau timeout.'
         
 
         response_trx = ResponseTransaksi.objects.create(
@@ -80,11 +81,11 @@ def transaction_recording(sender, instance, created, update_fields=[], **kwargs)
         # update in form
         if 'status' in update_fields and instance.status == 9:
             diskon_pembukuan = PembukuanTransaksi.objects.create(
-                user = user,
+                user = instance.user,
                 parent_id = instance.pembukuan,
                 seq = instance.pembukuan.seq +1,
                 kredit = -instance.pembukuan.kredit,
-                balance = user.profile.saldo + instance.pembukuan.kredit,
+                balance = instance.user.profile.saldo + instance.pembukuan.kredit,
                 status_type = 2
             )
             PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)
@@ -184,14 +185,15 @@ def transaction_recording_rb(sender, instance, created, update_fields=[], **kwar
 
         url = settings.RAJA_URL
         rjson = dict()
-        try :
-            r = requests.post(url, data=json.dumps(data), headers={'Content-Type':'application/json'}, verify=False)
-            if r.status_code == requests.codes.ok :
-                rjson = r.json()
-            r.raise_for_status()
-        except :
-            rjson['status'] = '99'
-            rjson['ket'] = 'Gagal terhubung ke server atau timeout.'
+        if not settings.DEBUG :
+            try :
+                r = requests.post(url, data=json.dumps(data), headers={'Content-Type':'application/json'}, verify=False)
+                if r.status_code == requests.codes.ok :
+                    rjson = r.json()
+                r.raise_for_status()
+            except :
+                rjson['status'] = '99'
+                rjson['ket'] = 'Gagal terhubung ke server atau timeout.'
         
 
         response_trx = ResponseTransaksiRb.objects.create(
@@ -229,11 +231,11 @@ def transaction_recording_rb(sender, instance, created, update_fields=[], **kwar
         # update in form
         if 'status' in update_fields and instance.status == 9:
             diskon_pembukuan = PembukuanTransaksi.objects.create(
-                user = user,
+                user = instance.user,
                 parent_id = instance.pembukuan,
                 seq = instance.pembukuan.seq +1,
                 kredit = -instance.pembukuan.kredit,
-                balance = user.profile.saldo + instance.pembukuan.kredit,
+                balance = instance.user.profile.saldo + instance.pembukuan.kredit,
                 status_type = 2
             )
             PembukuanTransaksi.objects.filter(pk=instance.pembukuan.id).update(status_type=3)

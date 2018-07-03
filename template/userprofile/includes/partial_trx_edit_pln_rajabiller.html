@@ -1,0 +1,21 @@
+{% load humanize %}
+<i class="close icon"></i>
+<div class="header">
+    <div class="ui icon inverted center aligned header">
+        <i class="close icon"></i>
+        <div class="content">
+            Gagalkan Transaksi
+        </div>
+    </div>
+</div>
+<div class="content">
+    <h5>Yakin ingin menggagalkan transaksi <span style="color:red">{{ trx.trx_code }}</span>untuk pembelian
+        <span style="color:red">{{ trx.product.keterangan }}{{ trx.product.nama_produk }}</span>?</h5>
+</div>
+<div class="actions">
+    <form action="{% url 'userprofile:pln_failed_rb' trx.id %}" method="post" class="js-failed-form">
+        {% csrf_token %}
+        <button class="ui inverted cancel red button" type="button"><i class="close icon"></i> Tidak</button>
+        <button class="ui inverted green button" type="submit"><i class="check icon"></i> Iya</button>
+    </form>
+</div>
