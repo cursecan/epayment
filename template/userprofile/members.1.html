@@ -32,6 +32,14 @@ Managemen Member
                         <i class="add icon"></i>
                         Tambah Saldo
                     </a>
+                    <!-- <a href="#" class="item">
+                        <i class="flask icon"></i>
+                        Ubah Limit
+                    </a> -->
+                    <a href="#" class="item">
+                        <i class="paper plane icon"></i>
+                        Send Message
+                    </a>
                 </div>
             </div>
             <div class="thirteen wide column">
@@ -42,9 +50,10 @@ Managemen Member
                             <th>Username</th>
                             <th>Email</th>
                             <th>First Name</th>
-                            <th>Aktif / Telegram</th>
-                            <th>Limit</th>
-                            <th>Saldo</th>
+                            <th>Active</th>
+                            <th>Telegram</th>
+                            <th class="right aligned">Limit</th>
+                            <th class="right aligned">Saldo</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,13 +63,14 @@ Managemen Member
                             <td>{{ member.user }}</td>
                             <td>{{ member.user.email }}</td>
                             <td>{{ member.user.first_name }}</td>
-                            <td>{{ member.active }} / {{ member.email_confirmed }}</td>
-                            <td>{{ member.limit|intcomma }}</td>
-                            <td>{{ member.saldo|intcomma }}</td>
+                            <td>{% if member.active %}<i class="check icon green"></i>{% else %}<i class="ban icon red"></i>{% endif %}</td>
+                            <td>{% if member.email_confirmed %}<i class="check icon green"></i>{% else %}<i class="ban icon red"></i>{% endif %}</td>
+                            <td class="right aligned">{{ member.limit|intcomma }} <a class="update-limit-btn" href="#" target-url="{% url 'userprofile:update_limit_saldo' member.id %}" title="Ubah limit saldo" class="ui link"><i class="flask small orange icon"></i></a></td>
+                            <td class="right aligned">{{ member.saldo|intcomma }}</td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="7" class="center aligned">Data kosong</td>
+                            <td colspan="8" class="center aligned">Data kosong</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -141,6 +151,10 @@ Managemen Member
 
         $('#js-add-saldo').on('click', loadAddsaldo);
         $('#modal-form').on('submit', '.js-saldo-form', postSaldo);
+
+        $('.update-limit-btn').on('click', loadAddsaldo);
+        $('#modal-form').on('submit', '.js-update-limit-form', postSaldo);
+        
     });
 </script>
 {% endblock %}

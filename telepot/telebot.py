@@ -514,16 +514,16 @@ class Epaybot(telepot.helper.ChatHandler):
         content_type, chat_type, chat_id = telepot.glance(msg)
         if content_type == 'text':
             try :
-                dt_match = re.match(r'^/broadcast_img (https?://[\w\d/\._\-]+\.jpe?g) (.+)$', msg['text'])
+                dt_match = re.match(r'^/broadcast_img (https?://[\w\d/\._\-]+\.(jpe?g|png)) ([\s\S]+)$', msg['text'])
                 img = dt_match.group(1)
-                caption = dt_match.group(2)
+                caption = dt_match.group(3)
                 self.broadcast_img(img, caption)
                 return
             except :
                 pass
 
             try :
-                dt_match = re.match(r'^/broadcast (.+)$', msg['text'])
+                dt_match = re.match(r'^/broadcast ([\s\S]+)$', msg['text'])
                 data = dt_match.group(1) 
                 self.broadcast_msg(data)
                 return

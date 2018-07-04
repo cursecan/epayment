@@ -25,7 +25,7 @@ def saldo_profile(sender, instance, created, **kwargs):
 def initial_profile(sender, instance, created, **kwargs):
     if created:
         profile_obj = Profile.objects.create(
-            user=instance,
+            user=instance, active=True
         )
 
 

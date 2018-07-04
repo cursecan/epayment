@@ -17,7 +17,7 @@ from etransport import models as trans_model
 from epln import models as pln_model
 from egame import models as game_model
 from .models import PembukuanTransaksi
-from .forms import AddSaldoForm, AddSaldoNewForm
+from .forms import AddSaldoForm, AddSaldoNewForm, ModifyLimit
 
 from .models import Profile, Payroll, UserPayment
 
@@ -375,6 +375,28 @@ def tambahSaldo2_view(request):
         request = request
     )
     return JsonResponse(data)
+
+
+# MODIFY LIMIT SALDO
+@login_required(login_url='/login/')
+def limitModifierView(request, id):
+    profile_obj = get_object_or_404(Profile, pk=id)
+    data = dict()
+    form =  ModifyLimit(request.POST or None, instance=profile_obj)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            data['form_is_valid'] = True
+        else :
+            data['form_is_valid'] = False
+    
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_modif_limit_form.html',
+        {'form': form, 'member': profile_obj},
+        request=request
+    )
+    return JsonResponse(data)
+        
     
 
 # UPDATE TRX RESPONSE

@@ -1,0 +1,27 @@
+{% load humanize %}
+<i class="close icon"></i>
+<div class="ui vertical header inverted blue segment">
+    <h3 class="ui inverted header">
+        <i class="icon plus"></i>
+        <div class="content">
+            Modif Limit Saldo Piutang
+            <div class="sub header">
+                Agen {{ user }}
+            </div>
+        </div>
+    </h3>
+</div>
+<div class="ui vertical content clearing segment ">
+    <form class="ui form js-update-limit-form" action="{% url 'userprofile:update_limit_saldo' member.id %}" method="post">
+        {% csrf_token %}
+        <div class="field">
+            <label for="{{ form.limit.id_for_label }}">Limit Saldo Piutang</label>
+            <div class="ui labeled input">
+                <div class="ui label">{{ member.user|title }}</div>
+                {{ form.limit }}
+            </div>
+        </div>
+        <button class="ui right floated positive button" type="submit"><i class="check icon"></i> Updata Limit Saldo</button>
+    </form>
+</div>
+

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Warungid - Home
+{% endblock %}
+
+{% block css %}
+<style type="text/css">
+    .hidden.menu {
+      display: none;
+    }
+
+    /* .methead.segment {
+        height: 100px;
+        padding: 1em 0em;
+    } */
+
+    .methead.segment .pointing.menu {
+        border: none;
+    }
+
+    .methead.segment .ui.menu .ui.button {
+        margin-left: 0.5em;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="ui vertical inverted methead teal center aligned segment">
+    <div class="ui container">
+        <div class="ui large inverted secondary pointing menu">
+            <a href="#" class="item active">Home</a>
+            <a href="#" class="item">Company</a>
+            <a href="#" class="item">Carrers</a>
+            <div class="right item">
+                <a href="{% url 'login' %}" class="ui inverted button">Login</a>
+                <a href="{% url 'register' %}" class="ui inverted button">Sign Up</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ui vertical basic segment">
+    <div class="ui text container">
+        <img class="ui centered small image" src="{% static 'images/logo1.png' %}" alt="">
+        <div class="ui inverted teal segment">
+            Registrasi telah berhasil. Silahkan buka inbox email yang didaftarkan dan segera
+            ikuti sesuai instruksi untuk mengaktifkan transaksi melalui telegram.
+        </div>     
+    </div>
+</div>
+{% endblock %}

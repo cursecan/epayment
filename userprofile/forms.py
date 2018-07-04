@@ -48,3 +48,15 @@ class AddSaldoNewForm(forms.ModelForm):
         if not user.is_staff:
             self.fields['user'].queryset = User.objects.filter(profile__profile_member__user=user, profile__active=True).order_by('username')
             self.fields['method_payment'].choices = (('MN', 'MANUAL PAYMENT'),)
+
+
+class ModifyLimit(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['limit']
+
+    def clean_limit(self):
+        limit = self.cleaned_data.get('limit')
+        if limit > 0:
+            limit = -limit
+        return limit

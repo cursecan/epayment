@@ -37,4 +37,5 @@ urlpatterns = [
 
     path('produk/', views.produk_View, name='produk'),
     path('payroll/', views.generate_payroll, name='payroll'),
+    path('update-limit/<int:id>/update/', views.limitModifierView, name='update_limit_saldo'),
 ]
