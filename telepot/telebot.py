@@ -19,7 +19,7 @@ def group_li(li, n):
     return [li[i:i+n] for i in range(0, len(li), n)]
 
 
-MAIN_Q = ('PULSA', 'TOPUP', 'LISTRIK')
+MAIN_Q = ('PULSA', 'TOPUP', 'LISTRIK', 'GAME')
 
 
 class Epaybot(telepot.helper.ChatHandler):
@@ -42,9 +42,11 @@ class Epaybot(telepot.helper.ChatHandler):
 
         self._list_pulsa_op = self.all_pulsa_operator()
         self._list_topup_op = self.all_topup_operator()
+        self._list_game_op = self.all_game_operator()
         self._list_pulsa_prod = self.all_pulsa_prod()
         self._list_topup_prod = self.all_topup_prod()
         self._list_listrik_prod = self.all_listrik_prod()
+        self._list_game_prod = self.all_game_prod()
 
 
     # MENU UTAMA 
@@ -58,6 +60,9 @@ class Epaybot(telepot.helper.ChatHandler):
             inline_keyboard=[
                 [
                     InlineKeyboardButton(text='PULSA & DATA', callback_data='PULSA'),
+                ],
+                [
+                    InlineKeyboardButton(text='GAME ONLINE', callback_data='GAME'),
                     InlineKeyboardButton(text='TOPUP', callback_data='TOPUP')
                 ],
                 [
@@ -103,23 +108,30 @@ class Epaybot(telepot.helper.ChatHandler):
         self._edit_mgs_ident = telepot.message_identifier(sent)
 
 
-    # LIST PRODUK LISTRIK
+    # LIST KODE PRODUK LISTRIK
     def all_listrik_prod(self):
         url = _URL+'api/pln/produk/'
         r = requests.get(url)
         return [i['kode_produk'] for i in r.json()]
 
 
-    # LIST PRODUK PULSA
+    # LIST KODE PRODUK PULSA
     def all_pulsa_prod(self):
         url = _URL+'api/pulsa/produks/'
         r = requests.get(url)
         return [i['kode_internal'] for i in r.json()]
 
 
-    # LIST PRODUK TOPUP
+    # LIST KODE PRODUK TOPUP
     def all_topup_prod(self):
         url = _URL+'api/etrans/produk/'
+        r = requests.get(url)
+        return [i['kode_internal'] for i in r.json()]
+
+    
+    # LIST KODE PRODUK GAME
+    def all_game_prod(self):
+        url = _URL+'api/game/produk-game/'
         r = requests.get(url)
         return [i['kode_internal'] for i in r.json()]
         
@@ -138,6 +150,13 @@ class Epaybot(telepot.helper.ChatHandler):
         r = requests.get(url)
         list_1 = [i['kode'] for i in r.json()]
         return list_1
+
+    # LIST GAME OPERATOR
+    def all_game_operator(self):
+        url = _URL+'api/game/game/'
+        r = requests.get(url)
+        list_1 = [i['code'] for i in r.json()]
+        return list_1
     
 
     # DATAS ALL USER
@@ -150,21 +169,33 @@ class Epaybot(telepot.helper.ChatHandler):
     def get_operator(self, qs):
         if qs == 'PULSA':
             url = _URL+'api/pulsa/operator/'
+        elif qs == 'GAME' :
+            url = _URL+'api/game/game/'
         else :
             url = _URL+'api/etrans/operator/'
 
         r = requests.get(url)
 
         board = []
-        for i in r.json():
-            board.append(
-                InlineKeyboardButton(text=i.get('operator'), callback_data=i.get('kode'))
-            )
 
-        if qs == 'TOPUP':
-            board.append(
-                InlineKeyboardButton(text='TOKEN LISTRIK', callback_data='listrik')
-            )
+        # OPERATOR KHUSUS GAME
+        if qs == 'GAME':
+            for i in r.json():
+                board.append(
+                    InlineKeyboardButton(text=i.get('nama_game'), callback_data=i.get('code'))
+                )
+
+        # DEFAULT OPERATOR
+        else :
+            for i in r.json():
+                board.append(
+                    InlineKeyboardButton(text=i.get('operator'), callback_data=i.get('kode'))
+                )
+
+            if qs == 'TOPUP':
+                board.append(
+                    InlineKeyboardButton(text='TOKEN LISTRIK', callback_data='listrik')
+                )
 
         board.append(
             InlineKeyboardButton(text='< BACK >', callback_data='backbutton')
@@ -203,6 +234,7 @@ class Epaybot(telepot.helper.ChatHandler):
         self._keyboard.append(keyboard)
 
 
+    # PRODUK LISTRIK
     def listrik_produk(self):
         url = _URL+'api/pln/produk/'
         r = requests.get(url)
@@ -250,6 +282,31 @@ class Epaybot(telepot.helper.ChatHandler):
         self._editor = telepot.helper.Editor(self.bot, sent)
         self._edit_mgs_ident = telepot.message_identifier(sent)
         self._keyboard.append(keyboard)
+
+
+    # ALL PRODUK GAME
+    def game_produk(self, val):
+        url = _URL+'api/game/produk-game/?op='+val
+        r = requests.get(url)
+        board = []
+
+        for i in r.json():
+            board.append(
+                InlineKeyboardButton(text=i.get('parse_text'), callback_data=i.get('kode_internal'))
+            )
+
+        board.append(
+            InlineKeyboardButton(text='< BACK >', callback_data='backbutton')
+        )
+
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard = group_li(board,2)
+        )
+        sent = self.bot.editMessageReplyMarkup(self._edit_mgs_ident, reply_markup=keyboard)
+        self._editor = telepot.helper.Editor(self.bot, sent)
+        self._edit_mgs_ident = telepot.message_identifier(sent)
+        self._keyboard.append(keyboard)
+
 
 
     # BROADCAST MESSAGE
@@ -311,6 +368,17 @@ class Epaybot(telepot.helper.ChatHandler):
         self._editor_2 = telepot.helper.Editor(self.bot, sent)
         self._edit_mgs_ident_2 = telepot.message_identifier(sent)
 
+
+    # DETAIL PRODUK GAME
+    def game_detail_prod(self, val):
+        url = _URL+'api/game/produk-game/?code='+val
+        r = requests.get(url)
+        rson = r.json()
+        info_prod = '<b>{} harga Rp {}.</b>\n{}\nnb: klik tombol <b> "BACK" </b> di atas untuk batal transaksi.'.format(rson[0]['keterangan'], rson[0]['price'], rson[0]['panduan'])
+        sent = self.sender.sendMessage(info_prod, parse_mode='HTML')
+        self._editor_2 = telepot.helper.Editor(self.bot, sent)
+        self._edit_mgs_ident_2 = telepot.message_identifier(sent)
+
     # PROCESS POST TOPUP PULSA
     def topup_pulsa(self, code, val, chat_id):
         payload = {
@@ -350,6 +418,22 @@ class Epaybot(telepot.helper.ChatHandler):
         r = requests.post(url=url, data=json.dumps(payload), headers={'Content-Type':'application/json'})
         rson = r.json()
         self.fedback_message(rson)
+
+    
+    # PROCESS POST TOPUP GAME
+    def topup_game(self, code, val, chat_id):
+        payload = {
+            'telegram': chat_id,
+            'produk': code,
+            'phone': val
+        }
+
+        url = _URL+'api/game/topup-game/'
+
+        r = requests.post(url=url, data=json.dumps(payload), headers={'Content-Type':'application/json'})
+        rson = r.json()
+        self.fedback_message(rson)
+
 
     # PROCESS POST TOPUP LISTRIK
     def topup_listrik(self, code, acc, chat_id, phone=None):
@@ -498,6 +582,14 @@ class Epaybot(telepot.helper.ChatHandler):
                     self._edit_mgs_ident_2 = None
                     self.close()
                     return
+                if self._code in self._list_game_prod:
+                    self.sender.sendMessage('Mohon tunggu transaksi anda sedang diproses.')
+                    self.topup_game(self._code, data, chat_id)
+                    self._code = None
+                    self._editor_2 = None
+                    self._edit_mgs_ident_2 = None
+                    self.close()
+                    return
 
             self.main_menu()
     
@@ -550,6 +642,12 @@ class Epaybot(telepot.helper.ChatHandler):
                     self._code = None
                     return
 
+                if query_data in self._list_game_op:
+                    self.game_produk(val=query_data)
+                    self._level += 1
+                    self._code = None
+                    return
+
             if self._level == 3:
                 if query_data in self._list_listrik_prod:
                     self._cancel_last()
@@ -566,6 +664,12 @@ class Epaybot(telepot.helper.ChatHandler):
                 if query_data in self._list_topup_prod:
                     self._cancel_last()
                     self.topup_detail_prod(val=query_data)
+                    self._code = query_data
+                    return
+
+                if query_data in self._list_game_prod:
+                    self._cancel_last()
+                    self.game_detail_prod(val=query_data)
                     self._code = query_data
                     return
 

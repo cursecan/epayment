@@ -84,6 +84,8 @@ class PembukuanTransaksi(models.Model):
                 return self.mpulsa_rbbuku_transaksi
             elif hasattr(self, 'epln_rbbuku_transaksi') :
                 return self.epln_rbbuku_transaksi
+            elif hasattr(self, 'egame_rbbuku_transaksi'):
+                return self.egame_rbbuku_transaksi
             else :
                 return self.etrans_rbbuku_transaksi
         except Exception as e:
@@ -102,6 +104,8 @@ class PembukuanTransaksi(models.Model):
                 return self.mpulsa_rbbuku_transaksi.responsetransaksirb.saldo_terpotong
             elif hasattr(self, 'epln_rbbuku_transaksi') :
                 return self.epln_rbbuku_transaksi.responsetransaksirb.saldo_terpotong
+            elif hasattr(self, 'egame_rbbuku_transaksi'):
+                return self.egame_rbbuku_transaksi.responsetransaksirb.saldo_terpotong
             else :
                 return self.etrans_rbbuku_transaksi.responsetransaksirb.saldo_terpotong
         except Exception as e:
@@ -120,6 +124,8 @@ class PembukuanTransaksi(models.Model):
                 return self.mpulsa_rbbuku_transaksi.phone
             elif hasattr(self, 'epln_rbbuku_transaksi') :
                 return self.epln_rbbuku_transaksi.idpel
+            elif hasattr(self, 'egame_rbbuku_transaksi'):
+                return self.egame_rbbuku_transaksi.phone
             else :
                 return self.etrans_rbbuku_transaksi.phone
         except Exception as e:
@@ -138,6 +144,8 @@ class PembukuanTransaksi(models.Model):
                 return self.mpulsa_rbbuku_transaksi.product.keterangan
             elif hasattr(self, 'epln_rbbuku_transaksi') :
                 return self.epln_rbbuku_transaksi.product.nama_produk
+            elif hasattr(self, 'egame_rbbuku_transaksi'):
+                return self.egame_rbbuku_transaksi.product.keterangan
             else :
                 return self.etrans_rbbuku_transaksi.product.keterangan
         except Exception as e:

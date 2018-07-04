@@ -29,8 +29,18 @@ class PembukuanSerializer(serializers.ModelSerializer):
                 return bk.transaksi.trx_code
             elif bk.bukutrans:
                 return bk.bukutrans.trx_code
-            else :
+            elif bk.bukupln :
                 return bk.bukupln.trx_code
+            elif bk.mpulsa_rbbuku_transaksi :
+                return bk.mpulsa_rbbuku_transaksi.trx_code
+            elif bk.epln_rbbuku_transaksi :
+                return bk.epln_rbbuku_transaksi.trx_code
+            elif bk.egame_rbbuku_transaksi :
+                return bk.egame_rbbuku_transaksi.trx_code
+            else:
+                return bk.etrans_rbbuku_transaksi.trx_code
+
+
         except :
             return None
 

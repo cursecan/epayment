@@ -17,6 +17,9 @@ urlpatterns = [
     path('transaksi/pln/<int:id>/', views.trx_detail_pln_view, name='pln_trx'),
     path('transaksi/pln-rb/<int:id>/', views.trx_detail_pln_rb_view, name='pln_trx_rb'),
     path('transaksi/pln-rb/<int:id>/f/', views.trx_edit_pln_view_rajabiller, name='pln_failed_rb'),
+    # url trx game
+    path('transaksi/game-rb/<int:id>/', views.trx_detail_game_rb_view, name='game_trx_rb'),
+    path('transaksi/game-rb/<int:id>/f/', views.trx_edit_game_view_rajabiller, name='game_failed_rb'),
     # url trx etrans
     path('transaksi/transport-rb/<int:id>/f/', views.trx_edit_trans_view_rajabiller, name='trans_failed_rb'),
     path('transaksi/transport/<int:id>/', views.trx_detail_trans_view, name='trans_trx'),

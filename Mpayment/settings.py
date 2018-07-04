@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'dashboard',
     'epln',
     'etransport',
+    'egame',
 ]
 
 MIDDLEWARE = [

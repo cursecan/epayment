@@ -15,6 +15,7 @@ import requests, json, pendulum, datetime
 from mpulsa import models as pulsa_model
 from etransport import models as trans_model
 from epln import models as pln_model
+from egame import models as game_model
 from .models import PembukuanTransaksi
 from .forms import AddSaldoForm, AddSaldoNewForm
 
@@ -120,7 +121,13 @@ def pendapatanAgen(request):
     resume_pemmbukuan = pembukuan_objs.aggregate(
         v_penjualan = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
         v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
-        v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('etrans_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))  
+        v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + 
+        Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + 
+        Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + 
+        Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) +
+        Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + 
+        Coalesce(Sum('etrans_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))  +
+        Coalesce(Sum('egame_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
     )
 
     resume_profile = profile_objs.aggregate(
@@ -178,7 +185,13 @@ def generate_payroll(request):
                 resume_pemmbukuan = pembukuan_objs.aggregate(
                     v_penjualan = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
                     v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
-                    v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('etrans_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
+                    v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + 
+                    Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + 
+                    Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + 
+                    Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) +
+                    Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + 
+                    Coalesce(Sum('etrans_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))  +
+                    Coalesce(Sum('egame_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
                 )
 
                 resume_profile = profile_objs.aggregate(
@@ -616,7 +629,8 @@ def trx_produk_all(request):
         'user', 'transaksi__product', 'transaksi', 'bukutrans', 'bukutrans__product',
         'bukupln', 'bukupln__product', 'mpulsa_rbbuku_transaksi', 'mpulsa_rbbuku_transaksi__product',
         'epln_rbbuku_transaksi', 'epln_rbbuku_transaksi__product',
-        'etrans_rbbuku_transaksi', 'etrans_rbbuku_transaksi__product'
+        'etrans_rbbuku_transaksi', 'etrans_rbbuku_transaksi__product',
+        'egame_rbbuku_transaksi', 'egame_rbbuku_transaksi__product',
     )
 
     profile_objs = Profile.objects.all()
@@ -632,7 +646,8 @@ def trx_produk_all(request):
                 'bukupln__trx_code', 'bukupln__account_num',
                 'mpulsa_rbbuku_transaksi__trx_code', 'mpulsa_rbbuku_transaksi__phone',
                 'user__username', 'epln_rbbuku_transaksi__idpel',
-                'etrans_rbbuku_transaksi__phone'
+                'etrans_rbbuku_transaksi__phone',
+                'egame_rbbuku_transaksi__phone',
             )
         ).filter(
             search = search
@@ -656,7 +671,13 @@ def trx_produk_all(request):
         c_trx = Coalesce(Count('user', filter=Q(status_type=9)), V(0)),
         v_collect = Coalesce(Sum('debit', filter=Q(status_type=1)), V(0)),
         v_sold = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
-        v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + Coalesce(Sum('etrans_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
+        v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + 
+            Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + 
+            Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + 
+            Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) +
+            Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + 
+            Coalesce(Sum('etrans_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))  +
+            Coalesce(Sum('egame_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
     )
 
     profile_resue = profile_objs.aggregate(
@@ -739,6 +760,20 @@ def trx_detail_trans_view(request, id):
 def trx_detail_trans_rb_view(request, id):
     data = dict()
     trx_obj = get_object_or_404(trans_model.TransaksiRb, pk=id)
+
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_trans_trx.html',
+        {'trx': trx_obj},
+        request=request
+    )
+    return JsonResponse(data)
+
+
+# DETAIL TRX GAME RAJABILLER
+@login_required(login_url='/login/')
+def trx_detail_game_rb_view(request, id):
+    data = dict()
+    trx_obj = get_object_or_404(game_model.TransaksiRb, pk=id)
 
     data['html'] = render_to_string(
         'userprofile/includes/partial_trans_trx.html',
@@ -838,6 +873,27 @@ def trx_edit_trans_view_rajabiller(request, id):
     trx_obj = get_object_or_404(trans_model.TransaksiRb, pk=id, status__lt=9)
     data['html'] = render_to_string(
         'userprofile/includes/partial_trx_edit_trans_rajabiller.html',
+        {'trx': trx_obj},
+        request=request
+    )
+
+    if request.method == 'POST':
+        trx_obj.status = 9
+        trx_obj.save(update_fields=['status'])
+        data['form_is_valid'] = True
+    
+    return JsonResponse(data)
+
+
+# DELETE TRX GAME RAJABILLER
+@login_required(login_url='/login/')
+def trx_edit_game_view_rajabiller(request, id):
+    data = dict()
+    data['id'] = id
+    data['form_is_valid'] = False
+    trx_obj = get_object_or_404(game_model.TransaksiRb, pk=id, status__lt=9)
+    data['html'] = render_to_string(
+        'userprofile/includes/partial_trx_edit_game_rajabiller.html',
         {'trx': trx_obj},
         request=request
     )

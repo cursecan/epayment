@@ -41,6 +41,7 @@ urlpatterns = [
     path('api/manager/', include('userprofile.api.urls')),
     path('api/etrans/', include('etransport.api.urls')),
     path('api/pln/', include('epln.api.urls')),
+    path('api/game/', include('egame.api.urls')),
     path('pln/', include('epln.urls')),
 ]
 
