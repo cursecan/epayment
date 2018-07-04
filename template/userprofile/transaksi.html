@@ -37,7 +37,7 @@ Data Transaksi
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="card red">
+                                        <!-- <div class="card red">
                                             <div class="content">
                                                 <div class="ui red tiny statistic">
                                                     <div class="label">Piutang</div>
@@ -60,7 +60,7 @@ Data Transaksi
                                                     <div class="value">{{ prof_resume.v_utip|intcomma }}</div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> -->
                                         <div class="card">
                                             <div class="content">
                                                 <div class="ui tiny statistic">
@@ -82,7 +82,9 @@ Data Transaksi
                                                 <th>No. Pelanggan</th>
                                                 <th>Transaksi / Produk</th>
                                                 <th>Price</th>
+                                                {% if user.is_staff %}
                                                 <th>Balance</th>
+                                                {% endif %}
                                                 <th>Status</th>
                                                 <th>Manager</th>
                                                 <th>Profit</th>
@@ -107,9 +109,11 @@ Data Transaksi
                                                 <td>
                                                     {{ trx.kredit|intcomma }}
                                                 </td>
+                                                {% if user.is_staff %}
                                                 <td>
                                                     {{ trx.balance|intcomma }}
                                                 </td>
+                                                {% endif %}
                                                 <td id="td-{{ trx.get_transaksi_obj.id }}">
                                                     {{ trx.get_transaksi_obj.get_status_display }}
                                                 </td>
@@ -130,6 +134,7 @@ Data Transaksi
                                                         {% elif trx.egame_rbbuku_transaksi %}{% url 'userprofile:game_trx_rb' trx.egame_rbbuku_transaksi.id %}
                                                         {% endif %}"><i title="View Transaction" class="icon sign in alternate"></i></a>                        
                                                         
+                                                        {% if user.is_staff %}
                                                         <a href="#" target-url="
                                                         {% if trx.transaksi %}{% url 'userprofile:pulsa_failed' trx.transaksi.id %}
                                                         {% elif trx.mpulsa_rbbuku_transaksi %}{% url 'userprofile:pulsa_failed_rajabiler' trx.mpulsa_rbbuku_transaksi.id %}
@@ -137,6 +142,7 @@ Data Transaksi
                                                         {% elif trx.epln_rbbuku_transaksi %} {% url 'userprofile:pln_failed_rb' trx.epln_rbbuku_transaksi.id %}
                                                         {% elif trx.egame_rbbuku_transaksi %}{% url 'userprofile:game_failed_rb' trx.egame_rbbuku_transaksi.id %}
                                                         {% endif %}" class="ui icon button js-trx-failed-btn {% if trx.get_transaksi_obj.status == 9 %}disabled{% endif %}" title="Modify to failed"><i class="close red icon"></i></a>
+                                                        {% endif %}
                                                     </div>
                                                     
                                                 </td>

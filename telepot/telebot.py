@@ -500,11 +500,11 @@ class Epaybot(telepot.helper.ChatHandler):
         result = rson.get('detail', None)
         if result:
             self.sender.sendMessage(
-                'Maaf kode yang anda masukan salah, silahkan masukan kode dengan benar.'
+                'Maaf kode yang anda masukan salah, silahkan masukan kode aktivasi dengan benar.'
             )
         else :
             self.sender.sendMessage(
-                '<b>Sinkronisasi berhasil</b>, telegram anda telah terdaftar.',
+                'Selamat, aktivasi akun anda telah berhasil. Ketik /menu untuk kembali ke menu utama, transaksi sudah dapat dilakukan.',
                 parse_mode='HTML'
             )
 
@@ -531,7 +531,7 @@ class Epaybot(telepot.helper.ChatHandler):
                 pass
 
             try :
-                data = re.match(r'^/code (\d+)$', msg['text'])
+                data = re.match(r'^/aktif (\d+)$', msg['text'])
                 code = data.group(1)
                 self.integrate_telegram(chat_id, code)
                 return

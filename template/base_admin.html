@@ -33,6 +33,7 @@
                 <i class="coffee icon"></i>
                 Produk
             </a>
+            {% if user.profile.agen %}
             <a href="{% url 'userprofile:member_view' %}" class="item">
                 <i class="users icon"></i>
                 Members
@@ -41,14 +42,17 @@
                 <i class="money icon"></i>
                 Detail Pendapatan
             </a>
+            {% endif %}
             <a href="#" class="item">
                 <i class="mail icon"></i>
                 Mail
             </a>
+            {% if user.is_staff %}
             <a href="{% url 'userprofile:price_rajabiller' %}" class="item">
                 <i class="sync icon"></i>
                 Rajabiller Price
             </a>
+            {% endif %}
             <a href="#" class="item">
                 <i class="globe icon"></i>
                 About

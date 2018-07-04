@@ -40,7 +40,13 @@ Registration
                             {% render_field form.username placeholder="Username" %}
                             <i class="user icon"></i>
                         </div>
+                        {% if form.username.errors %}
+                            {% for error in form.username.errors %}
+                                <small style="color:red">{{ error }}</small>
+                            {% endfor %}
+                        {% endif %}
                     </div>
+                    
                     <div class="field">
                         <label for="{{ form.first_name.id_for_label }}">First Name</label>
                         <div class="ui input">
@@ -59,6 +65,11 @@ Registration
                             {% render_field form.email placeholder="axyz@domain.com"%}
                             <i class="mail icon"></i>
                         </div>
+                        {% if form.email.errors %}
+                            {% for error in form.email.errors %}
+                            <small style="color:red">{{ error }}</small>
+                            {% endfor %}
+                        {% endif %}
                     </div>
                     <div class="field">
                         <label for="{{ form.password1.id_for_label }}">Password</label>
@@ -73,6 +84,11 @@ Registration
                             {{ form.password2 }}
                             <i class="key icon"></i>
                         </div>
+                        {% if form.password2.errors %}
+                            {% for error in form.password2.errors %}
+                            <small style="color:red">{{ error }}</small>
+                            {% endfor %}
+                        {% endif %}
                     </div>
     
                     <button class="ui large teal fluid button" type="submit">Register</button>
