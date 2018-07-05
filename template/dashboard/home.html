@@ -12,7 +12,7 @@ Warungid - Home
     }
 
     .methead.segment {
-        min-height: 400px;
+        min-height: 100vh;
         padding: 1em 0em;
     }
 
@@ -35,12 +35,65 @@ Warungid - Home
             <a href="#" class="item">Carrers</a>
             <div class="right item">
                 <a href="{% url 'login' %}" class="ui inverted button">Login</a>
-                <a href="{% url 'register' %}" class="ui inverted button">Sign Up</a>
+                <a href="{% url 'register' %}" class="ui inverted active button">Sign Up</a>
             </div>
         </div>
     </div>
-    <div class="ui text container">
-        <img class="ui centered medium image" src="{% static 'images/shop_40505.png' %}" alt="">
+    <div class="ui container">
+        <div class="ui grid">
+            <div class="row" style="margin-top: 50px">
+                <div class="six wide column">
+                    <img src="{% static 'images/24hour.png' %}" alt="" class="ui image">
+                </div>
+                <div class="ten wide left aligned column">
+                    <h1 class="ui inverted header">
+                        Melayani Penjualan
+                    </h1>
+                    <p style="font-size: 1.4rem">
+                        Pulsa All Operator dan Produk Online lainya selama 24 Jam
+                    </p>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ui vertical segment">
+    <div class="ui container">
+        <div class="ui vertical clearing segment">
+            <img src="{% static 'images/phone.png' %}" alt="" class="ui image small right floated">
+            <div class="ui orange header">
+                Bagaimana Cara Transaksi?
+            </div>
+            <p style="font-size: 1.2rem">
+                Transaksi menggunakan bot aplikasi <i class="telegram blue icon"></i> Telegram @warungid_bot.
+                Cukup <span class="ui label green">click</span> saja dan tanpa menggunakan kode-kode transaksi manjadikan warungid lebih gampang digunakan.
+            </p>
+        </div>
+    </div>
+</div>
+<div id="footer" class="ui vertical inverted segment">
+    <div class="ui fluid container">
+        <div class="ui padded two column equal width grid">
+            <div class="row">
+                <div class="column">
+                    <h4 class="ui inverted header">
+                        Warungid.Com
+                    </h4>
+                    <div class="ui icon list">
+                        <div class="item">
+                            <i class="phone icon">
+                            </i>
+                            Phone 0822-16418455, 0813-15667766
+                        </div>
+                        <div class="item">
+                            <i class="telegram icon"></i>
+                            Bot Telegram @warungid_bot
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
