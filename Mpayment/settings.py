@@ -163,6 +163,7 @@ SIAP_URL = config('SIAP_URL')
 RAJABILLER_ID = config('RAJABILLER_ID')
 RAJABILLER_PASS = config('RAJABILLER_PASS')
 RAJA_URL = config('RAJA_URL')
+RAJA_URL2 = config('RAJA_URL2')
 
 # REST_FRAMEWORK = {
 #     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',

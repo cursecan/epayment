@@ -64,6 +64,36 @@ def userindex(request):
     return render(request, 'userprofile/index.html', content)
 
 
+# UNRECORD TRX
+@login_required(login_url='/login/')
+def unrecord_trx(requests):
+    # TRX PULSA RB
+    trx_pulsa = pulsa_model.TransaksiRb.objects.filter(
+        pembukuan__closed=False, status=1, responsetransaksirb__isnull=True
+    )
+
+    trx_transport = trans_model.TransaksiRb.objects.filter(
+        pembukuan__closed=False, status=1, responsetransaksirb__isnull=True
+    )
+
+    trx_game = game_model.TransaksiRb.objects.filter(
+        pembukuan__closed=False, status=1, responsetransaksirb__isnull=True
+    )
+
+    trx_pln = pln_model.TransaksiRb.objects.filter(
+        pembukuan__closed=False, status=1, responsetransaksirb__isnull=True, request_type='p'
+    )
+
+
+    content = {
+        'pulsa': trx_pulsa,
+        'trans': trx_transport,
+        'games': trx_game,
+        'plns' : trx_pln,
+    }
+
+    return render(requests, 'userprofile/unrecord_trx.html', content)
+
 # DATASET STATISTIK TRX
 @login_required(login_url='/login/')
 def trx_dataset(request):
@@ -492,13 +522,68 @@ def bulk_update_trx_mgame(request):
                         rson = r.json()
                         if rson['STATUS'] == '00':
                             detail = rson['RESULT_TRANSAKSI'][0].split('#')
-                            pulsa_model.ResponseTransaksiRb.objects.filter(
+                            game_model.ResponseTransaksiRb.objects.filter(
                                 trx=trx_p
                             ).update(
                                 ket=detail[6],
                                 sn=detail[-1],
                                 status=detail[5],
                                 saldo_terpotong=detail[7]
+                            )
+
+                            if trx_p.responsetransaksirb__status not in ['','00']:
+                                trx_p.status = 9
+                                trx_p.save(update_fields=['status'])
+
+                        break
+                    r.raise_for_status()
+                except:
+                    pass
+        except:
+            pass
+
+    return redirect('userprofile:index')
+
+
+# UPDATE BULK TRX TRANSPORT
+@login_required(login_url='/login/')
+def bulk_update_trx_etrans(request):
+
+    # TRX RAJABILLER
+    trx_rajabil = trans_model.TransaksiRb.objects.filter(
+        status=0, responsetransaksirb__sn='', pembukuan__closed=False
+    )
+
+    url_rb = [settings.RAJA_URL, settings.RAJA_URL2]
+
+    # BULK RAJABILLER TRX
+    for trx_p in trx_rajabil:
+        try:
+            payload = {
+                'method':'rajabiller.datatransaksi',
+                'uid': settings.RAJABILLER_ID,
+                'pin': settings.RAJABILLER_PASS,
+                'tgl1': trx_p.responsetransaksirb.waktu,
+                'tgl2': trx_p.responsetransaksirb.waktu,
+                'id_transaksi': trx_p.responsetransaksirb.ref2,
+                'id_produk': '',
+                'idpel': trx_p.phone,
+                'limit': '1'
+            }
+
+            for url in url_rb:
+                try:
+                    r = requests.post(url, data=json.dumps(payload), verify=False, headers={'Content-Type':'application/json'})
+                    if r.status_code == requests.codes.ok :
+                        rson = r.json()
+                        if rson['STATUS'] == '00':
+                            detail = rson['RESULT_TRANSAKSI'][0].split('#')
+                            trans_model.ResponseTransaksiRb.objects.filter(
+                                trx=trx_p
+                            ).update(
+                                ket=detail[6],
+                                sn=detail[-1],
+                                status=detail[5],
                             )
 
                             if trx_p.responsetransaksirb__status not in ['','00']:

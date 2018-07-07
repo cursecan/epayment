@@ -1,0 +1,151 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    Unrecord Transaksi
+{% endblock %}
+
+{% block content %}
+<div class="ui vertical segment">
+    <div class="ui fluid container">
+        <div class="ui padded grid">
+            <div class="row">
+                <div class="three wide column"></div>
+
+                <div class="thirteen wide column">
+                    <div class="ui segment">
+                        <h5 class="ui header">Pulsa & Data</h5>
+                        <table class="ui small table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Reference Code</th>
+                                    <th>Produk</th>
+                                    <th>No. Pelaggan</th>
+                                    <th>User</th>
+                                    <th>Price</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for trx in pulsa %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ trx.trx_code }}</td>
+                                    <td>{{ trx.product.keterangan }}</td>
+                                    <td>{{ trx.phone }}</td>
+                                    <td>{{ trx.user }}</td>
+                                    <td>{{ trx.price }}</td>
+                                    <td>{{ trx.timestamp}}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="center aligned">Tidak ada error.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <h5 class="ui header">E-Transport</h5>
+                        <table class="ui small table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Reference Code</th>
+                                    <th>Produk</th>
+                                    <th>No. Pelaggan</th>
+                                    <th>User</th>
+                                    <th>Price</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for trx in trans %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ trx.trx_code }}</td>
+                                    <td>{{ trx.product.keterangan }}</td>
+                                    <td>{{ trx.phone }}</td>
+                                    <td>{{ trx.user }}</td>
+                                    <td>{{ trx.price }}</td>
+                                    <td>{{ trx.timestamp}}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="center aligned">Tidak ada error.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <h5 class="ui header">Listrik</h5>
+                        <table class="ui small table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Reference Code</th>
+                                    <th>Produk</th>
+                                    <th>No. Pelaggan</th>
+                                    <th>User</th>
+                                    <th>Price</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for trx in plns %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ trx.trx_code }}</td>
+                                    <td>{{ trx.product.nama_produk }}</td>
+                                    <td>{{ trx.idpel }}</td>
+                                    <td>{{ trx.user }}</td>
+                                    <td>{{ trx.price }}</td>
+                                    <td>{{ trx.timestamp}}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="center aligned">Tidak ada error.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <h5 class="ui header">Game</h5>
+                        <table class="ui small table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Reference Code</th>
+                                    <th>Produk</th>
+                                    <th>No. Pelaggan</th>
+                                    <th>User</th>
+                                    <th>Price</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for trx in games %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ trx.trx_code }}</td>
+                                    <td>{{ trx.product.keterangan }}</td>
+                                    <td>{{ trx.phone }}</td>
+                                    <td>{{ trx.user }}</td>
+                                    <td>{{ trx.price }}</td>
+                                    <td>{{ trx.timestamp}}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="center aligned">Tidak ada error.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

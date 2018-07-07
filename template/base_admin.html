@@ -47,14 +47,18 @@
             </a>
             <a href="{% url 'userprofile:pendapatan_agen' %}" class="item">
                 <i class="money icon"></i>
-                Detail Pendapatan
+                Profit
             </a>
             {% endif %}
-            <a href="#" class="item">
+            <!-- <a href="#" class="item">
                 <i class="mail icon"></i>
                 Mail
-            </a>
+            </a> -->
             {% if user.is_staff %}
+            <a href="{% url 'userprofile:unrecord' %}" class="item">
+                <i class="ambulance icon"></i>
+                Unrecord
+            </a>
             <a href="{% url 'userprofile:price_rajabiller' %}" class="item">
                 <i class="sync icon"></i>
                Sync Produk
@@ -63,8 +67,9 @@
                 <i class="dropdown icon"></i>
                 Sync Transaksi
                 <div class="menu">
-                    <a href="{% url 'userprofile:bulk_trx_mpulsa_check' %}" class="item">Update Pulsa</a>
-                    <a href="{% url 'userprofile:bulk_trx_mgame_check' %}" class="item">Update Game</a>
+                    <a href="{% url 'userprofile:bulk_trx_mpulsa_check' %}" class="item">Pulsa & Data</a>
+                    <a href="{% url 'userprofile:bulk_trx_mgame_check' %}" class="item">Games</a>
+                    <a href="{% url 'userprofile:bulk_trx_trasn_check' %}" class="item">Transport</a>
                 </div>
             </div>
             {% endif %}
