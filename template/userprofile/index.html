@@ -92,7 +92,29 @@ Dashboard
         </div>
     </div>
 </div>
+{% endblock %}
 
+
+{% block modal %}
+    <div user-status="{{ user.profile.email_confirmed }}" id="user_unmodal" class="ui basic small modal">
+        <div class="content">
+            <div class="ui vertical basic center aligned segment">
+                <h3 class="ui icon inverted header">
+                    <i class="telegram blue icon"></i>
+                    Telegram Activation
+                </h3>
+                <p style="font-size: 1.1rem; padding-top: 20px">
+                    Segera integrasikan apllikasi Telegram Anda ke telegram bot @warungid_bot.
+                    Kode Aktivasi Telegram telah kami email ke <strong style="color: orange">{{ user.email }}</strong>. Terimakasih  
+                </p>
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui approve centered primary basic button">Confirm</div>
+            <!-- <div class="ui button">Neutral</div>
+            <div class="ui cancel button">Cancel</div> -->
+        </div>
+    </div>
 {% endblock %}
 
 {% block js %}
@@ -106,6 +128,16 @@ Dashboard
                 Highcharts.chart('chart-1', data);
             }
         });
+
+        function usertelemodal() {
+            modelu = $('#user_unmodal');
+            if (modelu.attr('user-status')=='False'){
+                modelu.modal('show');
+            }
+            return false;
+        }
+
+        usertelemodal();
     });
 </script>
 {% endblock %}

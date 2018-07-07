@@ -397,7 +397,123 @@ def limitModifierView(request, id):
     )
     return JsonResponse(data)
         
-    
+
+
+# UPDATE BULK TRX MPULSA
+@login_required(login_url='/login/')
+def bulk_update_trx_mpulsa(request):
+    # NON RAJABILLER
+    pulsa_trx = pulsa_model.Transaksi.objects.filter(
+        status=0, responsetransaksi__serial_no='', pembukuan__closed=False
+    )
+
+    # TRX RAJABILLER
+    trx_rajabil = pulsa_model.TransaksiRb.objects.filter(
+        status=0, responsetransaksirb__sn='', pembukuan__closed=False
+    )
+
+    url_sb = settings.SIAP_URL
+    url_rb = [settings.RAJA_URL, settings.RAJA_URL2]
+
+    # BULK RAJABILLER TRX
+    for trx_p in trx_rajabil:
+        try:
+            payload = {
+                'method':'rajabiller.datatransaksi',
+                'uid': settings.RAJABILLER_ID,
+                'pin': settings.RAJABILLER_PASS,
+                'tgl1': trx_p.responsetransaksirb.waktu,
+                'tgl2': trx_p.responsetransaksirb.waktu,
+                'id_transaksi': trx_p.responsetransaksirb.ref2,
+                'id_produk': '',
+                'idpel': trx_p.phone,
+                'limit': '1'
+            }
+
+            for url in url_rb:
+                try:
+                    r = requests.post(url, data=json.dumps(payload), verify=False, headers={'Content-Type':'application/json'})
+                    if r.status_code == requests.codes.ok :
+                        rson = r.json()
+                        if rson['STATUS'] == '00':
+                            detail = rson['RESULT_TRANSAKSI'][0].split('#')
+                            pulsa_model.ResponseTransaksiRb.objects.filter(
+                                trx=trx_p
+                            ).update(
+                                ket=detail[6],
+                                sn=detail[-1],
+                                status=detail[5],
+                            )
+
+                            if trx_p.responsetransaksirb__status not in ['','00']:
+                                trx_p.status = 9
+                                trx_p.save(update_fields=['status'])
+
+                        break
+                    r.raise_for_status()
+                except:
+                    pass
+        except:
+            pass
+
+    return redirect('userprofile:index')
+
+
+# UPDATE BULK TRX GAME
+@login_required(login_url='/login/')
+def bulk_update_trx_mgame(request):
+
+    # TRX RAJABILLER
+    trx_rajabil = game_model.TransaksiRb.objects.filter(
+        status=0, responsetransaksirb__sn='', pembukuan__closed=False
+    )
+
+    url_rb = [settings.RAJA_URL, settings.RAJA_URL2]
+
+    # BULK RAJABILLER TRX
+    for trx_p in trx_rajabil:
+        try:
+            payload = {
+                'method':'rajabiller.datatransaksi',
+                'uid': settings.RAJABILLER_ID,
+                'pin': settings.RAJABILLER_PASS,
+                'tgl1': trx_p.responsetransaksirb.waktu,
+                'tgl2': trx_p.responsetransaksirb.waktu,
+                'id_transaksi': trx_p.responsetransaksirb.ref2,
+                'id_produk': '',
+                'idpel': trx_p.phone,
+                'limit': '1'
+            }
+
+            for url in url_rb:
+                try:
+                    r = requests.post(url, data=json.dumps(payload), verify=False, headers={'Content-Type':'application/json'})
+                    if r.status_code == requests.codes.ok :
+                        rson = r.json()
+                        if rson['STATUS'] == '00':
+                            detail = rson['RESULT_TRANSAKSI'][0].split('#')
+                            pulsa_model.ResponseTransaksiRb.objects.filter(
+                                trx=trx_p
+                            ).update(
+                                ket=detail[6],
+                                sn=detail[-1],
+                                status=detail[5],
+                                saldo_terpotong=detail[7]
+                            )
+
+                            if trx_p.responsetransaksirb__status not in ['','00']:
+                                trx_p.status = 9
+                                trx_p.save(update_fields=['status'])
+
+                        break
+                    r.raise_for_status()
+                except:
+                    pass
+        except:
+            pass
+
+    return redirect('userprofile:index')
+
 
 # UPDATE TRX RESPONSE
 @login_required(login_url='/login/')
@@ -427,6 +543,20 @@ def checkTrxView(request):
         "refca": ""
     }
 
+    # payload = {
+    # 'method':'rajabiller.datatransaksi',
+    # 'uid': 'SP118171',
+    # 'pin': '009988',
+    # 'tgl1': '20180707154120',
+    # 'tgl2': '20180707154120',
+    # 'id_produk': '',
+    # 'idpel': '',
+    # 'limit': '10',
+    # 'id_transaksi':'1051913619',
+    # }
+
+
+    url_rb = [settings.RAJA_URL, settings.RAJA_URL2]
     for trx_p in pulsa_trx_rajabil:
         try:
             payload = {
@@ -438,18 +568,27 @@ def checkTrxView(request):
                 'id_transaksi': trx_p.responsetransaksirb.ref2,
                 'id_produk': trx_p.responsetransaksirb.kode_produk,
                 'idpel': trx_p.phone,
-                'limit': '10'
+                'limit': '1'
             }
-            url = settings.RAJA_URL
-            r = requests.post(url, data=json.dumps(payload), verify=False, headers={'Content-Type':'application/json'})
-            rson = r.json()
 
-            pulsa_model.ResponseTransaksiRb.objects.filter(
-                trx=trx_p
-            ).update(
-                ket=rson['RESULT_TRANSAKSI'][0],
-                sn=rson['RESULT_TRANSAKSI'][0].split('#')[-1]
-            )
+            for url in url_rb:
+                try:
+                    r = requests.post(url, data=json.dumps(payload), verify=False, headers={'Content-Type':'application/json'})
+                    if r.status_code == requests.codes.ok :
+                        rson = r.json()
+
+                        pulsa_model.ResponseTransaksiRb.objects.filter(
+                            trx=trx_p
+                        ).update(
+                            ket=rson['RESULT_TRANSAKSI'][0],
+                            sn=rson['RESULT_TRANSAKSI'][0].split('#')[-1]
+                        )
+
+                        
+                        break
+                    r.raise_for_status()
+                except:
+                    pass
         except:
             pass
 
@@ -471,14 +610,7 @@ def checkTrxView(request):
                 balance=rjson.get('balance', 0),
                 refca=rjson.get('refca',''),
                 refsb=rjson.get('refsb',''),
-                # response_code=rjson.get('rc',''),
             )
-            # trxs = pulsa_model.ResponseTransaksi.objects.get(trx=trx_p)
-            # try :
-            #     trxs.response_code = rjson.get('rc','')
-            #     trxs.save(update_fields=['response_code'])
-            # except :
-            #     pass
 
             if trx_p.responsetransaksi.response_code in ['10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
                 trx_p.status = 9
@@ -506,15 +638,7 @@ def checkTrxView(request):
                 balance=rjson.get('balance', 0),
                 refca=rjson.get('refca',''),
                 refsb=rjson.get('refsb',''),
-                # response_code=rjson.get('rc',''),
             )
-
-            # trxs = trans_model.ResponseTransaksi.objects.get(trx=trx_e)
-            # try :
-            #     trxs.response_code = rjson.get('rc','')
-            #     trxs.save(update_fields=['response_code'])
-            # except :
-            #     pass
 
             if trx_e.responsetransaksi.response_code in ['10','11','12','13','20','21','30','31','32','33','34','35','36','37','50','90']:
                 trx_e.status = 9
@@ -951,3 +1075,6 @@ def trx_edit_pln_view_rajabiller(request, id):
 
 
 
+
+
+        

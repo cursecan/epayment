@@ -38,4 +38,6 @@ urlpatterns = [
     path('produk/', views.produk_View, name='produk'),
     path('payroll/', views.generate_payroll, name='payroll'),
     path('update-limit/<int:id>/update/', views.limitModifierView, name='update_limit_saldo'),
+    path('bulk/trx-mpulsa-status/', views.bulk_update_trx_mpulsa, name='bulk_trx_mpulsa_check'),
+    path('bulk/trx-mgame-status/', views.bulk_update_trx_mgame, name='bulk_trx_mgame_check'),
 ]

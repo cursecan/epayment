@@ -36,12 +36,6 @@ class ActiveProdukmanager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(active=True)
 
-# class CaraTransaksi(models.Model):
-#     nama_game = models.CharField(max_length=50)
-#     cara_transaksi = models.TextField(max_length=2000)
-
-#     def __str__(self):
-#         return self.nama_game
 
 
 class Product(models.Model):
@@ -52,7 +46,6 @@ class Product(models.Model):
     price = models.PositiveIntegerField()
     keterangan = models.CharField(max_length=200, blank=True)
     parse_text = models.CharField(max_length=200, blank=True)
-    # panduan_transaksi = models.ForeignKey(CaraTransaksi, on_delete=models.SET_NULL, blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=False)
