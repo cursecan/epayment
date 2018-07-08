@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from userprofile.models import Profile, PembukuanTransaksi
-from .serializers import ProfileSerializer, UserSerializer, PembukuanSerializer, PembukuanUpdateSerializer
+from .serializers import ProfileSerializer, UserSerializer, PembukuanSerializer, PembukuanUpdateSerializer, PiutangUserSerializer
 
 class ProfileUpdateView(RetrieveUpdateAPIView):
     # queryset = Profile.objects.all()
@@ -42,3 +42,14 @@ class PembukuanUpdateApi(UpdateAPIView):
 
     # def get(self, request, *args, **kwargs):
     #     return self.list(request, *args, **kwargs)
+
+
+class PiutangUserView(ListAPIView):
+    # queryset = Profile.objects.all()
+    serializer_class = PiutangUserSerializer
+
+    def get_queryset(self, *args, **kwargs):
+        list_user = Profile.objects.filter(
+            saldo__lte=-50000, user__is_staff=False
+        )
+        return list_user

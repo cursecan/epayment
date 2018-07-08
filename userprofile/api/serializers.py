@@ -68,3 +68,13 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_saldo(self, obj):
         return obj.profile.saldo
+
+
+class PiutangUserSerializer(serializers.ModelSerializer):
+    firstname = serializers.SerializerMethodField()
+    class Meta:
+        model = Profile
+        fields = ['saldo', 'firstname', 'telegram']
+
+    def get_firstname(self, obj):
+        return obj.user.first_name

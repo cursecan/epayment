@@ -1,7 +1,7 @@
 import sys
 import time
 import telepot
-import pendulum
+import pendulum, schedule
 import telepot.helper
 from telepot.loop import MessageLoop
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
@@ -696,17 +696,8 @@ class Epaybot(telepot.helper.ChatHandler):
         trx_record[self.id] = (self._level, self._edit_mgs_ident, self._edit_mgs_ident_2, self._code, self._keyboard)
 
 
-
-
-bot = telepot.DelegatorBot(TOKEN, [
-    include_callback_query_chat_id(
-        pave_event_space())(
-            per_chat_id(types=['private']), create_open, Epaybot, timeout=10),
-])
-
-MessageLoop(bot).run_as_thread()
-
-while 1:
+# NOTIF TOPUP SALSO
+def topup_notification():
     try :
         url = _URL + 'api/manager/unconfirm/'
         q = requests.get(url)
@@ -721,9 +712,9 @@ while 1:
             kat = i['status_type']
             tm = pendulum.parse(i['timestamp']).to_datetime_string()
             trx = i['trx']
-            pop_message = "Terimakasih Anda sudah melakukan pengisisan deposit sebesar Rp {} Nomor Resi {} pada tanggal {}. Saldo anda saat ini menjadi Rp {}".format(debit, ids, tm, saldo)
+            pop_message = "Yth Pelanggan,\nTerimakasih Anda sudah melakukan pengisisan deposit sebesar Rp {:0,.0f} Nomor Resi {} pada tanggal {}. Saldo anda saat ini menjadi Rp {:0,.0f}".format(float(debit), ids, tm, float(saldo)).replace('Rp -', '-Rp ')
             if kat == 2:
-                pop_message = "Transaksi {} gagal diproses.\nDana sudah kami refund sebesar Rp {}, saldo Anda saat ini menjadi Rp {}. Mohon maaf atas ketidaknyamananya.".format(trx, -kredit, saldo)
+                pop_message = "Yth Pelanggan,\nTransaksi {} gagal diproses.\nDana sudah kami refund sebesar Rp {:0,.0f}, saldo Anda saat ini menjadi Rp {:0,.0f}. Mohon maaf atas ketidaknyamananya.".format(trx, float(abs(kredit)), float(saldo))
             
             try :
                 url = _URL + 'api/manager/unconfirm/{}/update/'.format(ids)
@@ -735,5 +726,45 @@ while 1:
     except :
         pass
 
-    time.sleep(5)
+
+# NOTIF PIUTANG USER
+def piutang_notification():
+    try:
+        url = _URL + 'api/manager/piutang-user/'
+        q = requests.get(url)
+        qson = q.json()
+
+        for i in qson:
+            name = i.get('firstname', 'Unmane')
+            teleid = i.get('telegram', None)
+            nominal = abs(i.get('saldo', 0))
+            message = 'Yth {},\nSampai dengan saat ini tagihan Anda tercatat sebesar Rp {:0,.0f} mohon untuk segera lunasi tagihan Anda. Terimakasih.\n\nWarungid\n<i>Serasa Warung Milik Kamu Sendiri</i>'.format(
+                name.title(), float(nominal)
+            )
+
+            try :
+                bot.sendMessage(teleid, message, parse_mode='HTML')
+            except:
+                pass
+    except: 
+        pass
+
+
+bot = telepot.DelegatorBot(TOKEN, [
+    include_callback_query_chat_id(
+        pave_event_space())(
+            per_chat_id(types=['private']), create_open, Epaybot, timeout=10),
+])
+
+MessageLoop(bot).run_as_thread()
+
+# CALL TOPUP NOTIF
+schedule.every(10).seconds.do(topup_notification)
+# CALL PIUTANG NOTIF
+schedule.every().day.at("07:00").do(piutang_notification)
+
+
+while 1:
+    schedule.run_pending()
+    time.sleep(1)
 
