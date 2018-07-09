@@ -90,7 +90,7 @@ class Epaybot(telepot.helper.ChatHandler):
             saldo = rson[0]['saldo']
             name = rson[0]['first_name']
             sent = self.sender.sendMessage(
-                'Pelanggan Yth, {}\nSaldo simpanan anda saat ini Rp {}'.format(name, saldo)
+                'Pelanggan Yth, {}\nSaldo simpanan anda saat ini Rp {:0,.0f}'.format(name, float(saldo)).replace('Rp -','-Rp ')
             )
         else :
             sent = self.sender.sendMessage(
@@ -456,10 +456,10 @@ class Epaybot(telepot.helper.ChatHandler):
         if rson['code'] == 0:
             try:
                 self.sender.sendMessage(
-                    'TRANSAKSI {}\n<i>Pembelian {} dengan harga Rp {} pada nomor {} dalam process. Saldo anda saat ini adalah Rp {}.</i>'.format(
-                        rson.get('trx'), rson.get('produk'), rson.get('price'),
-                        rson.get('account_num') if rson.get('account_num',None)!=None else rson.get('phone'), rson.get('saldo')
-                    ), parse_mode='HTML'
+                    'TRANSAKSI {}\n<i>Pembelian {} dengan harga Rp {:0,.0f} pada nomor {} dalam process. Saldo anda saat ini adalah Rp {:0,.0f}.</i>'.format(
+                        rson.get('trx'), rson.get('produk'), float(rson.get('price',0)),
+                        rson.get('account_num') if rson.get('account_num',None)!=None else rson.get('phone'), float(rson.get('saldo',0))
+                    ).replace('Rp -','-Rp '), parse_mode='HTML'
                 )
             except:
                 pass
@@ -500,11 +500,12 @@ class Epaybot(telepot.helper.ChatHandler):
         result = rson.get('detail', None)
         if result:
             self.sender.sendMessage(
-                'Maaf kode yang anda masukan salah, silahkan masukan kode aktivasi dengan benar.'
+                'Maaf kode yang anda masukan salah, silahkan masukan kode aktivasi dengan benar atau daftarkan akun Anda di <a href="http://warungid.com/register/">warungid.com</a>',
+                parse_mode='HTML'
             )
         else :
             self.sender.sendMessage(
-                'Selamat, aktivasi akun anda telah berhasil. Ketik /menu untuk kembali ke menu utama, transaksi sudah dapat dilakukan.',
+                'Selamat, aktivasi akun anda telah berhasil. Ketik /menu untuk kembali ke menu utama, transaksi sudah dapat dilakukan.Kunjungi juga website kami di <a href="http://warungid.com">warungid.com</a>',
                 parse_mode='HTML'
             )
 
@@ -712,9 +713,9 @@ def topup_notification():
             kat = i['status_type']
             tm = pendulum.parse(i['timestamp']).to_datetime_string()
             trx = i['trx']
-            pop_message = "Yth Pelanggan,\nTerimakasih Anda sudah melakukan pengisisan deposit sebesar Rp {:0,.0f} Nomor Resi {} pada tanggal {}. Saldo anda saat ini menjadi Rp {:0,.0f}".format(float(debit), ids, tm, float(saldo)).replace('Rp -', '-Rp ')
+            pop_message = "Yth Pelanggan Warungid,\nTerimakasih Anda sudah melakukan pengisisan deposit sebesar Rp {:0,.0f} Nomor Resi {} pada tanggal {}. Saldo anda saat ini menjadi Rp {:0,.0f}".format(float(debit), ids, tm, float(saldo)).replace('Rp -', '-Rp ')
             if kat == 2:
-                pop_message = "Yth Pelanggan,\nTransaksi {} gagal diproses.\nDana sudah kami refund sebesar Rp {:0,.0f}, saldo Anda saat ini menjadi Rp {:0,.0f}. Mohon maaf atas ketidaknyamananya.".format(trx, float(abs(kredit)), float(saldo))
+                pop_message = "Yth Pelanggan Warungid,\nTransaksi {} gagal diproses.\nDana sudah kami refund sebesar Rp {:0,.0f}, saldo Anda saat ini menjadi Rp {:0,.0f}. Mohon maaf atas ketidaknyamananya.".format(trx, float(abs(kredit)), float(saldo))
             
             try :
                 url = _URL + 'api/manager/unconfirm/{}/update/'.format(ids)
@@ -738,7 +739,7 @@ def piutang_notification():
             name = i.get('firstname', 'Unmane')
             teleid = i.get('telegram', None)
             nominal = abs(i.get('saldo', 0))
-            message = 'Yth {},\nSampai dengan saat ini tagihan Anda tercatat sebesar Rp {:0,.0f} mohon untuk segera lunasi tagihan Anda. Terimakasih.\n\nWarungid\n<i>Serasa Warung Milik Kamu Sendiri</i>'.format(
+            message = 'Yth Pelanggan Warungid\na.n {}\n\nSampai dengan saat ini tagihan Anda tercatat sebesar Rp {:0,.0f} mohon untuk segera lunasi tagihan Anda. Terimakasih.\n\nWarungid\n<i>Serasa Warung Milik Kamu Sendiri</i>'.format(
                 name.title(), float(nominal)
             )
 
@@ -761,7 +762,7 @@ MessageLoop(bot).run_as_thread()
 # CALL TOPUP NOTIF
 schedule.every(10).seconds.do(topup_notification)
 # CALL PIUTANG NOTIF
-schedule.every().day.at("07:00").do(piutang_notification)
+schedule.every(2).day.at("10:00").do(piutang_notification)
 
 
 while 1:
