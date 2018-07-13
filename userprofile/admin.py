@@ -4,9 +4,16 @@ from django.contrib.auth.admin import UserAdmin
 from import_export.admin import ImportExportModelAdmin
 
 
-from .models import Profile, PembukuanTransaksi, CatatanModal, Payroll, UserPayment
+from .models import Profile, PembukuanTransaksi, CatatanModal, Payroll, UserPayment,SoldMarking
 from .forms import PembukuanTransaksiForm
 from .resources import PembukuanResource
+
+
+@admin.register(SoldMarking)
+class SoldMarkingAdmin(admin.ModelAdmin):
+    list_display = ['transaksi','balance', 'timestamp', 'update']
+    class Meta:
+        model = SoldMarking
 
 @admin.register(UserPayment)
 class UserPayment(admin.ModelAdmin):
@@ -53,4 +60,4 @@ class CatatanModalAdmin(admin.ModelAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdminCustom)
-# admin.site.register(Payroll)
+# admin.site.register(SoldMarking)

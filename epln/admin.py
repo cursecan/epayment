@@ -27,7 +27,18 @@ class TransaksiAdmin(ImportExportModelAdmin):
     list_filter = ['status']
     search_fields = ['trx_code', 'phone']
 
-# admin.site.register(Product)
-admin.site.register(TransaksiRb)
+
+@admin.register(TransaksiRb)
+class TransaksiRbAdmin(admin.ModelAdmin):
+    list_display = [
+        'trx_code','product', 'idpel', 'price', 'request_type',
+        'status','user','timestamp','update'
+    ]
+    list_filter = ['status']
+    search_fields = ['trx_code', 'idpel','phone']
+    class Meta:
+        model = TransaksiRb
+
+
 admin.site.register(ResponseTransaksi)
 admin.site.register(ResponseTransaksiRb)

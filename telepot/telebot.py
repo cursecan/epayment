@@ -762,7 +762,7 @@ MessageLoop(bot).run_as_thread()
 # CALL TOPUP NOTIF
 schedule.every(10).seconds.do(topup_notification)
 # CALL PIUTANG NOTIF
-schedule.every(2).day.at("10:00").do(piutang_notification)
+# schedule.every(2).days.at("10:00").do(piutang_notification)
 
 
 while 1:

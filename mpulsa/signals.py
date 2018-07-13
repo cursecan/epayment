@@ -34,15 +34,17 @@ def transaction_recording_rajabiller(sender, instance, created, update_fields, *
             'ref1':trx_code,
         }
 
+        rjson = dict()
         url = settings.RAJA_URL
-        try:
-            r = requests.post(url, data=json.dumps(data), headers={'Content-Type':'application/json'}, verify=False)
-            if r.status_code == requests.codes.ok :
-                rjson = r.json()
-            r.raise_for_status()
-        except :
-            rjson['STATUS'] = '99'
-            rjson['KET'] = 'Gagal terhubung ke server atau timeout.'
+        if not settings.DEBUG:
+            try:
+                r = requests.post(url, data=json.dumps(data), headers={'Content-Type':'application/json'}, verify=False)
+                if r.status_code == requests.codes.ok :
+                    rjson = r.json()
+                r.raise_for_status()
+            except :
+                rjson['STATUS'] = '99'
+                rjson['KET'] = 'Gagal terhubung ke server atau timeout.'
 
         response_trx_obj = ResponseTransaksiRb.objects.create(
             trx = instance,
@@ -192,15 +194,16 @@ def transaction_recording(sender, instance, created, update_fields=[], **kwargs)
 
         url = settings.SIAP_URL
         rjson = dict()
-        try :
-            r = requests.post(url, data=json.dumps(data), headers={'Content-Type':'application/json'})
-            if r.status_code == requests.codes.ok :
-                rjson = r.json()
-            r.raise_for_status()
-        except :
-            rjson['rc'] = '99'
-            rjson['info'] = 'Gagal terhubung ke server atau timeout.'
-        
+        if not settings.DEBUG:
+            try :
+                r = requests.post(url, data=json.dumps(data), headers={'Content-Type':'application/json'})
+                if r.status_code == requests.codes.ok :
+                    rjson = r.json()
+                r.raise_for_status()
+            except :
+                rjson['rc'] = '99'
+                rjson['info'] = 'Gagal terhubung ke server atau timeout.'
+            
 
         response_trx = ResponseTransaksi.objects.create(
             trx=instance,

@@ -21,7 +21,7 @@ class OperatorAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(ImportExportModelAdmin):
     form = ProductForm
-    list_display = ['id','operator','type_layanan', 'kode_internal', 'nominal', 'price','benefit','parse_text','biller', 'active']
+    list_display = ['operator','type_layanan', 'kode_internal', 'nominal', 'price','benefit','parse_text','biller', 'active']
     resource_class = ProductResource
     list_filter = ['type_layanan','operator']
     actions = [make_published]
@@ -43,8 +43,16 @@ class BillerAdmin(admin.ModelAdmin):
         model = Biller
 
 
+@admin.register(TransaksiRb)
+class TransaksiAdmin(admin.ModelAdmin):
+    list_display = ['trx_code', 'product', 'phone', 'price', 'status', 'user', 'get_response','timestamp','update']
+    list_filter = ['status']
+    search_fields = ['trx_code', 'phone']
+    class Meta:
+        model = TransaksiRb
+
+
 
 admin.site.register(ResponseTransaksiRb)
-admin.site.register(TransaksiRb)
 admin.site.register(ResponseTransaksi)
 # admin.site.register(Biller)

@@ -13,6 +13,9 @@ class Game(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ['nama_game']
+
 
     def __str__(self):
         return self.nama_game
@@ -54,8 +57,19 @@ class Product(models.Model):
     objects = models.Manager()
     active_product = ActiveProdukmanager()
 
+
+    class Meta:
+        ordering = ['developer','nominal']
+
     def __str__(self):
         return self.kode_internal
+
+
+    def benefit(self):
+        try :
+            return self.price - self.biller.price
+        except :
+            return 0
 
 
 class TransaksiRb(models.Model):

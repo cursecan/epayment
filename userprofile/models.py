@@ -218,3 +218,27 @@ class UserPayment(models.Model):
 
     def __str__(self):
         return str(self.user)
+
+
+
+class SoldMarking(models.Model):
+    transaksi = models.OneToOneField(PembukuanTransaksi, on_delete=models.CASCADE)
+    balance = models.PositiveIntegerField(default=0)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    update = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.transaksi)
+
+
+
+
+# for un in u :
+# ...  try:
+# ...   p = pt.objects.filter(user=un,status_type=9).latest('timestamp')
+# ...   if un.profile.saldo < 0:
+# ...    sm.objects.create(transaksi=p,balance=abs(un.profile.saldo))
+# ...   else:
+# ...    sm.objects.create(transaksi=p)
+# ...  except:
+# ...   pass

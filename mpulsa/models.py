@@ -35,7 +35,7 @@ class Biller(models.Model):
     biller = models.CharField(max_length=2, choices=LIST_BILLER)
 
     def __str__(self):
-        return self.biller+' / '+self.code
+        return self.biller+' / '+self.code + ' - ' + self.nama
 
 
 class ActiveProdukmanager(models.Manager):
@@ -162,6 +162,10 @@ class TransaksiRb(models.Model):
         if self.trx_code is None or self.trx_code == '':
             self.trx_code = generate_code_trx(self)
         super(TransaksiRb, self).save(*args, **kwargs)
+
+    def get_response(self):
+        r = ResponseTransaksiRb.objects.get(trx=self)
+        return r.status
 
 
 
