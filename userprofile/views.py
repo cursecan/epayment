@@ -69,19 +69,19 @@ def userindex(request):
 def unrecord_trx(requests):
     # TRX PULSA RB
     trx_pulsa = pulsa_model.TransaksiRb.objects.filter(
-        pembukuan__closed=False, status=1, responsetransaksirb__isnull=True
+        pembukuan__closed=False, status=0, responsetransaksirb__isnull=True
     )
 
     trx_transport = trans_model.TransaksiRb.objects.filter(
-        pembukuan__closed=False, status=1, responsetransaksirb__isnull=True
+        pembukuan__closed=False, status=0, responsetransaksirb__isnull=True
     )
 
     trx_game = game_model.TransaksiRb.objects.filter(
-        pembukuan__closed=False, status=1, responsetransaksirb__isnull=True
+        pembukuan__closed=False, status=0, responsetransaksirb__isnull=True
     )
 
     trx_pln = pln_model.TransaksiRb.objects.filter(
-        pembukuan__closed=False, status=1, responsetransaksirb__isnull=True, request_type='p'
+        pembukuan__closed=False, status=0, responsetransaksirb__isnull=True, request_type='p'
     )
 
 
@@ -297,7 +297,7 @@ def member_View(request):
     content = {
         'members': member_objs,
         'has_members': profile_objs.exists(),
-        'payment': userpayment_objs.aggregate(Sum('debit'))
+        'payment': userpayment_objs.aggregate(tunai=Sum('debit', filter=Q(method_payment='MN')), nonTunai=Sum('debit',filter=Q(method_payment__in=('VA','TR'))))
     }
 
     return render(request, 'userprofile/members.1.html', content)

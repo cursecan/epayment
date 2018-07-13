@@ -20,14 +20,19 @@ Data Pelanggan Warungid
                         </div>
                     </div>
                     <div class="item">
-                        User View
+                        Info Collection
                         <div class="menu">
                             <div class="item">
-                                Dana Masuk
-                                <div class="ui orange label">{{ payment.debit__sum|default_if_none:0|intcomma }}</div>
+                                Dana Tunai
+                                <div class="ui orange label">{{ payment.tunai|default_if_none:0|intcomma }}</div>
+                            </div>
+                            <div class="item">
+                                Non Tunai
+                                <div class="ui green label">{{ payment.nonTunai|default_if_none:0|intcomma }}</div>
                             </div>
                         </div>
                     </div>
+                    <div class="item active">Menu</div>
                     <a id="js-add-saldo" href="#" target-url="{% url 'userprofile:tambah_saldo2' %}" class="item">
                         <i class="add icon"></i>
                         Tambah Saldo
