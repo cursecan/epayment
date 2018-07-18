@@ -69,19 +69,19 @@ def userindex(request):
 def unrecord_trx(requests):
     # TRX PULSA RB
     trx_pulsa = pulsa_model.TransaksiRb.objects.filter(
-        pembukuan__closed=False, status=0, responsetransaksirb__isnull=True
+        status=0, responsetransaksirb__isnull=True
     )
 
     trx_transport = trans_model.TransaksiRb.objects.filter(
-        pembukuan__closed=False, status=0, responsetransaksirb__isnull=True
+        status=0, responsetransaksirb__isnull=True
     )
 
     trx_game = game_model.TransaksiRb.objects.filter(
-        pembukuan__closed=False, status=0, responsetransaksirb__isnull=True
+        status=0, responsetransaksirb__isnull=True
     )
 
     trx_pln = pln_model.TransaksiRb.objects.filter(
-        pembukuan__closed=False, status=0, responsetransaksirb__isnull=True, request_type='p'
+        status=0, responsetransaksirb__isnull=True, request_type='p'
     )
 
 

@@ -351,9 +351,10 @@ class Epaybot(telepot.helper.ChatHandler):
     # DETAIL PRODUK TOPUP
     def topup_detail_prod(self, val):
         url = _URL+'api/etrans/produk-detail/?kd='+val
+
         r = requests.get(url)
         rson = r.json()
-        info_prod = '<b>{} harga Rp {}.</b>\nKetikkan No.Handphone tujuan! (diawali angka 0).\n<i>Contoh : 081234567890</i>\nnb: klik tombol <b> "BACK" </b> di atas untuk batal transaksi.'.format(rson[0]['keterangan'], rson[0]['price'])
+        info_prod = '<b>{} harga Rp {}.</b>\n\{}\nnb: klik tombol <b> "BACK" </b> di atas untuk batal transaksi.'.format(rson[0]['keterangan'], rson[0]['price'], rson[0]['help_text'])
         sent = self.sender.sendMessage(info_prod, parse_mode='HTML')
         self._editor_2 = telepot.helper.Editor(self.bot, sent)
         self._edit_mgs_ident_2 = telepot.message_identifier(sent)

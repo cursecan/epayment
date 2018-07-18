@@ -231,14 +231,3 @@ class SoldMarking(models.Model):
         return str(self.transaksi)
 
 
-
-
-# for un in u :
-# ...  try:
-# ...   p = pt.objects.filter(user=un,status_type=9).latest('timestamp')
-# ...   if un.profile.saldo < 0:
-# ...    sm.objects.create(transaksi=p,balance=abs(un.profile.saldo))
-# ...   else:
-# ...    sm.objects.create(transaksi=p)
-# ...  except:
-# ...   pass

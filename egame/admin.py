@@ -2,6 +2,7 @@ from django.contrib import admin
 
 
 from .models import Game, Biller, Product, TransaksiRb, ResponseTransaksiRb
+from .forms import ProductForm
 
 
 @admin.register(Game)
@@ -27,8 +28,7 @@ class ProductAdmin(admin.ModelAdmin):
         'developer','kode_internal', 'keterangan', 'price', 'biller','benefit', 'active', 'timestamp'
     ]
     list_filter = ['developer']
-    class Meta:
-        model = Product
+    form = ProductForm
 
 
 @admin.register(TransaksiRb)

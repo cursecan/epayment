@@ -32,7 +32,7 @@ class Biller(models.Model):
     biller = models.CharField(max_length=2, choices=LIST_BILLER)
 
     def __str__(self):
-        return self.biller+' / '+self.code
+        return self.biller+' / '+self.code + ' - ' + self.nama
 
 
 class ActiveProdukmanager(models.Manager):
