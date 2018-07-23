@@ -17,7 +17,7 @@ from etransport import models as trans_model
 from epln import models as pln_model
 from egame import models as game_model
 from .models import PembukuanTransaksi
-from .forms import AddSaldoForm, AddSaldoNewForm, ModifyLimit
+from .forms import AddSaldoForm, AddSaldoNewForm, ModifyLimit, UserCreatorForm
 
 from .models import Profile, Payroll, UserPayment
 
@@ -63,6 +63,31 @@ def userindex(request):
     }
     return render(request, 'userprofile/index.html', content)
 
+
+# NEW USER MEMBER
+@login_required(login_url='/login/')
+def createMemberUser(request):
+    form = UserCreatorForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            Profile.objects.filter(user__username=username).update(
+                limit=-220000, profile_member=request.user.profile
+            )
+            new_user = Profile.objects.get(user__username=username)
+            subject = 'Register Warungid'
+            message = render_to_string(
+                'dashboard/register_user_email_2.html',
+                {'member': new_user}
+            )
+            new_user.user.email_user(subject, message)
+            return render(request, 'userprofile/create_member_success.html', {'member': new_user})
+
+    content = {
+        'form': form
+    }
+    return render(request, 'userprofile/create_member.html', content)
 
 # UNRECORD TRX
 @login_required(login_url='/login/')

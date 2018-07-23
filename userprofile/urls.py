@@ -31,6 +31,7 @@ urlpatterns = [
     path('usergroups/<int:id>/add-saldo/', views.tambahSaldo_view, name='tambah_saldo'),
     path('usergroups/add-saldo/', views.tambahSaldo2_view, name='tambah_saldo2'),
     path('usergroups/collectrasio/', views.colrasio_dataset, name='collect_rasio'),
+    path('usergroups/new-member/', views.createMemberUser, name='create_member'),
     path('transaction-check/', views.checkTrxView, name='checktrx'),
     path('sistemprice/', views.checkHargaView, name='price'),
     path('price-rajabiller/', views.checkHargaViewRajabiller, name='price_rajabiller'),

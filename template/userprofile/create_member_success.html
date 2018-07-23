@@ -1,0 +1,33 @@
+{% extends 'base_admin.html' %}
+{% load humanize %}
+{% load widget_tweaks %}
+
+{% block title %}
+New Member Created
+{% endblock %}
+
+{% block content %}
+<div class="ui vertical basic segment">
+    <div class="ui text container">
+        <h5 class="ui header">
+            Yth. {{ user.first_name|title }}
+        </h5>
+        <p>
+                Selamat <b>{{ member.user }}</b> telah berhasil didaftarkan sebagai member Anda. Untuk mengaktifkan user telegram
+                silahkan kunjungi bot_teleram <a href="https://t.me/warungid_bot">@warungid_bot</a>, kemudian ketikan komentar :
+        </p>
+        <h3 class="ui center aligned header">
+            /aktif {{ member.token_code }}
+        </h3>
+        <p>
+            Informasi ini bersifat rahasia, silahkan check inbox <u>{{ member.user.email }}</u> untuk mengetahui informasi lebih lanjut.
+        </p>
+        <p>
+            Terimakasih~
+            <br>
+            <br>
+            <u>Serasa Warung Milik Kamu Sendiri</u>
+        </p>
+    </div>
+</div>
+{% endblock %}

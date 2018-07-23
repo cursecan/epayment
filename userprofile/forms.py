@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 from .models import Profile, PembukuanTransaksi, UserPayment
 
+# REGULAR SINGUP FORM
 class SignUpForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, help_text='Optional.')
     last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
@@ -24,6 +25,36 @@ class SignUpForm(UserCreationForm):
 
     def clean_last_name(self):
         return self.cleaned_data.get('last_name').lower()
+
+
+# MEMBER CREATE USER
+class UserCreatorForm(UserCreationForm):
+    first_name = forms.CharField(max_length=30, help_text='Optional.')
+    last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
+    email = forms.EmailField(max_length=254, help_text='Required. Inform a valid email address.')
+
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
+
+    def clean_username(self):
+        return self.cleaned_data.get('username').lower()
+
+    def clean_email(self):
+        return self.cleaned_data.get('email').lower()
+
+    def clean_first_name(self):
+        return self.cleaned_data.get('first_name').lower()
+
+    def clean_last_name(self):
+        return self.cleaned_data.get('last_name').lower()
+
+    def clean_password1(self):
+        return 'obj09871'
+
+    def clean_password2(self):
+        return 'obj09871'
+
 
 class PembukuanTransaksiForm(forms.ModelForm):
     class Meta:
