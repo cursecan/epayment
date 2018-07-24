@@ -940,7 +940,7 @@ def trx_produk_all(request):
         v_utip = Coalesce(Sum('saldo', filter=Q(saldo__gt=0)), V(0))
     )
     
-    paginator = Paginator(publish_trx, 10)
+    paginator = Paginator(publish_trx, 5)
 
     try :
         trxs = paginator.page(page)

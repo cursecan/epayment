@@ -8,18 +8,19 @@ Detail transaksi & penjualan
 {% endblock %}
 
 {% block content %}
-<div class="ui vertical segment">
+<div class="ui basic vertical segment">
     <div class="ui fluid container">
-        <div class="ui equal width padded grid">
-            <div class="row">
+        <div class="ui horizontally padded stackable grid">
+            <!-- DESKTOP -->
+            <div class="computer only row">
                 <div class="column">
                     <div class="ui top attached segment">
                         <h5 class="ui header">Transaksi</h5>
                     </div>
                     <div class="ui attached segment">
-                        <div class="ui equal width grid">
+                        <div class="ui equal width stackable grid">
                             <div class="row">
-                                <div class="column">
+                                <div class="sixteen wide mobile five wide computer column">
                                     <form action="" class="ui form">
                                         <div class="ui action tiny input">
                                             <input type="text" placeholder="Search..." name="search">
@@ -27,7 +28,7 @@ Detail transaksi & penjualan
                                         </div>
                                     </form>
                                 </div>
-                                <div class="eleven wide column">
+                                <div class="eleven wide column computer only">
                                     <div class="ui five cards">
                                         <div class="card blue">
                                             <div class="content">
@@ -60,10 +61,10 @@ Detail transaksi & penjualan
                                                 <th>Transaksi / Produk</th>
                                                 <th>Price</th>
                                                 {% if user.is_staff %}
-                                                <th>Balance</th>
+                                                <!-- <th>Balance</th> -->
                                                 {% endif %}
                                                 <th>Status</th>
-                                                <th>Manager</th>
+                                                <!-- <th>Manager</th> -->
                                                 <th>Profit</th>
                                                 <th>Time Order</th>
                                                 <th>Action</th>
@@ -87,14 +88,14 @@ Detail transaksi & penjualan
                                                     {{ trx.kredit|intcomma }}
                                                 </td>
                                                 {% if user.is_staff %}
-                                                <td>
+                                                <!-- <td>
                                                     {{ trx.balance|intcomma }}
-                                                </td>
+                                                </td> -->
                                                 {% endif %}
                                                 <td id="td-{{ trx.get_transaksi_obj.id }}">
                                                     {{ trx.get_transaksi_obj.get_status_display }}
                                                 </td>
-                                                <td>{{ trx.user.profile.profile_member|default_if_none:'-' }}</td>
+                                                <!-- <td>{{ trx.user.profile.profile_member|default_if_none:'-' }}</td> -->
                                                 <td>{{ trx.profit|intcomma }}</td>
                                                 <td>
                                                     {{ trx.timestamp|date:"d/m/y H:i" }}
@@ -126,7 +127,7 @@ Detail transaksi & penjualan
                                             </tr>
                                             {% empty %}
                                             <tr>
-                                                <td class="center aligned" colspan="11">No data</td>
+                                                <td class="center aligned" colspan="10">No data</td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>
@@ -165,6 +166,92 @@ Detail transaksi & penjualan
                     </div>
                 </div>
             </div>
+            <!-- END DESKTOP -->
+
+            <!-- MOBILE -->
+            <div class="mobile only row">
+                <div class="sixteen wide column">
+                    <div class="ui equal width grid">
+                        <div class="column">
+                                <form action="" class="ui form">
+                                        <div class="ui action tiny input">
+                                            <input type="text" placeholder="Search..." name="search">
+                                            <button type="submit" class="ui icon button">
+                                                <i class="search icon"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                        </div>
+                        <div class="column right aligned">
+                                {% if trxs.has_other_pages %}
+                                <div class="ui small pagination menu">
+                                    {% if trxs.has_previous %}
+                                    <a href="{% relative_url trxs.previous_page_number 'page' request.GET.urlencode %}" class="item">
+                                        <span>&laquo;</span>
+                                    </a>
+                                    
+                                    {% endif %}
+                                    
+                                    {% if trxs.has_next %}
+                                    <a href="{% relative_url trxs.next_page_number 'page' request.GET.urlencode %}" class="item">
+                                            <span>&raquo;</span>
+                                    </a>
+                                    
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- <div class="ui segment">
+                        <div class="ui mini statistics">
+                            <div class="statistic orange">
+                                <div class="label">Sold</div>
+                                <div class="value">{{ laporan.v_sold|intcomma }}</div>
+                            </div>
+                            <div class="statistic green">
+                                <div class="label">Profit</div>
+                                <div class="value">{{ v_profit|floatformat:0|intcomma }}</div>
+                            </div>
+                        </div>
+                    </div> -->
+                    <div class="ui segments">
+                        {% for trx in trxs %}
+                        <div class="ui segment">
+                            <div class="ui equal width grid">
+                                <div class="column" style="color:#666">
+                                    <i class="icon user"></i> <b>{{ trx.user|title|truncatechars:13 }}</b> <br>
+                                    <b>{{ trx.customer|truncatechars:15 }}</b> <br>
+                                    <i>{{ trx.get_transaksi_obj.trx_code }}</i> <br>
+                                    {{ trx.product_label|truncatechars:18 }}
+                                </div>
+                                <div class="column right aligned">
+                                    
+                                    <h3 class="ui teal icon header">
+                                        <div class="sub header" style="text-align: right">
+                                            {{ v_profit|floatformat:0|intcomma }}
+                                        </div>
+                                        <i class="ui mini {% if trx.get_transaksi_obj.status == 9 %} red {% else %} green {% endif %} label">
+                                                {{ trx.get_transaksi_obj.get_status_display }}
+                                        </i>
+                                        {{ laporan.v_sold|intcomma }}
+                                    </h3>
+                                    <p style="font-size: 0.8rem">
+                                        <i>{{ trx.timestamp|date:"d/m/y H:i" }}</i>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="ui segment">
+
+                        </div>
+                        {% endfor %}    
+                    </div>
+                </div>
+                
+            </div>
+            <!-- END MOBILE -->
         </div>
     </div>
 </div>

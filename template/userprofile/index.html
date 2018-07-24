@@ -9,15 +9,18 @@ Dashboard
 <div class="ui vertical basic segment">
     <div class="ui fluid container">
         <div class="ui equal width padded stackable grid">
-            <!-- Main Chart -->
+            <!-- CHART -->
             <div class="row">
                 <div class="column">
                     <div class="ui basic segment" id="chart-1" data-url="{% url 'userprofile:trx_dataset' %}">
-                        <!-- chart trx -->
+                        
                     </div>
                 </div>
             </div>
-            <div class="row">
+            <!-- END CHART -->
+
+            <!-- DESKTOP -->
+            <div class="computer only row">
                 <div class="column">
                     <div class="ui inverted orange segment clearing">
                         <div class="ui grid">
@@ -88,7 +91,41 @@ Dashboard
                     </div>
                 </div>
             </div>
+            <!-- END DESKTOP -->
 
+            <!-- MOBILE -->
+            <!-- END MOBILE -->
+        </div>
+
+    </div>
+</div>
+<div class="ui horizontal segments">
+    <div class="ui segment">
+        <div class="ui mini teal statistic" style="font-size: 9px">
+            <div class="value">{{ laporan.c_trx|intcomma }}</div>
+            <div class="label">
+                Transaksi
+            </div>
+        </div>
+    </div>
+    <div class="ui segment">
+        <div class="ui mini teal statistic" style="font-size: 9px">
+            <div class="value">{{ laporan.c_trx|intcomma }}</div>
+            <div class="label">
+                Transaksi
+            </div>
+        </div>
+    </div>
+    <div class="ui segment">
+        <div class="ui mini teal statistic" style="font-size: 9px">
+            <div class="value">{{ member.c_user|intcomma }}</div>
+            <div class="label">Members</div>
+        </div>
+    </div>
+    <div class="ui segment">
+        <div class="ui mini orange statistic" style="font-size: 9px">
+            <div class="value">{{ member.v_piutang|intcomma }}</div>
+            <div class="label">Uncollect</div>
         </div>
     </div>
 </div>
