@@ -31,8 +31,8 @@ Warungid - Penjualan Pulsa & Multipayment
     <div class="ui container">
         <div class="ui large inverted secondary pointing menu">
             <a href="#" class="item active">Home</a>
-            <a href="#" class="item">Company</a>
-            <a href="#" class="item">Carrers</a>
+            <!-- <a href="#" class="item">Company</a>
+            <a href="#" class="item">Carrers</a> -->
             <div class="right item">
                 <a href="{% url 'login' %}" class="ui inverted button">Login</a>
                 <a href="{% url 'register' %}" class="ui inverted active button">Sign Up</a>
@@ -40,7 +40,7 @@ Warungid - Penjualan Pulsa & Multipayment
         </div>
     </div>
     <div class="ui container">
-        <div class="ui grid">
+        <div class="ui stackable grid">
             <div class="row" style="margin-top: 50px">
                 <div class="six wide column">
                     <img src="{% static 'images/24hour.png' %}" alt="" class="ui image">
@@ -60,15 +60,28 @@ Warungid - Penjualan Pulsa & Multipayment
 </div>
 <div class="ui vertical segment">
     <div class="ui container">
-        <div class="ui vertical clearing segment">
-            <img src="{% static 'images/phone.png' %}" alt="" class="ui image small right floated">
-            <div class="ui orange header">
-                Bagaimana Cara Transaksi?
+        <div class="ui equal width stackable grid">
+            <div class="computer only column">
+                <div class="ui vertical clearing segment">
+                    <img src="{% static 'images/phone.png' %}" alt="" class="ui small right floated image">
+                    <div class="ui orange header">
+                        Bagaimana Cara Transaksi?
+                    </div>
+                    <p style="font-size: 1.2rem">
+                        Transaksi menggunakan bot aplikasi <i class="telegram blue icon"></i> Telegram @warungid_bot.
+                        Cukup <span class="ui label green">click</span> saja dan tanpa menggunakan kode-kode transaksi manjadikan warungid lebih gampang digunakan.
+                    </p>
+                </div>
             </div>
-            <p style="font-size: 1.2rem">
-                Transaksi menggunakan bot aplikasi <i class="telegram blue icon"></i> Telegram @warungid_bot.
-                Cukup <span class="ui label green">click</span> saja dan tanpa menggunakan kode-kode transaksi manjadikan warungid lebih gampang digunakan.
-            </p>
+            <div class="column">
+                <div class="ui orange header">
+                    Bagaimana Cara Transaksi?
+                </div>
+                <p style="font-size: 1.2rem">
+                    Transaksi menggunakan bot aplikasi <i class="telegram blue icon"></i> Telegram @warungid_bot.
+                    Cukup <span class="ui label green">click</span> saja dan tanpa menggunakan kode-kode transaksi manjadikan warungid lebih gampang digunakan.
+                </p>
+            </div>
         </div>
     </div>
 </div>

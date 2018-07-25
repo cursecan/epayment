@@ -11,91 +11,159 @@ Data Pelanggan Warungid
 {% block content %}
 <div class="ui basic vertical segment">
     <div class="ui fluid container">
-        <div class="ui padded stackable grid">
-            <div class="three wide column">
-                <div class="ui vertical fluid small menu">
-                    <div class="item">
-                        <div class="ui input">
-                            <input type="text" placeholder="Search..">
-                        </div>
-                    </div>
-                    <div class="item">
-                        Info Collection
-                        <div class="menu">
-                            <div class="item">
-                                Dana Tunai
-                                <div class="ui orange label">{{ payment.tunai|default_if_none:0|intcomma }}</div>
-                            </div>
-                            <div class="item">
-                                Non Tunai
-                                <div class="ui green label">{{ payment.nonTunai|default_if_none:0|intcomma }}</div>
+        <div id="content_id" class="ui horizontally padded stackable grid">
+            <!-- COMPUTER UI -->
+            <div class="computer only row">
+                <div class="three wide column">
+                    <div class="ui vertical fluid small menu">
+                        <div class="item">
+                            <div class="ui input">
+                                <input type="text" placeholder="Search..">
                             </div>
                         </div>
+                        <div class="item">
+                            Info Collection
+                            <div class="menu">
+                                <div class="item">
+                                    Dana Tunai
+                                    <div class="ui orange label">{{ payment.tunai|default_if_none:0|intcomma }}</div>
+                                </div>
+                                <div class="item">
+                                    Non Tunai
+                                    <div class="ui green label">{{ payment.nonTunai|default_if_none:0|intcomma }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item active">Menu</div>
+                        <a href="#" target-url="{% url 'userprofile:tambah_saldo2' %}" class="item js-add-saldo">
+                            <i class="add icon"></i>
+                            Tambah Saldo
+                        </a>
+                        
+                        <a href="#" class="item">
+                            <i class="paper plane icon"></i>
+                            Send Message
+                        </a>
                     </div>
-                    <div class="item active">Menu</div>
-                    <a id="js-add-saldo" href="#" target-url="{% url 'userprofile:tambah_saldo2' %}" class="item">
-                        <i class="add icon"></i>
-                        Tambah Saldo
-                    </a>
-                    
-                    <a href="#" class="item">
-                        <i class="paper plane icon"></i>
-                        Send Message
-                    </a>
+                </div>
+                <div class="thirteen wide column">
+                    <table class="ui small celled stackable selectable table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>First Name</th>
+                                <th>Active</th>
+                                <th>Telegram</th>
+                                <th class="ui right aligned">Limit</th>
+                                <th class="ui right aligned">Saldo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in members %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ member.user }}</td>
+                                <td>{{ member.user.email }}</td>
+                                <td>{{ member.user.first_name }}</td>
+                                <td>{% if member.active %}<i class="check icon green"></i>{% else %}<i class="ban icon red"></i>{% endif %}</td>
+                                <td>{% if member.email_confirmed %}<i class="check icon green"></i>{% else %}<i class="ban icon red"></i>{% endif %}</td>
+                                <td class="ui right aligned">{{ member.limit|intcomma }} <a class="update-limit-btn" href="#" target-url="{% url 'userprofile:update_limit_saldo' member.id %}" title="Ubah limit saldo" class="ui link"><i class="flask small orange icon"></i></a></td>
+                                <td class="ui right aligned">{{ member.saldo|intcomma }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="center aligned">Data kosong</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if members.has_other_pages %}
+                        <div class="ui mini pagination menu">
+                            {% if members.has_previous %}
+                            <a href="{% relative_url members.previous_page_number 'page' request.GET.urlencode %}" class="item"><span>&laquo;</span></a>
+                            {% endif %}
+
+                            {% for i in members.paginator.page_range %}
+                                {% if members.number == i%}
+                                <div class="item active">{{ i }}</div>
+                                {% else %}
+                                <a href="{% relative_url i 'page' request.GET.urlencode %}" class="item">{{ i }}</a>
+                                {% endif %}
+                            {% endfor %}
+            
+                            {% if members.has_next %}
+                            <a href="{% relative_url members.next_page_number 'page' request.GET.urlencode %}" class="item"><span>&raquo;</span></a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
-            <div class="thirteen wide column">
-                <table class="ui small celled stackable selectable table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>First Name</th>
-                            <th>Active</th>
-                            <th>Telegram</th>
-                            <th class="right aligned">Limit</th>
-                            <th class="right aligned">Saldo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for member in members %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ member.user }}</td>
-                            <td>{{ member.user.email }}</td>
-                            <td>{{ member.user.first_name }}</td>
-                            <td>{% if member.active %}<i class="check icon green"></i>{% else %}<i class="ban icon red"></i>{% endif %}</td>
-                            <td>{% if member.email_confirmed %}<i class="check icon green"></i>{% else %}<i class="ban icon red"></i>{% endif %}</td>
-                            <td class="right aligned">{{ member.limit|intcomma }} <a class="update-limit-btn" href="#" target-url="{% url 'userprofile:update_limit_saldo' member.id %}" title="Ubah limit saldo" class="ui link"><i class="flask small orange icon"></i></a></td>
-                            <td class="right aligned">{{ member.saldo|intcomma }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="8" class="center aligned">Data kosong</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% if members.has_other_pages %}
-                    <div class="ui mini pagination menu">
-                        {% if members.has_previous %}
-                        <a href="{% relative_url members.previous_page_number 'page' request.GET.urlencode %}" class="item"><span>&laquo;</span></a>
-                        {% endif %}
+            <!-- END COMPUTER -->
 
-                        {% for i in members.paginator.page_range %}
-                            {% if members.number == i%}
-                            <div class="item active">{{ i }}</div>
-                            {% else %}
-                            <a href="{% relative_url i 'page' request.GET.urlencode %}" class="item">{{ i }}</a>
-                            {% endif %}
-                        {% endfor %}
-        
-                        {% if members.has_next %}
-                        <a href="{% relative_url members.next_page_number 'page' request.GET.urlencode %}" class="item"><span>&raquo;</span></a>
-                        {% endif %}
+            <div class="mobile only row">
+                <div class="column">
+                    <div class="ui horizontal segments">
+                        <div class="ui segment">
+                            <div class="ui mini teal statistic">
+                                <div class="label">Tunai</div>
+                                <div class="value">
+                                    {{ payment.tunai|default_if_none:0|intcomma }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui segment">
+                            <div class="ui mini teal statistic">
+                                <div class="label">Non Tunai</div>
+                                <div class="value">
+                                    {{ payment.nonTunai|default_if_none:0|intcomma }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                {% endif %}
+                    <div class="ui segment">
+                        <div class="ui comments">
+                            {% for member in members %}
+                            <div class="comment">
+                                <a href="#" class="avatar">
+                                    <img src="{% static 'images/joe.jpg' %}" alt="">
+                                </a>
+                                <div class="content">
+                                    <a href="#" class="author">{{ member.user.first_name|title }} {{ member.user.last_name|title }}</a>
+                                    <div class="metadata">
+                                        <div class="rating">
+                                            <i class="telegram {% if member.email_confirmed %} blue {% else %} red {% endif %} icon"></i>
+                                        </div>
+                                    </div>
+                                    <div class="text">
+                                        <small>Limit Rp. {{ member.limit|intcomma }}</small>
+                                        <span style="float: right;">
+                                                Rp. {{ member.saldo|intcomma }}
+                                        </span>
+                                    </div>
+                                    <div class="actions">
+                                        <a href="#" class="reply update-limit-btn" target-url="{% url 'userprofile:update_limit_saldo' member.id %}">Ubah Limit</a>
+                                        <!-- <a href="#" class="hide">Hide</a> -->
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <a href="#" target-url="{% url 'userprofile:tambah_saldo2' %}" class="ui teal js-add-saldo button"><i class="add icon"></i> Saldo Member</a>
+                    {% if members.has_other_pages %}
+                        <div class="ui mini  right floated pagination menu">
+                            {% if members.has_previous %}
+                            <a href="{% relative_url members.previous_page_number 'page' request.GET.urlencode %}" class="item"><span>&laquo;</span></a>
+                            {% endif %}            
+                            {% if members.has_next %}
+                            <a href="{% relative_url members.next_page_number 'page' request.GET.urlencode %}" class="item"><span>&raquo;</span></a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                </div>
             </div>
         </div>
     </div>
@@ -148,10 +216,9 @@ Data Pelanggan Warungid
             });
             return false;
         }
-
-
-
-        $('#js-add-saldo').on('click', loadAddsaldo);
+        
+        $('#content_id').on('click', '.js-add-saldo', loadAddsaldo);
+        
         $('#modal-form').on('submit', '.js-saldo-form', postSaldo);
 
         $('.update-limit-btn').on('click', loadAddsaldo);

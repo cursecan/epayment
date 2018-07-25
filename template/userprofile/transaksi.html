@@ -229,12 +229,12 @@ Detail transaksi & penjualan
                                     
                                     <h3 class="ui teal icon header">
                                         <div class="sub header" style="text-align: right">
-                                            {{ v_profit|floatformat:0|intcomma }}
+                                                {{ trx.profit|intcomma }}
                                         </div>
                                         <i class="ui mini {% if trx.get_transaksi_obj.status == 9 %} red {% else %} green {% endif %} label">
                                                 {{ trx.get_transaksi_obj.get_status_display }}
                                         </i>
-                                        {{ laporan.v_sold|intcomma }}
+                                        {{ trx.kredit|intcomma }}
                                     </h3>
                                     <p style="font-size: 0.8rem">
                                         <i>{{ trx.timestamp|date:"d/m/y H:i" }}</i>

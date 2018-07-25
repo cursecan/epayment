@@ -310,7 +310,7 @@ def member_View(request):
         userpayment_objs = userpayment_objs.filter(agen=request.user)
 
     
-    paginator = Paginator(profile_objs, 10)
+    paginator = Paginator(profile_objs, 5)
 
     try:
         member_objs = paginator.page(page)
