@@ -32,6 +32,11 @@ urlpatterns = [
     path('usergroups/add-saldo/', views.tambahSaldo2_view, name='tambah_saldo2'),
     path('usergroups/collectrasio/', views.colrasio_dataset, name='collect_rasio'),
     path('usergroups/new-member/', views.createMemberUser, name='create_member'),
+    path('partnership/', views.partner_View, name='partner_view'),
+    path('partnership/<int:id>/', views.get_partner_saldo, name='partner_saldo'),
+    # path('partnership/addflag/', views.partner_flag, name='partner_flag'),
+
+
     path('transaction-check/', views.checkTrxView, name='checktrx'),
     path('sistemprice/', views.checkHargaView, name='price'),
     path('price-rajabiller/', views.checkHargaViewRajabiller, name='price_rajabiller'),

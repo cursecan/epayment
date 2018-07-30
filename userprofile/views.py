@@ -16,8 +16,8 @@ from mpulsa import models as pulsa_model
 from etransport import models as trans_model
 from epln import models as pln_model
 from egame import models as game_model
-from .models import PembukuanTransaksi
-from .forms import AddSaldoForm, AddSaldoNewForm, ModifyLimit, UserCreatorForm
+from .models import PembukuanTransaksi, PembukuanPartner
+from .forms import AddSaldoForm, AddSaldoNewForm, ModifyLimit, UserCreatorForm, PembukuanPartnerForm
 
 from .models import Profile, Payroll, UserPayment
 
@@ -295,6 +295,68 @@ def produk_View(request):
         'trans_operators': t_operator,
     }
     return render(request, 'userprofile/produk.html', content)
+
+
+
+# FLAG PARTNER SALDO
+# @login_required(login_url='/login/')
+# def partner_flag(request):
+#     data = dict()
+#     form =  PembukuanPartnerForm(request.user, request.POST or None)
+#     if request.method == 'POST':
+#         if form.is_valid():
+#             instance = form.save(commit=False)
+#             instance.user_lfg = request.user
+#             instance.save()
+#             data['form_is_valid'] = True
+
+#         else :
+#             data['form_is_valid'] = False
+
+#     content = {
+#         'form': form
+#     }
+#     data['html'] = render_to_string(
+#         'userprofile/includes/partner_flag_form.html',
+#         content,
+#         request = request
+#     )
+#     return JsonResponse(data)
+
+
+
+# PARTNER
+@login_required(login_url='/login/')
+def partner_View(request):
+    form = PembukuanPartnerForm(request.user, request.POST or None)
+    partner_objs = Profile.objects.filter(
+        agen=True
+    )
+    if request.method == 'POST':
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.user_lfg = request.user
+            instance.save()
+
+    content = {
+        'partners': partner_objs,
+        'form': form,
+    }
+    return render(request, 'userprofile/agen_partner.html', content)
+
+
+@login_required(login_url='/login/')
+def get_partner_saldo(request, id):
+    data = dict()
+    profile_obj = get_object_or_404(
+        Profile, user__id=id
+    )
+    saldo = profile_obj.saldo_agen
+    if profile_obj.saldo_agen >= 0:
+        saldo = 0
+    data['saldo'] = abs(saldo)
+    return JsonResponse(data)
+
 
 
 # MEMBER LIST

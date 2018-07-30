@@ -57,6 +57,23 @@ Dashboard
                     </div>
                 </div>
                 <div class="column">
+                    <div class="ui inverted green segment">
+                        <div class="ui grid">
+                            <div class="row">
+                                <div class="column">
+                                    <div class="ui tiny inverted statistic">
+                                        <div class="value">Rp {{ user.profile.saldo_agen|intcomma }}</div>
+                                        <div class="label">Unreport</div>
+                                    </div>
+                                    <h4 class="ui icon header inverted right floated">
+                                        <i class="pound sign icon"></i>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
                     <div class="ui inverted blue segment">
                         <div class="ui grid">
                             <div class="row">
@@ -73,7 +90,7 @@ Dashboard
                         </div>
                     </div>
                 </div>
-                <div class="column">
+                <!-- <div class="column">
                     <div class="ui inverted green segment">
                         <div class="ui grid">
                             <div class="row">
@@ -89,46 +106,52 @@ Dashboard
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
             <!-- END DESKTOP -->
 
             <!-- MOBILE -->
+            <div class="mobile only row">
+                <div class="column">
+                        <div class="ui horizontal segments">
+                                <div class="ui segment">
+                                    <div class="ui mini teal statistic" style="font-size: 9px">
+                                        <div class="value">{{ laporan.c_trx|intcomma }}</div>
+                                        <div class="label">
+                                            Transaksi
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="ui segment">
+                                    <div class="ui mini teal statistic" style="font-size: 9px">
+                                        <div class="value">{{ member.c_user|intcomma }}</div>
+                                        <div class="label">Members</div>
+                                    </div>
+                                </div>
+                                <div class="ui segment">
+                                    <div class="ui mini orange statistic" style="font-size: 9px">
+                                        <div class="value">{{ user.profile.saldo_agen|intcomma }}</div>
+                                        <div class="label">
+                                            Unreport
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="ui segment">
+                                    <div class="ui mini orange statistic" style="font-size: 9px">
+                                        <div class="value">{{ member.v_piutang|intcomma }}</div>
+                                        <div class="label">Uncollect</div>
+                                    </div>
+                                </div>
+                            </div>
+                </div>
+            </div>
             <!-- END MOBILE -->
         </div>
 
     </div>
 </div>
-<div class="ui horizontal segments">
-    <div class="ui segment">
-        <div class="ui mini teal statistic" style="font-size: 9px">
-            <div class="value">{{ laporan.c_trx|intcomma }}</div>
-            <div class="label">
-                Transaksi
-            </div>
-        </div>
-    </div>
-    <div class="ui segment">
-        <div class="ui mini teal statistic" style="font-size: 9px">
-            <div class="value">{{ laporan.c_trx|intcomma }}</div>
-            <div class="label">
-                Transaksi
-            </div>
-        </div>
-    </div>
-    <div class="ui segment">
-        <div class="ui mini teal statistic" style="font-size: 9px">
-            <div class="value">{{ member.c_user|intcomma }}</div>
-            <div class="label">Members</div>
-        </div>
-    </div>
-    <div class="ui segment">
-        <div class="ui mini orange statistic" style="font-size: 9px">
-            <div class="value">{{ member.v_piutang|intcomma }}</div>
-            <div class="label">Uncollect</div>
-        </div>
-    </div>
-</div>
+
+
 {% endblock %}
 
 

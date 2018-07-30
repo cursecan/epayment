@@ -25,9 +25,13 @@
         {% block css %}{% endblock %}
     </head>
     <body>
-        {% include 'header.html' %}
-        {% block content %}
-        {% endblock %}
+        {% include 'hidden_header.html' %}
+        {% include 'front_sidebar.html' %}
+        <div class="pusher">
+            {% block content %}
+            {% endblock %}
+            {% include 'footer.html' %}
+        </div>
 
         {% block modal %}
         {% endblock %}

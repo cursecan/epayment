@@ -1,0 +1,164 @@
+{% extends 'base_admin.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}
+Partner List
+{% endblock %}
+
+
+{% block js %}
+<script>
+    $(document).ready(function() {
+        // var loadform = function() {
+        //     var btn = $(this);
+        //     $.ajax({
+        //         url : btn.attr('target-url'),
+        //         dataType: 'json',
+        //         beforeSend: function(){
+        //             $('#modal-form').modal('show');
+        //         }, success: function(data) {
+        //             $('#modal-form').html(data.html);
+        //         }
+
+        //     });
+        //     return false;
+        // }
+
+        // var postflag = function() {
+        //     var form = $(this);
+        //     $.ajax({
+        //         url: form.attr('action'),
+        //         type: form.attr('method'),
+        //         dataType: 'json',
+        //         data: form.serialize(),
+        //         success: function(data) {
+        //             if (data.form_is_valid) {
+        //                 $('#modal-form').modal('hide');
+        //             }
+        //         }
+        //     });
+        //     return false;
+        // }
+
+        var getsaldo = function() {
+            var field = $(this);
+            $.ajax({
+                url: "/dashboard/partnership/"+field.val(),
+                dataType: 'json',
+                success: function(data){
+                    $('#id_nominal').val(data.saldo);
+                }
+            });
+            return false;
+        }
+
+        $('#id_partner').on('change', getsaldo);
+
+        // $('.js-flag-agent').on('click', loadform);
+        // $('#modal-form').on('submit', '.js-flag-partner-form', postflag)
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="ui vertical basic segment">
+    <div class="ui fluid container">
+        <div class="ui stackable horizontally padded grid">
+            <div class="row">
+                <div class="four wide column">
+                    <div class="ui vertical fluid small menu">
+                        <div class="item">
+                            <h5 class="ui header">
+                                Marking Collection
+                            </h5>
+                        </div>
+                        <div class="item">
+                            <form action="" method="post" class="ui small form">
+                                {% csrf_token %}
+                                <div class="field">
+                                    <label for="{{ form.partner.id_for_label }}">User Partner</label>
+                                    {{ form.partner }}
+                                </div>
+                                <div class="field">
+                                    <label for="{{ form.nominal.id_for_label }}">Nominal</label>
+                                    {{ form.nominal }}
+                                </div>
+                                <button class="ui orange button" type="submit">Confirm</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="twelve wide mobile only column">
+                    <div class="ui segment">
+                        <div class="ui comments">
+                            {% for partner in partners %}
+                            <div class="comment">
+                                <a href="#" class="avatar">
+                                    <img src="{% static 'images/joe.jpg' %}" alt="">
+                                </a>
+                                <div class="content">
+                                    <a href="#" class="author">{{ partner.user.first_name|title }} {{ partner.user.last_name|title }}</a>
+                                    <div class="metadata">
+                                        <div class="member">
+                                            <i class="users icon"></i> {{ partner.c_anggota }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text">
+                                        <small>Salary Rp. {{ partner.last_salary.salary|intcomma }}</small>
+                                        <span style="float: right;">
+                                            Rp. {{ partner.saldo_agen|intcomma }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="twelve wide computer only column">
+                    <table class="ui sriped celled small table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Partner</th>
+                                <th>Saldo Partner</th>
+                                <th>Uncollect Money</th>
+                                <th>Progress Profit</th>
+                                <th>Profit</th>
+                                <th>Anggota</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for partner in partners %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <div class="meta">
+                                        <small>{{ partner.user }}</small>
+                                    </div>
+                                    {{ partner.user.first_name|title }} {{ partner.user.last_name|title }}
+                                   
+                                </td>
+                                <td>{{ partner.saldo_agen|intcomma }}</td>
+                                <td>{{ partner.uncollect|intcomma }}</td>
+                                <td>{{ partner.trx_profit|intcomma }}</td>
+                                <td>{{ partner.last_salary.salary|intcomma }}</td>
+                                <td>{{ partner.c_anggota }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modal %}
+    <div id="modal-form" class="ui tiny modal">
+        <!-- Modal kontent -->
+    </div>
+{% endblock %}

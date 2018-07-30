@@ -6,107 +6,171 @@ Warungid - Penjualan Pulsa & Multipayment
 {% endblock %}
 
 {% block css %}
-<style type="text/css">
-    .hidden.menu {
-      display: none;
-    }
-
-    .methead.segment {
-        min-height: 100vh;
+<link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Dancing+Script|Lobster" rel="stylesheet">
+<style>
+    .masthead.segment {
+        height: 100vh;
         padding: 1em 0em;
+        background-color:#00d0d0 !important;
     }
-
-    .methead.segment .pointing.menu {
-        border: none;
+    .masthead .ui.menu {
+        border-color: transparent !important;
     }
-
-    .methead.segment .ui.menu .ui.button {
-        margin-left: 0.5em;
+    .masthead .ui.menu .ui.button {
+        margin-left: 1em;
     }
-  </style>
+    .secondary.pointing.menu .toc.item {
+        display: none;
+    }
+    .ui.vertical.stripe {
+        padding: 8em 0em;
+    }
+    .ui.vertical.stripe h3 {
+        font-size: 2em;
+    }
+    .ui.vertical.stripe p {
+        font-size: 1.33em;
+    }
+    .quote.stripe.segment {
+        padding: 0em;
+    }
+    .quote.stripe.segment .grid .column {
+        padding-top: 5em;
+        padding-bottom: 5em;
+    }
+    .footer.segment {
+        padding: 5em 0em;
+    }
+    .jumbotext.container {
+        margin-top: 7em;
+    }
+    .jumbotext  .ui.header {
+        font-family: 'Lobster', cursive;
+        /* font-family: 'Dancing Script', cursive; */
+        font-size: 3em !important;
+    }
+    .jumbotext p {
+        font-family: 'Lobster', cursive;
+        /* font-family: 'Dancing Script', cursive; */
+        font-size: 1.4em !important;
+    }
+    .btntext {
+        margin-top: 3em !important;
+    }
+    .btntext .ui.button {
+        margin-top: 1.2em;
+    }
+    @media only screen and (max-width: 700px) {
+        .ui.fixed.menu {
+            display: none !important;
+        }
+        .secondary.pointing.menu .item,
+        .secondary.pointing.menu .menu {
+            display: none;
+        }
+        .secondary.pointing.menu .toc.item {
+            display: block;
+        }
+        .masthead.segment {
+            min-height: 350px;
+        }
+        .masthead h1.ui.header {
+            font-size: 2em;
+            margin-top: 1.5em;
+        }
+        .masthead h2 {
+            margin-top: 0.5em;
+            font-size: 1.5em;
+        }
+    }
+</style>
 {% endblock %}
 
+{% block js %}
+<script>
+    $(document)
+    .ready(function() {
+
+      // fix menu when passed
+      $('.masthead')
+        .visibility({
+          once: false,
+          onBottomPassed: function() {
+            $('.fixed.menu').transition('fade in');
+          },
+          onBottomPassedReverse: function() {
+            $('.fixed.menu').transition('fade out');
+          }
+        })
+      ;
+
+      // create sidebar and attach to menu open
+      $('.ui.sidebar')
+        .sidebar('attach events', '.toc.item')
+      ;
+
+    })
+  ;
+</script>
+{% endblock %}
+
+
+
 {% block content %}
-<div class="ui vertical inverted methead teal center aligned segment">
+<div class="ui inverted vertical center aligned masthead segment">
     <div class="ui container">
-        <div class="ui large inverted secondary pointing menu">
+        <div class="ui large secondary inverted pointing menu">
+            <a href="#" class="toc item">
+                <i class="sidebar icon"></i>
+            </a>
             <a href="#" class="item active">Home</a>
-            <!-- <a href="#" class="item">Company</a>
-            <a href="#" class="item">Carrers</a> -->
+            <a href="#" class="item">Company</a>
+            <a href="#" class="item">About Us</a>
             <div class="right item">
                 <a href="{% url 'login' %}" class="ui inverted button">Login</a>
-                <a href="{% url 'register' %}" class="ui inverted active button">Sign Up</a>
+                <a href="{% url 'register' %}" class="ui inverted button">Daftar</a>
             </div>
         </div>
     </div>
-    <div class="ui container">
-        <div class="ui stackable grid">
-            <div class="row" style="margin-top: 50px">
-                <div class="six wide column">
-                    <img src="{% static 'images/24hour.png' %}" alt="" class="ui image">
-                </div>
-                <div class="ten wide left aligned column">
-                    <h1 class="ui inverted header">
-                        Melayani Penjualan
-                    </h1>
-                    <p style="font-size: 1.4rem">
-                        Pulsa All Operator dan Produk Online lainya selama 24 Jam
-                    </p>
-                    
-                </div>
+    <div class="ui text middle aligned jumbotext container">
+        <h1 class="ui inverted header">
+            Warungid
+        </h1>
+        <p>Serasa Warung Milik Kamu Sendiri</p>
+    </div>
+    <div class="ui padded text container teal inverted btntext segment">
+        Melayani penjualan Pulsa & Data All Operator, Elektronik Payment, Voucher Game, Token Listrik, dan Lain-lain
+        <div class="ui grid">
+            <div class="column">
+                <a href="{% url 'register' %}" class="ui huge orange button">Coba Sekarang <i class="right arrow icon"></i></a>
             </div>
         </div>
     </div>
 </div>
-<div class="ui vertical segment">
-    <div class="ui container">
-        <div class="ui equal width stackable grid">
-            <div class="computer only column">
-                <div class="ui vertical clearing segment">
-                    <img src="{% static 'images/phone.png' %}" alt="" class="ui small right floated image">
-                    <div class="ui orange header">
-                        Bagaimana Cara Transaksi?
-                    </div>
-                    <p style="font-size: 1.2rem">
-                        Transaksi menggunakan bot aplikasi <i class="telegram blue icon"></i> Telegram @warungid_bot.
-                        Cukup <span class="ui label green">click</span> saja dan tanpa menggunakan kode-kode transaksi manjadikan warungid lebih gampang digunakan.
-                    </p>
-                </div>
-            </div>
-            <div class="column">
-                <div class="ui orange header">
-                    Bagaimana Cara Transaksi?
-                </div>
-                <p style="font-size: 1.2rem">
-                    Transaksi menggunakan bot aplikasi <i class="telegram blue icon"></i> Telegram @warungid_bot.
-                    Cukup <span class="ui label green">click</span> saja dan tanpa menggunakan kode-kode transaksi manjadikan warungid lebih gampang digunakan.
+<div class="ui vertical stripe segment">
+    <div class="ui middle aligned stackable grid container">
+        <div class="row">
+            <div class="eleven wide column">
+                <h3 class="ui header">Mengapa Bergabung Bersama Kami?</h3>
+                <p>
+                    Kami adalah satu-satunya penyedia jasa penjualan & pembayaran elektronik pertama di Indonesia yang menerapkan tanpa pengisian saldo awal untuk member baru yang didaftarkan oleh Partner Warungid.
+                </p>
+                <h3 class="ui header">Bagaimana Melakukan Transaksi?</h3>
+                <p>
+                    Transaksi dilakukan menggunakan layanan aplikasi Bot Telegram <a target="_blank" href="http://telegram.me/warungid_bot"><i class="telegram icon"></i> @warungid_bot</a>
                 </p>
             </div>
+            <div class="three wide computer only column">
+                <img src="{% static 'images/phone.png' %}" class="ui image">
+            </div>
         </div>
-    </div>
-</div>
-<div id="footer" class="ui vertical inverted segment">
-    <div class="ui fluid container">
-        <div class="ui padded two column equal width grid">
-            <div class="row">
-                <div class="column">
-                    <h4 class="ui inverted header">
-                        Warungid.Com
-                    </h4>
-                    <div class="ui icon list">
-                        <div class="item">
-                            <i class="phone icon">
-                            </i>
-                            Phone 0822-16418455, 0813-15667766
-                        </div>
-                        <div class="item">
-                            <i class="telegram icon"></i>
-                            Bot Telegram @warungid_bot
-                        </div>
-                    </div>
-                </div>
+        <div class="row">
+            <div class="center aligned column">
+                <a href="{% url 'register' %}" class="ui huge button">Check Them Out</a>
             </div>
         </div>
     </div>
 </div>
+
 {% endblock %}

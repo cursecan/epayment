@@ -65,6 +65,10 @@
                 Mail
             </a> -->
             {% if user.is_staff %}
+            <a href="{% url 'userprofile:partner_view' %}" class="item">
+                <i class="group icon"></i>
+                Partner
+            </a>
             <a href="{% url 'userprofile:unrecord' %}" class="item">
                 <i class="ambulance icon"></i>
                 Unrecord

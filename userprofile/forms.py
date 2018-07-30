@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import Profile, PembukuanTransaksi, UserPayment
+from .models import Profile, PembukuanTransaksi, UserPayment, PembukuanPartner
 
 # REGULAR SINGUP FORM
 class SignUpForm(UserCreationForm):
@@ -91,3 +91,23 @@ class ModifyLimit(forms.ModelForm):
         if limit > 0:
             limit = -limit
         return limit
+
+class PembukuanPartnerForm(forms.ModelForm):
+    class Meta:
+        model = PembukuanPartner
+        fields = [
+            'partner', 'nominal'
+        ]
+
+    def __init__(self, user, *args, **kwargs):
+        super(PembukuanPartnerForm, self).__init__(*args, **kwargs)
+        if user.is_staff:
+            self.fields['partner'].queryset = User.objects.filter(profile__agen=True)
+        # else:
+        #     self.fields['partner'].queryset = None
+
+    def clean_nominal(self):
+        nominal = self.cleaned_data.get('nominal', 0)
+        if nominal <= 0 :
+            raise forms.ValidationError('Nominal harus positif.')
+        return nominal

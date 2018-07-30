@@ -1,0 +1,20 @@
+{% load humanize %}
+<i class="close icon"></i>
+<div class="ui vertical header inverted blue segment">
+    <h3 class="ui inverted header">
+        <i class="icon plus"></i>
+        <div class="content">
+            Form Tambah Saldo
+            <div class="sub header">
+                Agen {{ user }}
+            </div>
+        </div>
+    </h3>
+</div>
+<div class="ui vertical content clearing segment ">
+    <form class="ui form js-flag-partner-form" action="{% url 'userprofile:partner_flag' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="ui right floated positive button" type="submit"><i class="plus icon"></i> Tambah Saldo</button>
+    </form>
+</div>

@@ -1,7 +1,12 @@
 from django.db import models
+from django.db.models import Sum, Value as V, Q, F
+from django.db.models.functions import Coalesce
+
+from datetime import datetime
 
 from django.contrib.auth.models import User
 from .utils import get_init_profcode
+
 
 
 class GetActiveProfile(models.Manager):
@@ -14,6 +19,7 @@ class Profile(models.Model):
     phone = models.CharField(max_length=25, blank=True)
     telegram = models.CharField(max_length=25, blank=True)
     saldo = models.IntegerField(default=0)
+    saldo_agen = models.IntegerField(default=0)
     active = models.BooleanField(default=False)
     agen = models.BooleanField(default=False)
     email_confirmed = models.BooleanField(default=False)
@@ -34,6 +40,50 @@ class Profile(models.Model):
         if self.token_code is None or self.token_code == '':
             self.token_code = get_init_profcode(self)
         super(Profile, self).save(*args, **kwargs)
+
+    def uncollect(self):
+        uncoll = Profile.objects.filter(
+            profile_member=self
+        ).aggregate(
+            rp = Coalesce(Sum('saldo', filter=Q(saldo__lt=0)), V(0))
+        )
+        return abs(uncoll['rp'])
+
+
+    def trx_profit(self):
+        trx_obj = PembukuanTransaksi.unclosed_book.filter(
+            user__profile__profile_member=self
+        ).aggregate(
+            v_penjualan = Coalesce(Sum('kredit', filter=Q(status_type=9)), V(0)),
+            v_beli = Coalesce(Sum('transaksi__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + 
+            Coalesce(Sum('bukutrans__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + 
+            Coalesce(Sum('bukupln__responsetransaksi__price', filter=Q(status_type=9)), V(0)) + 
+            Coalesce(Sum('mpulsa_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) +
+            Coalesce(Sum('epln_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0)) + 
+            Coalesce(Sum('etrans_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))  +
+            Coalesce(Sum('egame_rbbuku_transaksi__responsetransaksirb__saldo_terpotong', filter=Q(status_type=9)), V(0))
+        )
+        profit = trx_obj['v_penjualan'] - trx_obj['v_beli']
+        if self.user.is_staff:
+            profit *= 0.8
+        return profit
+
+    
+    def last_salary(self):
+        try :
+            sall = Payroll.objects.filter(
+                agen = self.user
+            ).latest()
+            # print(sall)
+        except :
+            sall = None
+        finally:
+            return sall
+
+    def c_anggota(self):
+        return Profile.objects.filter(
+            profile_member = self
+        ).count()
 
 
 class UncloseBook(models.Manager):
@@ -91,7 +141,7 @@ class PembukuanTransaksi(models.Model):
         except Exception as e:
             return None
 
-    
+    @property
     def harga_beli(self):
         try:
             if hasattr(self, 'transaksi'):
@@ -196,10 +246,13 @@ class Payroll(models.Model):
     uncollect = models.PositiveIntegerField(default=0)
     salary = models.PositiveIntegerField(default=0)
     complete = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(default=datetime.now)
+
+    class Meta:
+        get_latest_by = 'timestamp'
 
     def __str__(self):
         return str(self.agen)
-
 
 
 class UserPayment(models.Model):
@@ -229,5 +282,24 @@ class SoldMarking(models.Model):
 
     def __str__(self):
         return str(self.transaksi)
+
+
+class PembukuanPartner(models.Model):
+    partner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='partner')
+    user_lfg = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flg')
+    nominal = models.PositiveIntegerField()
+    flag = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    update = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        get_latest_by = 'timestamp'
+
+    def __str__(self):
+        return str(self.nominal)
+
+    
+
+
 
 
